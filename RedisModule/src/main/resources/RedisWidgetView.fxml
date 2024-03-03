@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+<AnchorPane fx:id="mainAnchorPane" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.999-ea"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.xtool.opencgl.controller.RedisWidgetController">
+    <BorderPane AnchorPane.bottomAnchor="5" AnchorPane.leftAnchor="5" AnchorPane.rightAnchor="5"
+                AnchorPane.topAnchor="5">
+        <top>
+            <VBox spacing="10" prefHeight="190.0" prefWidth="890.0" BorderPane.alignment="CENTER">
+                <HBox spacing="10" prefHeight="41.0" prefWidth="600.0">
+                    <Label prefHeight="30.0" prefWidth="124.0" text="Redis集群地址:"/>
+                    <MFXTextField fx:id="clusterRedisAdress" prefHeight="30.0" prefWidth="437.0"
+                                  text="172.16.25.100:28003,172.16.25.100:28004,172.16.25.101:28003,172.16.25.101:28004">
+                    </MFXTextField>
+                    <Label prefHeight="15.0" prefWidth="23.0"/>
+                    <MFXButton fx:id="connectButton" buttonType="RAISED" prefHeight="30.0" prefWidth="52.0"
+                               text="连接" wrapText="true"/>
+                    <MFXButton fx:id="disconnectButton" buttonType="RAISED" prefHeight="30.0" prefWidth="52.0"
+                               text="断开" wrapText="true"/>
+                </HBox>
+                <HBox prefHeight="50.0" prefWidth="600.0">
+                    <Label prefHeight="30.0" prefWidth="31.0" text="KEY:"/>
+                    <MFXTextField fx:id="keypattern" prefHeight="30.0" prefWidth="265.0"/>
+                    <Label prefHeight="30.0" prefWidth="23.0"/>
+                    <MFXButton fx:id="queryKeyValueButton" prefHeight="30.0" prefWidth="106.0"
+                               text="查询KEY值"/>
+                    <MFXButton fx:id="deleteKeyButton" prefHeight="30.0" prefWidth="118.0" text="删除KEY值"/>
+                    <MFXButton fx:id="queryPatternKeyButton" prefHeight="30.0" prefWidth="132.0"
+                               text="模糊获取KEY" textAlignment="RIGHT"/>
+                </HBox>
+                <HBox prefHeight="50.0" prefWidth="600.0">
+                    <children>
+                        <Label prefHeight="30.0" prefWidth="95.0" text="KEY&amp;Value:"/>
+                        <MFXTextField fx:id="setKey" prefHeight="30.0" prefWidth="187.0"/>
+                        <Label prefHeight="30.0" prefWidth="23.0" text="  =" textAlignment="CENTER"/>
+                        <MFXTextField fx:id="setValue" prefHeight="30.0" prefWidth="187.0"/>
+                        <Label prefHeight="30.0" prefWidth="23.0"/>
+                        <MFXButton fx:id="setKeyAndValueButton" prefHeight="30.0" prefWidth="179.0"
+                                   text="设置KEY和Value"/>
+                    </children>
+                </HBox>
+                <HBox prefHeight="50.0" prefWidth="600.0">
+                    <children>
+                        <Label prefHeight="30.0" prefWidth="121.0" text="HASH-KEY:"/>
+                        <MFXTextField fx:id="hashKey" prefHeight="30.0" prefWidth="187.0"/>
+                        <Label prefHeight="30.0" prefWidth="156.0" text="MAP-KEY&amp;Value:"/>
+                        <MFXTextField fx:id="hashMapKey" prefHeight="30.0" prefWidth="187.0"/>
+                        <Label prefHeight="30.0" prefWidth="67.0" text="  =" textAlignment="CENTER"/>
+                        <MFXTextField fx:id="hashMapValue" prefHeight="30.0" prefWidth="187.0"/>
+                        <Label prefHeight="30.0" prefWidth="23.0"/>
+                        <MFXButton fx:id="hgetButton" prefHeight="30.0" prefWidth="132.0" text="HGET-ALL"
+                                   textAlignment="RIGHT"/>
+                        <MFXButton fx:id="hsetButton" prefHeight="30.0" prefWidth="132.0" text="HSET"
+                                   textAlignment="RIGHT"/>
+                        <MFXButton fx:id="hdelButton" prefHeight="30.0" prefWidth="132.0" text="HDEL"
+                                   textAlignment="RIGHT"/>
+                    </children>
+                </HBox>
+                <VBox.margin>
+
+                    <Insets bottom="10"/>
+                </VBox.margin>
+            </VBox>
+        </top>
+        <center>
+            <TextArea fx:id="resultDetail" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER"/>
+        </center>
+    </BorderPane>
+</AnchorPane>

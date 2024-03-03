@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
+<?import com.opencgl.base.controls.CustomTextArea?>
+<?import org.fxmisc.flowless.VirtualizedScrollPane?>
+<StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.xtool.opencgl.controller.MmlWidgetController">
+    <BorderPane fx:id="contentBorderPane" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
+                AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+        <top>
+            <VBox fx:id="operateTopVbox" spacing="1.0" style="-fx-background-color:WHITE" BorderPane.alignment="CENTER">
+                <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-background-color:WHITE">
+                    <MFXButton fx:id="refreshButton" buttonType="RAISED" onMouseClicked="#refreshLabelAction"
+                               prefHeight="30.0" prefWidth="10.0"/>
+                    <MFXButton fx:id="copyButton" buttonType="RAISED" onMouseClicked="#copyLabelAction"
+                               prefHeight="30.0" prefWidth="10.0"/>
+                    <MFXButton fx:id="saveButton" buttonType="RAISED" onMouseClicked="#saveLabelAction"
+                               prefHeight="30.0" prefWidth="10.0"/>
+                    <MFXTextField fx:id="userTextField"
+                                  promptText="用户名" style="-fx-prompt-text-fill:rgba(63,75,77,0.39)"
+                                  prefWidth="100.0">
+                    </MFXTextField>
+                    <MFXTextField fx:id="passTextField"
+                                  promptText="密码" style="-fx-prompt-text-fill:rgba(63,75,77,0.39)"
+                                  prefWidth="100.0">
+                    </MFXTextField>
+                    <MFXTextField fx:id="ipTextField"
+                                  promptText="IP地址" style="-fx-prompt-text-fill:rgba(63,75,77,0.39)"
+                                  HBox.hgrow="ALWAYS" prefWidth="300.0">
+                    </MFXTextField>
+                    <MFXTextField fx:id="portTextField"
+                                  promptText="端口" style="-fx-prompt-text-fill:rgba(63,75,77,0.39)"
+                                  prefWidth="100.0">
+                    </MFXTextField>
+                    <MFXButton fx:id="sendButton" buttonType="RAISED" onMouseClicked="#sendLabelAction"
+                               prefHeight="30.0" prefWidth="40.0"/>
+                    <HBox.margin>
+                        <Insets right="10.0"/>
+                    </HBox.margin>
+                    <VBox.margin>
+                        <Insets bottom="5.0" top="5.0"/>
+                    </VBox.margin>
+                </HBox>
+            </VBox>
+        </top>
+        <center>
+            <StackPane fx:id="contentStackPane">
+                <SplitPane dividerPositions="0.5">
+                    <AnchorPane minHeight="0.0" minWidth="0.0">
+                        <VirtualizedScrollPane AnchorPane.bottomAnchor="0"
+                                               AnchorPane.leftAnchor="0"
+                                               AnchorPane.rightAnchor="0"
+                                               AnchorPane.topAnchor="0">
+                            <content>
+                                <CustomTextArea fx:id="inputTextArea"/>
+                            </content>
+                        </VirtualizedScrollPane>
+
+
+                    </AnchorPane>
+                    <AnchorPane minHeight="0.0" minWidth="0.0">
+                        <VirtualizedScrollPane AnchorPane.bottomAnchor="0"
+                                               AnchorPane.leftAnchor="0"
+                                               AnchorPane.rightAnchor="0"
+                                               AnchorPane.topAnchor="0">
+                            <content>
+                                <CustomTextArea wrapText="true" fx:id="outputTextArea"/>
+                            </content>
+                        </VirtualizedScrollPane>
+                    </AnchorPane>
+                </SplitPane>
+            </StackPane>
+        </center>
+    </BorderPane>
+</StackPane>

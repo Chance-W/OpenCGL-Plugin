@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.xtool.opencgl.controller.SoapWidgetController">
+    <BorderPane fx:id="contentBorderPane" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
+                AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+        <top>
+            <VBox fx:id="operateTopVbox" spacing="1.0" style="-fx-background-color:WHITE" BorderPane.alignment="CENTER">
+                <HBox alignment="CENTER_LEFT" spacing="2.0" style="-fx-background-color:WHITE">
+                    <JFXButton fx:id="sendButton" buttonType="RAISED" onMouseClicked="#sendLabelAction"
+                               prefHeight="30.0" prefWidth="10.0"/>
+                    <JFXButton fx:id="refreshButton" buttonType="RAISED" onMouseClicked="#refershLabelAction"
+                               prefHeight="30.0" prefWidth="10.0"/>
+                    <JFXButton fx:id="saveButton" buttonType="RAISED" onMouseClicked="#saveLabelAction"
+                               prefHeight="30.0" prefWidth="10.0"/>
+                    <JFXButton fx:id="settingButton" buttonType="RAISED" onMouseClicked="#settingLabelAction"
+                               prefHeight="30.0" prefWidth="10.0"/>
+                    <JFXComboBox fx:id="chooseIntComboBox" editable="true" labelFloat="true" prefHeight="30"
+                                 prefWidth="500.0" promptText="请选择请求地址"
+                                 style="-fx-prompt-text-fill:rgba(63,75,77,0.39)"
+                                 unFocusColor="#4d4d4d35" HBox.hgrow="ALWAYS">
+                    </JFXComboBox>
+                    <padding>
+                        <Insets left="10.0" top="10"/>
+                    </padding>
+                    <HBox.margin>
+                        <Insets right="10.0"/>
+                    </HBox.margin>
+                    <VBox.margin>
+                        <Insets bottom="5.0" top="5.0"/>
+                    </VBox.margin>
+                </HBox>
+            </VBox>
+        </top>
+        <center>
+            <StackPane>
+                <SplitPane dividerPositions="0.5">
+                    <AnchorPane>
+                        <JFXTextArea fx:id="inputTextArea" wrapText="true" style="overflow:visible;"
+                                     AnchorPane.bottomAnchor="0"
+                                     AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0"/>
+                    </AnchorPane>
+                    <AnchorPane>
+                        <JFXTextArea fx:id="outputTextArea" AnchorPane.bottomAnchor="0"
+                                     AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0"/>
+                    </AnchorPane>
+                </SplitPane>
+            </StackPane>
+        </center>
+    </BorderPane>
+</StackPane>

@@ -1,0 +1,48 @@
+package com.opencgl.dubbo.i18n;
+
+import java.util.Locale;
+
+import org.apache.commons.lang.StringUtils;
+
+public enum Language {
+    ARABIC(Locale.forLanguageTag("ar")),
+    CZECH(Locale.forLanguageTag("cs-cz")),
+    ENGLISH(Locale.ENGLISH),
+    FRENCH(Locale.FRENCH),
+    ITALIANO(Locale.ITALIAN),
+    RUSSIAN(Locale.forLanguageTag("ru")),
+    SIMPLIFIED_CHINESE(Locale.SIMPLIFIED_CHINESE),
+    SPANISH(Locale.forLanguageTag("es")),
+    TRADITIONAL_CHINESE(Locale.TRADITIONAL_CHINESE);
+
+    private final Locale locale;
+
+    Language(Locale locale) {
+        this.locale = locale;
+    }
+
+    public static Language defaultLanguage() {
+        String language = Locale.getDefault().getLanguage();
+        if (StringUtils.isNotEmpty(language)) {
+            try {
+                for (Language value : Language.values()) {
+                    if (value.getLocale().getLanguage().equals(Locale.getDefault().getLanguage())) {
+                        return value;
+                    }
+                }
+                return Language.ENGLISH;
+            }
+            catch (IllegalArgumentException e) {
+                return Language.ENGLISH;
+            }
+        }
+        else {
+            return Language.ENGLISH;
+        }
+    }
+
+
+    public Locale getLocale() {
+        return locale;
+    }
+}

@@ -1,0 +1,31 @@
+.mfx-button .mfx-font-icon {
+    -mfx-color: #4d804d;
+    -fx-opacity: 0.5;
+}
+
+/*.mfx-combo-box:popup {
+    -fx-pref-width: 1000;
+}*/
+
+#chooseIntComboBox .combo-popup {
+    -fx-content-display: right;
+    -fx-background-color: pink;
+    -fx-text-display: right;
+    -fx-alignment: right;
+}
+
+/*单独设置combobox的下拉框的宽度
+#chooseIntComboBox .combo-popup .virtual-flow {
+    -fx-min-width: 800;
+}*/
+
+.mfx-text-field .floating-text {
+    -fx-padding: 0 10 0 10;
+    -fx-text-fill: gray;
+}
+
+.no-button-bar .button-bar {
+    -fx-padding: 0;
+    -fx-pref-height: 0;
+    -fx-max-height: 0;
+}

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>OpenCGL-Plugin</groupId>
+    <artifactId>OpenCGL-Plugin</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+    <modules>
+        <module>TemplatePlugin</module>
+        <module>DubboServiceTestPlugin</module>
+        <module>JsonXmlFormatModule</module>
+        <module>EncryptAndDecryptModule</module>
+        <module>BrowserToolModule</module>
+        <module>ZookeeperToolModule</module>
+        <module>RedisModule</module>
+        <module>FtpToolModule</module>
+        <module>RocketMqToolModule</module>
+        <module>RestMockModule</module>
+        <module>MmlTestModule</module>
+        <module>RestTestModule</module>
+        <module>SoapTestModule</module>
+        <module>CronExpBuilderModule</module>
+        <module>FromOrHtmlWriteModule</module>
+        <module>QRCodeGenerateModule</module>
+    </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>19</maven.compiler.source>
+        <maven.compiler.target>19</maven.compiler.target>
+    </properties>
+
+
+</project>

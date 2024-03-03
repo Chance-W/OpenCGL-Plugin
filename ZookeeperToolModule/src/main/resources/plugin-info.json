@@ -1,0 +1,13 @@
+[
+  {
+    "pluginName": "Zookeeper工具",
+    "controllerType": "fxml",
+    "fxmlPath": "ZookeeperTool.fxml",
+    "jarName": "ZookeeperToolModule.jar",
+    "fatherName": "通用工具集",
+    "className": "",
+    "iconPath": "icon/zookeeper.png",
+    "enable": "true",
+    "pluginInfo": "Zookeeper连接工具,查看部分信息"
+  }
+]

@@ -1,0 +1,13 @@
+[
+  {
+    "pluginName": "rest模拟mock工具",
+    "controllerType": "fxml",
+    "fxmlPath": "RestMockServerWidget.fxml",
+    "jarName": "RestMockModule.jar",
+    "fatherName": "通用工具集",
+    "className": "",
+    "iconPath": "icon/decode.png",
+    "enable": "true",
+    "pluginInfo": "rest模拟mock工具"
+  }
+]

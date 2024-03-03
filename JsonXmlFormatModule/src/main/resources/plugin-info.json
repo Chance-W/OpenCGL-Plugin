@@ -1,0 +1,13 @@
+[
+  {
+    "pluginName": "JSON/XML报文格式化",
+    "controllerType": "fxml",
+    "fxmlPath": "JsonXmlFormatWidgetView.fxml",
+    "jarName": "JsonXmlFormatModule.jar",
+    "fatherName": "通用工具集",
+    "className": "",
+    "iconPath": "icon/json.png",
+    "enable": "true",
+    "pluginInfo": "JSON/XML报文格式化"
+  }
+]

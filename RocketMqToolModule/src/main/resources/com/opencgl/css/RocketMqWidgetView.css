@@ -1,0 +1,38 @@
+.mfx-button .mfx-font-icon {
+    -mfx-color: #4d804d;
+    -fx-opacity: 0.5;
+}
+
+.mfx-progress-bar .track {
+    -fx-fill: purple;
+    -fx-stroke: purple;
+    -fx-stroke-width: 2;
+}
+
+.mfx-progress-bar .bar1,
+.mfx-progress-bar .bar2 {
+    -fx-stroke: purple;
+    -fx-stroke-width: 1;
+    -fx-fill: white;
+}
+
+#operateTopVbox {
+    -fx-background-color: WHITE;
+    -fx-fill-height: true;
+}
+
+/*单独设置combobox的下拉框的宽度
+#chooseIntComboBox .combo-popup .virtual-flow {
+    -fx-min-width: 800;
+}*/
+
+.mfx-text-field .floating-text {
+    -fx-padding: 0 10 0 10;
+    -fx-text-fill: gray;
+}
+
+.no-button-bar .button-bar {
+    -fx-padding: 0;
+    -fx-pref-height: 0;
+    -fx-max-height: 0;
+}

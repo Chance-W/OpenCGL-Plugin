@@ -1,0 +1,13 @@
+[
+  {
+    "pluginName": "Soap测试工具",
+    "controllerType": "fxml",
+    "fxmlPath": "SoapTestModule.fxml",
+    "jarName": "SoapTestModule.jar",
+    "fatherName": "测试工具",
+    "className": "",
+    "iconPath": "icon/soap.png",
+    "enable": "true",
+    "pluginInfo": "webservice接口测试"
+  }
+]

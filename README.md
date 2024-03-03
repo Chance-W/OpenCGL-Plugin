@@ -1,0 +1,51 @@
+# OpenCGL-Plugin
+
+## 说明
+
+公共插件开发指导手册
+模板 module 可见[TemplatePlugin](TemplatePlugin)
+按照模板编写自己的工具，可选择是否引入 Base，Base提供了一些公共的数据，信息以及依赖，还有树视图的通用实现
+在 resources 目录下添加[plugin-info.json]和图标(TemplatePlugin%2Fsrc%2Fmain%2Fresources%2Fplugin-info.json)，支持一个 jar
+包多个组件
+
+### 插件参数信息解释
+
+```json
+[
+  {
+    "pluginName": "插件开发模板",
+    "fatherName": "插件开发模板演示目录",
+    "controllerType": "fxml",
+    "fxmlPath": "com/opencgl/template/views/TemplateWidgetView.fxml",
+    "jarName": "TemplatePlugin.jar",
+    "className": "",
+    "iconPath": "icon/decode.png",
+    "enable": "true",
+    "pluginInfo": "插件开发模板演示工具"
+  }
+]
+```
+
+- pluginName：OpenCGL客户端工具显示的组件名称
+- fatherName: OpenCGL客户端工具显示的组件的目录名称,
+- controllerType: 加载类型，支持 jar 和 fxml 两种，fxml 表示通过fxmlPath去加载，暂时只支持fxml加载方式，jar包加载方式忘移植了
+- fxmlPath: controllerType为 fxml 时，对应 javafx 的 fxml 的路径
+- jarName: 对应插件jar包的名称
+- className: 暂未使用
+- iconPath: 插件的图标路径
+- enable: 是否启用
+- pluginInfo: 鼠标悬停时的插件介绍说明
+
+## 如何打包
+
+两种方式，由于有一些功能是定制化的，所以我通过编写[Base](Base)引入依赖的方式加载的， 你可以直接将 Base模块mvn install
+到本地仓库，也可以在根 POM 直接在<modules>添加 Base 的模块
+
+如有问题可直接通过以下方式联系
+
+- 邮箱：chance.w@qq.com;chance_w@126.com
+- 微信号：Chance_W-
+- 钉钉号：xxx
+
+## 客户端仓库地址
+https://gitee.com/chance_w/OpenCGL_New

@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import org.fxmisc.flowless.VirtualizedScrollPane?>
+<?import com.opencgl.base.controls.CustomTextArea?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXFilterComboBox?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
+<?import io.github.palexdev.mfxresources.fonts.MFXFontIcon?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.control.TreeTableColumn?>
+<?import javafx.scene.control.TreeTableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.xtool.opencgl.controller.RestWidgetController"
+           stylesheets="@./com/opencgl/css/RestWidgetView.css">
+    <BorderPane fx:id="contentBorderPane" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
+                AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+        <top>
+            <VBox fx:id="operateTopVbox" BorderPane.alignment="CENTER">
+                <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-background-color:WHITE">
+                    <MFXButton fx:id="refreshButton" buttonType="RAISED"
+                               onMouseClicked="#refreshLabelAction"
+                               prefHeight="30.0"
+                               prefWidth="30.0"
+                               text="">
+                        <graphic>
+                            <MFXFontIcon description="fas-arrows-rotate" size="15.0"/>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="刷新"/>
+                        </tooltip>
+                    </MFXButton>
+                    <MFXButton fx:id="copyButton" buttonType="RAISED" onMouseClicked="#copyLabelAction"
+                               prefHeight="30.0"
+                               prefWidth="30.0"
+                               text="">
+                        <graphic>
+                            <MFXFontIcon description="fas-copy" size="15.0"/>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="拷贝"/>
+                        </tooltip>
+                    </MFXButton>
+                    <MFXButton fx:id="saveButton" buttonType="RAISED" onMouseClicked="#saveLabelAction"
+                               prefHeight="30.0"
+                               prefWidth="30.0"
+                               text="">
+                        <graphic>
+                            <MFXFontIcon description="fas-floppy-disk" size="15.0"/>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="保存"/>
+                        </tooltip>
+                    </MFXButton>
+                    <MFXFilterComboBox fx:id="chooseMetComboBox"
+                                       floatingText="request method"
+                                       prefWidth="100.0">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="POST"/>
+                                <String fx:value="GET"/>
+                                <String fx:value="PUT"/>
+                                <String fx:value="DELETE"/>
+                                <String fx:value="HEAD"/>
+                                <String fx:value="TRACE"/>
+                                <String fx:value="PATCH"/>
+                                <String fx:value="OPTIONS"/>
+                                <String fx:value="LINK"/>
+                                <String fx:value="PURGE"/>
+                            </FXCollections>
+                        </items>
+                    </MFXFilterComboBox>
+                    <MFXTextField fx:id="urlTextField"
+                                  floatMode="BORDER" floatingText="请输入请求 URL"
+                                  prefHeight="30" prefWidth="1000">
+                    </MFXTextField>
+                    <HBox alignment="CENTER_LEFT">
+                        <MFXButton fx:id="sendButton" buttonType="RAISED" onMouseClicked="#sendLabelAction"
+                                   prefHeight="30.0"
+                                   prefWidth="30.0"
+                                   text="">
+                            <graphic>
+                                <MFXFontIcon description="fas-play" size="15.0"/>
+                            </graphic>
+                            <tooltip>
+                                <Tooltip text="发送"/>
+                            </tooltip>
+                        </MFXButton>
+                        <HBox.margin>
+                            <Insets right="10.0"/>
+                        </HBox.margin>
+                    </HBox>
+                    <VBox.margin>
+                        <Insets bottom="5.0" top="5.0"/>
+                    </VBox.margin>
+                </HBox>
+            </VBox>
+        </top>
+        <center>
+            <StackPane fx:id="contentInputAndOutputPane">
+                <SplitPane fx:id="splitPane" dividerPositions="0.5">
+                    <AnchorPane>
+                        <TabPane fx:id="restJfxTabPane"
+                                 AnchorPane.bottomAnchor="0"
+                                 AnchorPane.leftAnchor="0"
+                                 AnchorPane.rightAnchor="0"
+                                 AnchorPane.topAnchor="0"
+                                 tabClosingPolicy="UNAVAILABLE">
+                            <Tab text="Headers">
+                                <AnchorPane>
+                                    <BorderPane AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
+                                                AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+                                        <top>
+                                            <HBox alignment="CENTER_RIGHT" spacing="5">
+                                                <MFXButton buttonType="RAISED" fx:id="headersAddButton" text="+"/>
+                                                <MFXButton buttonType="RAISED" fx:id="headersDelButton" text="-"/>
+                                            </HBox>
+                                        </top>
+                                        <center>
+                                            <AnchorPane>
+                                                <TreeTableView fx:id="headers" editable="true" AnchorPane.bottomAnchor="0"
+                                                           AnchorPane.leftAnchor="0"
+                                                           AnchorPane.rightAnchor="0"
+                                                           AnchorPane.topAnchor="0">
+                                                    <columns>
+                                                        <TreeTableColumn fx:id="headersKey"
+                                                                     text="KEY" minWidth="140"/>
+                                                        <TreeTableColumn fx:id="headersValue"
+                                                                     text="VALUE" minWidth="140"/>
+                                                        <TreeTableColumn fx:id="headersDescription"
+                                                                     text="DESCRIPTION"
+                                                                     minWidth="140"/>
+                                                    </columns>
+                                                </TreeTableView>
+                                            </AnchorPane>
+                                        </center>
+                                    </BorderPane>
+                                </AnchorPane>
+                            </Tab>
+                            <Tab text="Cookie">
+                                <AnchorPane>
+                                    <BorderPane AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
+                                                AnchorPane.rightAnchor="0"
+                                                AnchorPane.topAnchor="0">
+                                        <top>
+                                            <HBox alignment="CENTER_RIGHT" spacing="5">
+                                                <MFXButton buttonType="RAISED" fx:id="cookiesAddButton" text="+"/>
+                                                <MFXButton buttonType="RAISED" fx:id="cookiesDelButton" text="-"/>
+                                            </HBox>
+                                        </top>
+                                        <center>
+                                            <TreeTableView fx:id="cookies" editable="true"
+                                                       AnchorPane.bottomAnchor="0"
+                                                       AnchorPane.leftAnchor="0"
+                                                       AnchorPane.rightAnchor="0"
+                                                       AnchorPane.topAnchor="0">
+                                                <columns>
+                                                    <TreeTableColumn fx:id="cookiesKey"
+                                                                     text="KEY" minWidth="140"/>
+                                                    <TreeTableColumn fx:id="cookiesValue"
+                                                                     text="VALUE" minWidth="140"/>
+                                                    <TreeTableColumn fx:id="cookiesDescription"
+                                                                     text="DESCRIPTION" minWidth="140"/>
+                                                </columns>
+                                            </TreeTableView>
+                                        </center>
+                                    </BorderPane>
+                                </AnchorPane>
+                            </Tab>
+                            <Tab text="Body">
+                                <AnchorPane>
+                                    <BorderPane AnchorPane.bottomAnchor="0"
+                                                AnchorPane.leftAnchor="0"
+                                                AnchorPane.rightAnchor="0"
+                                                AnchorPane.topAnchor="0">
+                                        <top>
+                                            <HBox alignment="CENTER_RIGHT" spacing="10">
+                                                <MFXFilterComboBox fx:id="chooseMediaTypeComboBox"
+                                                                   floatingText="Media Type"
+                                                                   prefWidth="170.0">
+                                                    <items>
+                                                        <FXCollections fx:factory="observableArrayList">
+                                                            <String fx:value="application/json"/>
+                                                            <String fx:value="application/xml"/>
+                                                            <String fx:value="text/xml"/>
+                                                            <String fx:value="multipart/form-data"/>
+                                                            <String fx:value="multipart/mixed"/>
+                                                        </FXCollections>
+                                                    </items>
+                                                    <HBox.margin>
+                                                        <Insets top="5.0" bottom="5.0" right="2.0"/>
+                                                    </HBox.margin>
+                                                </MFXFilterComboBox>
+                                            </HBox>
+                                        </top>
+                                        <center>
+                                            <AnchorPane>
+                                                <VirtualizedScrollPane AnchorPane.bottomAnchor="0"
+                                                                       AnchorPane.leftAnchor="0"
+                                                                       AnchorPane.rightAnchor="0"
+                                                                       AnchorPane.topAnchor="0">
+                                                    <content>
+                                                        <CustomTextArea fx:id="inputTextArea"/>
+                                                    </content>
+                                                </VirtualizedScrollPane>
+                                            </AnchorPane>
+                                        </center>
+                                    </BorderPane>
+                                </AnchorPane>
+                            </Tab>
+                        </TabPane>
+                    </AnchorPane>
+                    <AnchorPane minHeight="0.0" minWidth="0.0">
+                        <VirtualizedScrollPane AnchorPane.bottomAnchor="0"
+                                               AnchorPane.leftAnchor="0"
+                                               AnchorPane.rightAnchor="0"
+                                               AnchorPane.topAnchor="0">
+                            <content>
+                                <CustomTextArea fx:id="outputTextArea" wrapText="true"/>
+                            </content>
+                        </VirtualizedScrollPane>
+                    </AnchorPane>
+                </SplitPane>
+            </StackPane>
+        </center>
+    </BorderPane>
+</StackPane>

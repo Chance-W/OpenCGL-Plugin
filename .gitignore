@@ -1,0 +1,65 @@
+# Temp Config file
+conf/
+# Compiled class file
+*.class
+
+# Log file
+*.log
+*.tmp
+*.logs/
+logs/*
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+ .mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+*.gz
+
+
+.gitignore
+!/.gitignore
+
+# eclipse
+**/.project
+**/.classpath
+**/.settings/
+**/.matadata/
+**/RemoteSystemsTempFiles
+
+# maven
+**/target/
+**/overlays/
+
+# checkstyle
+**/.checkstyle
+
+# pmd
+**/.pmd
+
+# idea
+**/*.iml
+**/.idea/
+
+#ctags
+**/.tags*
+**/tags*
+
+#svn
+.svn
+
+#node
+node_modules
+
+# mac
+.DS_Store
+**/.DS_Store
+

@@ -1,0 +1,16 @@
+.menu-bar {
+    -fx-background-color: #00BCD4;
+    -fx-arc-height: 40px;
+}
+
+.jfx-button {
+    -fx-text-fill: white;
+    /*-fx-font-size: 20px;*/
+    -fx-background-color: #00BCD4;
+   /* -fx-pref-width: 200px;
+    -fx-pref-height: 100px;*/
+    -jfx-button-type: RAISED;
+    -fx-background-insets: 10px, 10px, 10px, 10px;
+}
+
+

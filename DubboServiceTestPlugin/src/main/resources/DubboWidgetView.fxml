@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.opencgl.base.controls.CustomMFXFilterComboBox?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXCheckbox?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
+<?import io.github.palexdev.mfxresources.fonts.MFXFontIcon?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import org.fxmisc.flowless.VirtualizedScrollPane?>
+<?import com.opencgl.base.controls.CustomTextArea?>
+<StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.opencgl.dubbo.controller.DubboWidgetController"
+           stylesheets="@./com/opencgl/css/DubboWidgetView.css">
+    <BorderPane fx:id="contentBorderPane" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
+                AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+        <top>
+            <VBox fx:id="operateTopVbox" spacing="1.0" BorderPane.alignment="CENTER">
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                    <MFXButton fx:id="sendButton" buttonType="RAISED" onMouseClicked="#sendLabelAction">
+                        <graphic>
+                            <MFXFontIcon description="fas-play" size="15.0"/>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="发送"/>
+                        </tooltip>
+                    </MFXButton>
+                    <MFXButton fx:id="refreshButton" buttonType="RAISED" onMouseClicked="#refreshLabelAction" text="">
+                        <graphic>
+                            <MFXFontIcon description="fas-arrows-rotate" size="15.0"/>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="刷新"/>
+                        </tooltip>
+                    </MFXButton>
+                    <MFXButton fx:id="copyButton" buttonType="RAISED" onMouseClicked="#copyLabelAction" text=""
+                               prefHeight="30.0" prefWidth="10.0">
+                        <graphic>
+                            <MFXFontIcon description="fas-copy" size="15.0"/>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="拷贝"/>
+                        </tooltip>
+                    </MFXButton>
+                    <MFXButton fx:id="saveButton" buttonType="RAISED" onMouseClicked="#saveLabelAction" text=""
+                               prefHeight="30.0" prefWidth="10.0">
+                        <graphic>
+                            <MFXFontIcon description="fas-floppy-disk" size="15.0"/>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="保存"/>
+                        </tooltip>
+                    </MFXButton>
+                    <MFXButton fx:id="settingButton" buttonType="RAISED" onMouseClicked="#settingLabelAction" text=""
+                               prefHeight="30.0" prefWidth="10.0">
+                        <graphic>
+                            <MFXFontIcon description="fas-gears" size="15.0"/>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="设置"/>
+                        </tooltip>
+                    </MFXButton>
+                    <CustomMFXFilterComboBox fx:id="chooseEnvComboBox"
+                                             floatMode="DISABLED"
+                                             scrollOnOpen="true"
+                                             selectable="true"
+                                             allowEdit="true"
+                                             prefWidth="100"
+                                             promptText="选择环境"
+                                             style="-fx-prompt-text-fill:rgba(63,75,77,0.39)"
+                                             HBox.hgrow="ALWAYS">
+                    </CustomMFXFilterComboBox>
+                    <CustomMFXFilterComboBox fx:id="chooseIntComboBox" editable="true" prefHeight="30"
+                                             prefWidth="600"
+                                             floatMode="DISABLED"
+                                             scrollOnOpen="true"
+                                             selectable="true"
+                                             allowEdit="true"
+                                             promptText="请选择接口"
+                                             style="-fx-prompt-text-fill:rgba(63,75,77,0.39);"
+                                             HBox.hgrow="ALWAYS">
+                    </CustomMFXFilterComboBox>
+                    <CustomMFXFilterComboBox fx:id="chooseMetComboBox" floatMode="DISABLED" editable="true"
+                                             prefHeight="30"
+                                             prefWidth="170"
+                                             scrollOnOpen="true"
+                                             selectable="true" allowEdit="true"
+                                             promptText="请选择方法"
+                                             style="-fx-prompt-text-fill:rgba(63,75,77,0.39)">
+                    </CustomMFXFilterComboBox>
+                    <MFXCheckbox fx:id="extCheckBox" mnemonicParsing="false" text="扩展 "/>
+                    <padding>
+                        <Insets left="10.0" top="10"/>
+                    </padding>
+                    <HBox.margin>
+                        <Insets right="10.0"/>
+                    </HBox.margin>
+                    <VBox.margin>
+                        <Insets bottom="5.0"/>
+                    </VBox.margin>
+                </HBox>
+                <HBox fx:id="extHbox" alignment="CENTER_LEFT" spacing="10.0">
+                    <CustomMFXFilterComboBox fx:id="chooseProvideComboBox"
+                                             prefHeight="30.0"
+                                             prefWidth="300.0"
+                                             floatMode="DISABLED"
+                                             scrollOnOpen="true"
+                                             selectable="true"
+                                             allowEdit="true"
+                                             promptText="提供者(可选)ip:port"
+                                             style="-fx-prompt-text-fill:rgba(63,75,77,0.39)">
+                    </CustomMFXFilterComboBox>
+                    <MFXTextField floatMode="BORDER"
+                                  floatingText="请求类(可选)com.xxx.requestParam,当前配置在无jar包时使用"
+                                  fx:id="extRequestType" prefWidth="500" prefHeight="30.0">
+                    </MFXTextField>
+                    <HBox.margin>
+                        <Insets right="10.0"/>
+                    </HBox.margin>
+                    <VBox.margin>
+                        <Insets bottom="5.0"/>
+                    </VBox.margin>
+                </HBox>
+            </VBox>
+        </top>
+        <center>
+            <StackPane fx:id="contentInputAndOutputPane">
+                <SplitPane dividerPositions="0.5" fx:id="splitPane">
+                    <VirtualizedScrollPane>
+                        <content>
+                            <CustomTextArea fx:id="inputTextArea" style="-fx-background-color:white"/>
+                        </content>
+                    </VirtualizedScrollPane>
+                    <VirtualizedScrollPane>
+                        <content>
+                            <CustomTextArea fx:id="outputTextArea" style="-fx-background-color:white" wrapText="true"/>
+                        </content>
+                    </VirtualizedScrollPane>
+                </SplitPane>
+            </StackPane>
+        </center>
+    </BorderPane>
+</StackPane>

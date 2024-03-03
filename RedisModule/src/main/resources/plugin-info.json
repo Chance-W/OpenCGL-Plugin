@@ -1,0 +1,13 @@
+[
+  {
+    "pluginName": "Redis控制台",
+    "controllerType": "fxml",
+    "fxmlPath": "RedisWidgetView.fxml",
+    "jarName": "RedisModule.jar",
+    "fatherName": "通用工具集",
+    "className": "",
+    "iconPath": "icon/redis.png",
+    "enable": "true",
+    "pluginInfo": "Redis控制台"
+  }
+]

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.layout.*?>
+
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
+<?import io.github.palexdev.materialfx.controls.MFXProgressBar?>
+<?import com.opencgl.base.controls.CustomTextArea?>
+<?import javafx.scene.control.Tooltip?>
+<?import io.github.palexdev.mfxresources.fonts.MFXFontIcon?>
+<?import org.fxmisc.flowless.VirtualizedScrollPane?>
+<StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.opencgl.controller.RocketMqConsumerWidgetController"
+           stylesheets="@./com/opencgl/css/RocketMqWidgetView.css">
+    <BorderPane fx:id="contentBorderPane" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
+                AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+        <top>
+            <VBox fx:id="headerVbox" spacing="1.0" style="-fx-background-color:WHITE" BorderPane.alignment="CENTER">
+                <HBox alignment="CENTER_LEFT" spacing="5.0" style="-fx-background-color:WHITE">
+
+                    <MFXButton fx:id="refreshButton" buttonType="RAISED" onMouseClicked="#refreshLabelAction"
+                               prefHeight="30.0" prefWidth="10.0" text="">
+                        <graphic>
+                            <MFXFontIcon description="fas-arrows-rotate" size="15.0"/>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="刷新"/>
+                        </tooltip>
+                    </MFXButton>
+                    <MFXButton fx:id="copyButton" buttonType="RAISED" onMouseClicked="#copyLabelAction"
+                               prefHeight="30.0" prefWidth="10.0" text="">
+                        <graphic>
+                            <MFXFontIcon description="fas-copy" size="15.0"/>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="拷贝"/>
+                        </tooltip>
+                    </MFXButton>
+                    <MFXButton fx:id="saveButton" buttonType="RAISED" onMouseClicked="#saveLabelAction"
+                               prefHeight="30.0" prefWidth="10.0" text="">
+                        <graphic>
+                            <MFXFontIcon description="fas-floppy-disk" size="15.0"/>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="保存"/>
+                        </tooltip>
+                    </MFXButton>
+                    <MFXTextField fx:id="nameServerAddrTextField" prefHeight="30"
+                                  prefWidth="200.0" promptText="NameServerAddr"
+                                  style="-fx-prompt-text-fill:rgba(63,75,77,0.39)"
+                                  HBox.hgrow="ALWAYS">
+                    </MFXTextField>
+                    <MFXTextField fx:id="topicTextField" prefHeight="30"
+                                  prefWidth="300" promptText="Topic" style="-fx-prompt-text-fill:rgba(63,75,77,0.39)"
+                    >
+                    </MFXTextField>
+                    <MFXButton fx:id="sendButton" buttonType="RAISED" onMouseClicked="#consumerLabelAction"
+                               prefHeight="30.0" prefWidth="10.0" text="">
+                        <graphic>
+                            <MFXFontIcon description="fas-play" size="15.0"/>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="发送"/>
+                        </tooltip>
+                    </MFXButton>
+                    <MFXButton fx:id="closeButton" buttonType="RAISED" onAction="#stopConsumer" prefHeight="30.0"
+                               prefWidth="10.0" text="">
+                        <graphic>
+                            <MFXFontIcon description="fas-xmark" size="15.0"/>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="断开"/>
+                        </tooltip>
+                        <HBox.margin>
+                            <Insets right="10"/>
+                        </HBox.margin>
+                    </MFXButton>
+                    <padding>
+                        <Insets left="10.0" top="10"/>
+                    </padding>
+                    <HBox.margin>
+                        <Insets right="10.0"/>
+                    </HBox.margin>
+                    <VBox.margin>
+                        <Insets bottom="5.0" top="5.0"/>
+                    </VBox.margin>
+                </HBox>
+                <HBox fx:id="processBarHBox" alignment="CENTER">
+                    <MFXProgressBar minHeight="10.0"/>
+                </HBox>
+            </VBox>
+        </top>
+        <center>
+            <AnchorPane>
+                <VirtualizedScrollPane AnchorPane.bottomAnchor="0"
+                                       AnchorPane.leftAnchor="0"
+                                       AnchorPane.rightAnchor="0"
+                                       AnchorPane.topAnchor="0">
+                    <content>
+                        <CustomTextArea fx:id="outputTextArea" wrapText="true"/>
+                    </content>
+                </VirtualizedScrollPane>
+            </AnchorPane>
+        </center>
+    </BorderPane>
+</StackPane>

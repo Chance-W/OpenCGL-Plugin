@@ -1,0 +1,6 @@
+.progress-indicator:indeterminate .segment {
+    -fx-background-color: purple;
+    -fx-background-radius: 50em;
+    -fx-progress-color: #00ff00;
+    -fx-font-size: 2em;
+}

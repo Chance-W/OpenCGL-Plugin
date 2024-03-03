@@ -1,0 +1,40 @@
+.custom-text-area .keyword {
+    -fx-fill: blue;
+}
+
+.custom-text-area .paren {
+    -fx-fill: green;
+}
+
+.custom-text-area .brace {
+    -fx-fill: darkgreen;
+}
+
+.custom-text-area .bracket {
+    -fx-fill: purple;
+}
+
+.custom-text-area .semicolon {
+    -fx-fill: red;
+}
+
+.custom-text-area .string {
+    -fx-fill: orange;
+}
+
+.custom-text-area .comment {
+    -fx-fill: gray;
+}
+
+.custom-text-area .text-input .prompt-text {
+    -fx-fill: gray;
+    -fx-text-fill: gray;
+}
+
+.custom-text-area .scroll-bar {
+    -fx-visible: true;
+}
+
+.custom-text-area {
+    -fx-background-color: #f5f5f5;
+}
