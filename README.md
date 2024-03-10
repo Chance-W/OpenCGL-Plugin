@@ -4,7 +4,7 @@
 
 公共插件开发指导手册
 模板 module 可见[TemplatePlugin](TemplatePlugin)
-按照模板编写自己的工具，可选择是否引入 Base，Base提供了一些公共的数据，信息以及依赖，还有树视图的通用实现
+按照模板编写自己的工具，可选择是否引入 OpenCGL-Base，OpenCGL-Base提供了一些公共的数据，信息以及依赖，还有树视图的通用实现，如果需要的化，需要下载OpenCGL-Base源码，编译 install 到本地仓库即可，源码的地址附在了文章的下面
 在 resources 目录下添加[plugin-info.json]和图标(TemplatePlugin/src/main/resources/plugin-info.json)，支持一个 jar
 包多个组件
 
@@ -38,7 +38,7 @@
 
 ## 如何打包
 
-两种方式，由于有一些功能是定制化的，所以我通过编写[Base](Base)引入依赖的方式加载的， 你可以直接将 Base模块mvn install
+两种方式，由于有一些功能是定制化的，所以我通过编写OpenCGL-Base引入依赖的方式加载的， 你可以直接将 OpenCGL-Base模块mvn install
 到本地仓库，也可以在根 POM 直接在<modules>添加 Base 的模块
 
 ## 联系方式
@@ -59,6 +59,9 @@
 
 ## 客户端仓库地址
 https://gitee.com/chance_w/OpenCGL_New
+
+## OpenCGL-Base仓库地址
+https://gitee.com/chance_w/open-cgl-base
 
 
 ## 丢几张图
