@@ -9,7 +9,7 @@
 <?import com.opencgl.base.controls.CustomTextArea?>
 <?import org.fxmisc.flowless.VirtualizedScrollPane?>
 <StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.xtool.opencgl.controller.MmlWidgetController">
+           fx:controller="com.opencgl.controller.MmlWidgetController">
     <BorderPane fx:id="contentBorderPane" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
                 AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
         <top>

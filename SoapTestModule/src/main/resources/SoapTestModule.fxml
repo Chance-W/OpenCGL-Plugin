@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 <StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.xtool.opencgl.controller.SoapWidgetController">
+           fx:controller="com.opencgl.controller.SoapWidgetController">
     <BorderPane fx:id="contentBorderPane" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
                 AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
         <top>

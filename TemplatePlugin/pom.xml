@@ -13,8 +13,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>Base</groupId>
-            <artifactId>Base</artifactId>
+            <groupId>OpenCGL-Base</groupId>
+            <artifactId>OpenCGL-Base</artifactId>
             <version>1.0.0</version>
         </dependency>
     </dependencies>

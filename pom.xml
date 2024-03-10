@@ -23,7 +23,7 @@
         <module>RestTestModule</module>
         <module>SoapTestModule</module>
         <module>CronExpBuilderModule</module>
-        <module>FromOrHtmlWriteModule</module>
+        <module>FormOrHtmlWriteModule</module>
         <module>QRCodeGenerateModule</module>
     </modules>
 

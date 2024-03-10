@@ -17,7 +17,7 @@
 <?import org.fxmisc.flowless.VirtualizedScrollPane?>
 <?import io.github.palexdev.materialfx.controls.MFXProgressBar?>
 <StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.xtool.opencgl.controller.RestMockServerWidgetController">
+           fx:controller="com.opencgl.controller.RestMockServerWidgetController">
     <SplitPane dividerPositions="0.8" orientation="VERTICAL" fx:id="splitPane">
         <AnchorPane>
             <BorderPane layoutX="14.0" layoutY="7.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0"

@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 
-<AnchorPane fx:id="mainAnchorPane" prefHeight="475.0" prefWidth="813.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.xtool.opencgl.controller.FtpServerController">
+<AnchorPane fx:id="mainAnchorPane" prefHeight="475.0" prefWidth="813.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.opencgl.controller.FtpServerController">
    <children>
       <BorderPane layoutX="14.0" layoutY="7.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
          <top>

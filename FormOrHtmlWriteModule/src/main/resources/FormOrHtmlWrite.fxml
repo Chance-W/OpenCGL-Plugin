@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import org.fxmisc.flowless.VirtualizedScrollPane?>
+<?import com.opencgl.base.controls.CustomTextArea?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.opencgl.formorhtmlwrite.controller.FormOrHtmlWriteController">
+    <BorderPane>
+        <top>
+            <VBox spacing="10">
+                <HBox alignment="CENTER" spacing="10.0" VBox.vgrow="ALWAYS">
+                    <Label prefWidth="150.0" HBox.hgrow="ALWAYS" text="Origin And Referer: ">
+                        <HBox.margin>
+                            <Insets left="10.0" top="10.0"/>
+                        </HBox.margin>
+                    </Label>
+                    <MFXTextField floatMode="BORDER" HBox.hgrow="ALWAYS"
+                                  fx:id="originAndReferer" prefWidth="500" prefHeight="30.0">
+                        <HBox.margin>
+                            <Insets left="10.0" top="10.0"/>
+                        </HBox.margin>
+                    </MFXTextField>
+                </HBox>
+                <HBox alignment="CENTER" spacing="10.0">
+                    <MFXButton fx:id="openForm" buttonType="RAISED" text="启动渲染">
+                        <HBox.margin>
+                            <Insets left="620.0" right="10.0" bottom="10.0"/>
+                        </HBox.margin>
+                    </MFXButton>
+                </HBox>
+            </VBox>
+        </top>
+        <center>
+            <VirtualizedScrollPane style="-fx-background-color:transparent">
+                <content>
+                    <CustomTextArea formatDrawing="false" wrapText="true" fx:id="contentTextArea"/>
+                </content>
+                <BorderPane.margin>
+                    <Insets left="10" right="10" bottom="10"/>
+                </BorderPane.margin>
+            </VirtualizedScrollPane>
+        </center>
+    </BorderPane>
+</StackPane>

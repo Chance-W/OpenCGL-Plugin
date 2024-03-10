@@ -9,7 +9,7 @@
 <?import javafx.scene.web.WebView?>
 
 <BorderPane fx:id="contentBorderPane" xmlns="http://javafx.com/javafx/8.0.999-ea" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.xtool.opencgl.controller.WebSourcesToolController">
+            fx:controller="com.opencgl.controller.WebSourcesToolController">
     <center>
       <!--  <WebView fx:id="showHtmlWebView" BorderPane.alignment="CENTER">
             <BorderPane.margin>

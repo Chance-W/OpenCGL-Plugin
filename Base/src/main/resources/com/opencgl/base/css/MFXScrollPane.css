@@ -1,9 +1,0 @@
-@import '../fonts/Fonts.css';
-@import 'Common.css';
-@import 'MFXColors.css';
-
-.mfx-scroll-pane {
-    -fx-margin-left: 100;
-    -fx-background-insets: 10px;
-
-}

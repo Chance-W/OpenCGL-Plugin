@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.geometry.Insets?>
 <AnchorPane fx:id="mainAnchorPane" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.999-ea"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.xtool.opencgl.controller.RedisWidgetController">
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.opencgl.controller.RedisWidgetController">
     <BorderPane AnchorPane.bottomAnchor="5" AnchorPane.leftAnchor="5" AnchorPane.rightAnchor="5"
                 AnchorPane.topAnchor="5">
         <top>

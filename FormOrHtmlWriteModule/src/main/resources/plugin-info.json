@@ -1,0 +1,13 @@
+[
+  {
+    "pluginName": "表单渲染工具",
+    "controllerType": "fxml",
+    "fxmlPath": "FormOrHtmlWrite.fxml",
+    "jarName": "FormOrHtmlWriteModule.jar",
+    "fatherName": "通用工具集",
+    "className": "",
+    "iconPath": "icon/html.png",
+    "enable": "true",
+    "pluginInfo": "用于渲染表单和HTML页面的工具"
+  }
+]

@@ -21,7 +21,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.xtool.opencgl.controller.RestWidgetController"
+           fx:controller="com.opencgl.controller.RestWidgetController"
            stylesheets="@./com/opencgl/css/RestWidgetView.css">
     <BorderPane fx:id="contentBorderPane" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
                 AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
