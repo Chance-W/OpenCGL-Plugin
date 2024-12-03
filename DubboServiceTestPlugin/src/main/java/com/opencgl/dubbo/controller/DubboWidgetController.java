@@ -487,6 +487,11 @@ public class DubboWidgetController implements Initializable, TreeOperateService<
     @Override
     public void changeToDisplay(DubboTreeItem dubboTreeItem) {
         try {
+            chooseEnvComboBox.getItems().forEach(s -> {
+                if (s.equals(dubboTreeItem.getEnvName())) {
+                    chooseEnvComboBox.selectItem(s);
+                }
+            });
             chooseEnvComboBox.setText(dubboTreeItem.getEnvName());
             chooseIntComboBox.setText(dubboTreeItem.getInterfaceInfo());
             chooseMetComboBox.setText(dubboTreeItem.getMethodInfo());
