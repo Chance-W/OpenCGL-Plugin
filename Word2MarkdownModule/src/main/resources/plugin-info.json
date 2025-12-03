@@ -1,0 +1,13 @@
+[
+  {
+    "pluginName": "插件开发模板",
+    "controllerType": "fxml",
+    "fxmlPath": "com/opencgl/template/views/TemplateWidgetView.fxml",
+    "jarName": "TemplatePlugin.jar",
+    "fatherName": "插件开发模板演示目录",
+    "className": "",
+    "iconPath": "icon/decode.png",
+    "enable": "true",
+    "pluginInfo": "插件开发模板演示工具"
+  }
+]

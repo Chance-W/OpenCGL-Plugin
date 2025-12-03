@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.opencgl.dubbo.model.DubboInfo;
-import com.opencgl.dubbo.model.DubboRequest;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -438,11 +437,20 @@ public class DubboConfigFileParseUtil {
     public static List<String> getProviders(String nodePath, String zkAdress) {
         List<String> providerList = new ArrayList<>();
         ZkClient zkClient = new ZkClient(zkAdress, 10000);
-        List<String> providers = zkClient.getChildren(nodePath + "/providers");
-        for (String provider : providers) {
-            providerList.add(provider.substring(provider.indexOf("dubbo"), provider.lastIndexOf("%2F")).replace("%3A%2F%2F", "://").replace("%3A", ":"));
+        try {
+            List<String> providers = zkClient.getChildren(nodePath + "/providers");
+            for (String provider : providers) {
+                providerList.add(provider.substring(provider.indexOf("dubbo"), provider.lastIndexOf("%2F")).replace("%3A%2F%2F", "://").replace("%3A", ":"));
+            }
+        }
+        catch (Exception e) {
+            logger.error("", e);
+        }
+        finally {
+            zkClient.close();
         }
         return providerList;
+
     }
 
 }

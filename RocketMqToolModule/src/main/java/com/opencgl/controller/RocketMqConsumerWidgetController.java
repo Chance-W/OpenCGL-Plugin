@@ -141,6 +141,7 @@ public class RocketMqConsumerWidgetController extends RocketMqConsumerWidgetView
         }
         RocketMqConsumerWidgetDto rocketMqConsumerWidgetDto = treeView.getSelectionModel().getSelectedItem().getValue();
         update(rocketMqConsumerWidgetDto);
+        TooltipUtil.showToast(mainStackPane, "成功");
     }
 
 

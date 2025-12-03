@@ -21,30 +21,39 @@ import com.opencgl.dubbo.model.DubboResponse;
 public class DubboUtil {
     private static final Logger log = LoggerFactory.getLogger(DubboUtil.class);
     private final DubboRequest dubboRequest;
-    private final ApplicationConfig applicationConfig = new ApplicationConfig();
-    private final RegistryConfig registryConfig = new RegistryConfig();
+
+    private ApplicationConfig applicationConfig = null;
+
+    private RegistryConfig registryConfig = null;
 
     public DubboUtil(DubboRequest dubboRequest) {
         this.dubboRequest = dubboRequest;
-        applicationConfig.setName("OpenCGLService");
-        applicationConfig.setQosEnable(false);
-        registryConfig.setAddress("zookeeper://" + dubboRequest.getDubboRegistryAddr());
-        registryConfig.setGroup(dubboRequest.getDubboRegistryGroup());
-        registryConfig.setTimeout(1000000000);
+        init();
     }
 
+
     public DubboResponse sendMessage() throws GenericException {
-        ReferenceConfig<GenericService> reference = generateGenericServiceReferenceConfig();
-        GenericService genericService = reference.get();
+        ReferenceConfig<GenericService> reference = null;
+        GenericService genericService;
         Object o;
-        if (StringUtils.isEmpty(dubboRequest.getReqType()) || StringUtils.isEmpty(dubboRequest.getReqJsonMessage())) {
-            o = genericService.$invoke(dubboRequest.getMethod(), new String[]{}, new Object[]{});
+        try {
+            reference = generateGenericServiceReferenceConfig();
+            genericService = reference.get();
+            if (StringUtils.isEmpty(dubboRequest.getReqType()) || StringUtils.isEmpty(dubboRequest.getReqJsonMessage())) {
+                o = genericService.$invoke(dubboRequest.getMethod(), new String[]{}, new Object[]{});
+            }
+            else {
+                o = genericService.$invoke(dubboRequest.getMethod(), new String[]{dubboRequest.getReqType()}, new Object[]{JSON.parseObject(dubboRequest.getReqJsonMessage())});
+            }
         }
-        else {
-            o = genericService.$invoke(dubboRequest.getMethod(), new String[]{dubboRequest.getReqType()}, new Object[]{JSON.parseObject(dubboRequest.getReqJsonMessage())});
+        finally {
+            if (reference != null){
+                reference.destroy();
+                reference.getApplication().getScopeModel().destroy();
+            }
         }
-        reference.destroy();
         return DubboResponse.builder().object(o).build();
+
     }
 
     private ReferenceConfig<GenericService> generateGenericServiceReferenceConfig() {
@@ -74,5 +83,16 @@ public class DubboUtil {
         reference.setProtocol("dubbo");
         reference.setInterface(interfaceClass);
         return reference;
+    }
+
+    private void init() {
+        applicationConfig = new ApplicationConfig();
+        applicationConfig.setName("OpenCGLService");
+        applicationConfig.setQosEnable(false);
+
+        registryConfig = new RegistryConfig();
+        registryConfig.setAddress("zookeeper://" + dubboRequest.getDubboRegistryAddr());
+        registryConfig.setGroup(dubboRequest.getDubboRegistryGroup());
+        registryConfig.setTimeout(1000000000);
     }
 }

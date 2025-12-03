@@ -19,8 +19,9 @@ import com.opencgl.dubbo.utils.ZkClientTestUtil;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.css.themes.MFXThemeManager;
-import io.github.palexdev.materialfx.css.themes.Themes;
+import io.github.palexdev.materialfx.theming.JavaFXThemes;
+import io.github.palexdev.materialfx.theming.MaterialFXStylesheets;
+import io.github.palexdev.materialfx.theming.UserAgentBuilder;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -60,7 +61,16 @@ public class DubboEnvConfigureDialog {
     private Stage stage;
 
     public void init() {
-        MFXThemeManager.addOn(envConfigRoot, Themes.DEFAULT, Themes.LEGACY);
+       // MFXThemeManager.addOn(envConfigRoot, Themes.DEFAULT, Themes.LEGACY);
+        UserAgentBuilder.builder()
+            .themes(JavaFXThemes.MODENA)
+            .themes(MaterialFXStylesheets.forAssemble(true))
+            .setDeploy(true)
+            .setResolveAssets(true)
+            .build()
+            .setGlobal();
+
+
         //环境接口检测事件
         testEnv.setOnAction(actionEvent -> {
             if (StringUtils.isEmpty(String.valueOf(envInfo.getText())) ||

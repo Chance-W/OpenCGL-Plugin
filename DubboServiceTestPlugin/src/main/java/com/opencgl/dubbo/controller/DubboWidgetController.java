@@ -63,6 +63,16 @@ import lombok.SneakyThrows;
  */
 @SuppressWarnings("unused")
 public class DubboWidgetController implements Initializable, TreeOperateService<DubboTreeItem> {
+    // 保存自己的ClassLoader
+    private ClassLoader pluginCl;
+
+    public DubboWidgetController() {
+        this.pluginCl = this.getClass().getClassLoader();
+    }
+
+//    public void setPluginCl(ClassLoader pluginCl) {
+//        this.pluginCl = pluginCl;
+//    }
 
     @FXML
     protected SplitPane splitPane;
@@ -248,76 +258,86 @@ public class DubboWidgetController implements Initializable, TreeOperateService<
 
     @FXML
     public void sendLabelAction() {
-        if (StringUtils.isEmpty(chooseIntComboBox.getText())
-            || StringUtils.isEmpty(chooseMetComboBox.getText())) {
-            DialogUtil.showErrorInfo("环境/接口/方法等关键信息不能为空!");
-            return;
-        }
-        String configPathName = basePath + chooseEnvComboBox.getText();
-        DubboInfo dubboInfo = DubboConfigFileParseUtil.readClientParameter(configPathName);
-        String requestJson = FormatVariableUtil.format(inputTextArea.getNonAnnotationText());
-        if (dubboInfo == null
-            || StringUtils.isEmpty(dubboInfo.getZk())
-            || StringUtils.isEmpty(dubboInfo.getGroup())) {
-            DialogUtil.showErrorInfo("环境配置文件不存在，或信息为空!");
-            return;
-        }
-        String requestType = "";
-        if (extCheckBox.isSelected() && !StringUtils.isEmpty(extRequestType.getText())) {
-            requestType = extRequestType.getText();
-        }
-        else {
-            List<String> allContent;
-            try {
-                allContent = DubboConfigFileParseUtil.readMethodAndType(configPathName);
-                for (String line : allContent) {
-                    if (line.split(",")[0].equals(chooseIntComboBox.getText()) && line.split(",")[1].equals(chooseMetComboBox.getText())) {
-                        requestType = line.split(",")[2];
+        ClassLoader old = Thread.currentThread().getContextClassLoader();
+        try {
+            if (StringUtils.isEmpty(chooseIntComboBox.getText())
+                || StringUtils.isEmpty(chooseMetComboBox.getText())) {
+                DialogUtil.showErrorInfo("环境/接口/方法等关键信息不能为空!");
+                return;
+            }
+            String configPathName = basePath + chooseEnvComboBox.getText();
+            DubboInfo dubboInfo = DubboConfigFileParseUtil.readClientParameter(configPathName);
+            String requestJson = FormatVariableUtil.format(inputTextArea.getNonAnnotationText());
+            if (dubboInfo == null
+                || StringUtils.isEmpty(dubboInfo.getZk())
+                || StringUtils.isEmpty(dubboInfo.getGroup())) {
+                DialogUtil.showErrorInfo("环境配置文件不存在，或信息为空!");
+                return;
+            }
+            String requestType = "";
+            if (extCheckBox.isSelected() && !StringUtils.isEmpty(extRequestType.getText())) {
+                requestType = extRequestType.getText();
+            }
+            else {
+                List<String> allContent;
+                try {
+                    allContent = DubboConfigFileParseUtil.readMethodAndType(configPathName);
+                    for (String line : allContent) {
+                        if (line.split(",")[0].equals(chooseIntComboBox.getText()) && line.split(",")[1].equals(chooseMetComboBox.getText())) {
+                            requestType = line.split(",")[2];
+                        }
                     }
                 }
+                catch (Exception e) {
+                    logger.error("", e);
+                }
             }
-            catch (Exception e) {
-                logger.error("", e);
-            }
-        }
-        DubboRequest dubboRequest = DubboRequest.builder()
-            .dubboRegistryAddr(dubboInfo.getZk())
-            .dubboRegistryGroup(dubboInfo.getGroup())
-            .dubboProvidersUrl(chooseProvideComboBox.getText())
-            .interfaceName(chooseIntComboBox.getText())
-            .method(chooseMetComboBox.getText())
-            .reqType(requestType)
-            .reqJsonMessage(requestJson)
-            .build();
+            DubboRequest dubboRequest = DubboRequest.builder()
+                .dubboRegistryAddr(dubboInfo.getZk())
+                .dubboRegistryGroup(dubboInfo.getGroup())
+                .dubboProvidersUrl(chooseProvideComboBox.getText())
+                .interfaceName(chooseIntComboBox.getText())
+                .method(chooseMetComboBox.getText())
+                .reqType(requestType)
+                .reqJsonMessage(requestJson)
+                .build();
 
-        AtomicReference<String> outResult = new AtomicReference<>("");
-        CompletableFuture.runAsync(() -> {
-            Platform.runLater(() -> LoadingUtil.show(contentInputAndOutputPane));
-            try {
-                DubboResponse out = sendMessageService.send(dubboRequest);
-                logger.info("response is {}", out.getObject().toString());
-                outResult.set(JSON.toJSONString(out.getObject(), SerializerFeature.PrettyFormat, SerializerFeature.WriteDateUseDateFormat));
-            }
-            catch (Throwable e) {
-                StringWriter sw = new StringWriter();
-                e.printStackTrace(new PrintWriter(sw, true));
-                logger.error("", e);
-                outResult.set(sw.toString());
-            }
-            finally {
-                outputTextArea.setText(outResult.get());
-                Platform.runLater(() -> LoadingUtil.remove(contentInputAndOutputPane));
-                OperationHisRecord.record("SEND DUBBO MESSAGE:\n" + "环境名称:"
-                    + chooseEnvComboBox.getText() + "\n"
-                    + "zk地址:" + dubboRequest.getDubboRegistryAddr() + "\n"
-                    + "dubbo分组:" + dubboRequest.getDubboRegistryGroup() + "\n"
-                    + "接口:" + chooseIntComboBox.getText()
-                    + "\n" + "方法:" + chooseMetComboBox.getText() + "\n"
-                    + "提供者:" + chooseProvideComboBox.getText() + "\n"
-                    + "输入:\n" + requestJson + "\n"
-                    + "输出:\n" + outResult.get() + "\t");
-            }
-        });
+            AtomicReference<String> outResult = new AtomicReference<>("");
+            CompletableFuture.runAsync(() -> {
+                Platform.runLater(() -> LoadingUtil.show(contentInputAndOutputPane));
+                try {
+                    Thread.currentThread().setContextClassLoader(pluginCl);
+                    DubboResponse out = sendMessageService.send(dubboRequest);
+                    logger.info("response is {}", out.getObject().toString());
+                    outResult.set(JSON.toJSONString(out.getObject(), SerializerFeature.PrettyFormat, SerializerFeature.WriteDateUseDateFormat));
+                }
+                catch (Throwable e) {
+                    StringWriter sw = new StringWriter();
+                    e.printStackTrace(new PrintWriter(sw, true));
+                    logger.error("", e);
+                    outResult.set(sw.toString());
+                }
+                finally {
+                    outputTextArea.setText(outResult.get());
+                    Platform.runLater(() -> LoadingUtil.remove(contentInputAndOutputPane));
+                    OperationHisRecord.record("SEND DUBBO MESSAGE:\n" + "环境名称:"
+                        + chooseEnvComboBox.getText() + "\n"
+                        + "zk地址:" + dubboRequest.getDubboRegistryAddr() + "\n"
+                        + "dubbo分组:" + dubboRequest.getDubboRegistryGroup() + "\n"
+                        + "接口:" + chooseIntComboBox.getText()
+                        + "\n" + "方法:" + chooseMetComboBox.getText() + "\n"
+                        + "提供者:" + chooseProvideComboBox.getText() + "\n"
+                        + "输入:\n" + requestJson + "\n"
+                        + "输出:\n" + outResult.get() + "\t");
+                }
+            });
+        }catch (Exception e){
+            logger.error("", e);
+        }
+        finally {
+            Thread.currentThread().setContextClassLoader(old);
+        }
+
     }
 
     @FXML

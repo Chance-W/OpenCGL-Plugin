@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Auto Submit Form</title>
+    <script>
+        function submitForm() {
+            try {
+                window.open("https://aaa.u.com.my", "_self");
+            } catch (error) {
+                console.log(error)
+            }
+            document.write("<form method=\"post\" name=\"ePayment\" action=\"https://payment.ipay88.com.my/epayment/entry.asp\">\n <INPUT type=\"hidden\" name=\"MerchantCode\" value=\"M43394\">\n <INPUT type=\"hidden\" name=\"PaymentId\" value=\"2\">\n <INPUT type=\"hidden\" name=\"RefNo\" value=\"240312008309161\">\n <INPUT type=\"hidden\" name=\"Amount\" value=\"4,247.00\">\n <INPUT type=\"hidden\" name=\"Currency\" value=\"MYR\">\n <INPUT type=\"hidden\" name=\"ProdDesc\" value=\"U Mobile Online Store Order Payment\">\n <INPUT type=\"hidden\" name=\"UserName\" value=\"NG SONQ HUEI\">\n <INPUT type=\"hidden\" name=\"UserEmail\" value=\"payment@u.com.my\">\n <INPUT type=\"hidden\" name=\"UserContact\" value=\"\">\n <INPUT type=\"hidden\" name=\"Remark\" value=\"\">\n <INPUT type=\"hidden\" name=\"Lang\" value=\"UTF-8\">\n <INPUT type=\"hidden\" name=\"SignatureType\" value=\"SHA256\">\n <INPUT type=\"hidden\" name=\"Signature\" value=\"1179b39f0aaeea54aa682e4a48e8a38c0402259d4944f3a4c42a3629d1403b5f\">\n <INPUT type=\"hidden\" name=\"ResponseURL\" value=\"https://uportal.u.com.my/portal-web/pc/callback/common/eightPay/malaysia/respPage\">\n <INPUT type=\"hidden\" name=\"BackendURL\" value=\"https://apigwprod.u.com.my/api/payRest/UmEightPayCallBackService/1.0/iPay88\">\n <INPUT type=\"hidden\" name=\"Optional\" value=\"\">\n <INPUT type=\"hidden\" name=\"appdeeplink\" value=\"\">\n <INPUT type=\"hidden\" name=\"Xfield1\" value=\"\">\n</form>\n<script>document.forms[0].submit();<\/script>")
+        }
+    </script>
+</head>
+<body onload="submitForm()">
+</body>
+</html>

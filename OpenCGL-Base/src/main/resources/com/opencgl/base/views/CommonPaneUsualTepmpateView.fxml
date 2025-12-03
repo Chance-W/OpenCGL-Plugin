@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx/10.0.2-internal"
+           xmlns:fx="http://javafx.com/fxml/1">
+    <BorderPane>
+        <center>
+            <SplitPane dividerPositions="0.20">
+                <AnchorPane minHeight="0.0">
+                    <StackPane fx:id="sideLeftTreeView"
+                               AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0"/>
+                </AnchorPane>
+                <AnchorPane>
+                    <StackPane fx:id="content" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"
+                               AnchorPane.topAnchor="7"/>
+                </AnchorPane>
+            </SplitPane>
+        </center>
+    </BorderPane>
+
+</StackPane>

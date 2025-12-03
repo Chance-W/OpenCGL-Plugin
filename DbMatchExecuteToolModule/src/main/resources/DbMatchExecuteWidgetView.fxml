@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.control.ScrollPane?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.opencgl.controller.DbBatchOperWidgetController">
+    <BorderPane fx:id="contentBorderPane" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
+                AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+        <top>
+            <StackPane>
+                <VBox fx:id="operateTopVbox">
+                    <HBox fx:id="moduleDb" spacing="2.0">
+                        <MFXTextField floatMode="BORDER" fx:id="moduleDbInfo"
+                                      promptText="数据库信息,悬停获取格式"
+                                      style="-fx-prompt-text-fill:rgba(63,75,77,0.39)"
+                                      prefWidth="500" prefHeight="50.0"
+                                      HBox.hgrow="ALWAYS"/>
+                        <MFXTextField floatMode="BORDER" fx:id="moduleDbTableName" prefHeight="50" prefWidth="300.0"
+                                      promptText="批次表查询语句(请勿用*)"
+                                      style="-fx-prompt-text-fill:rgba(63,75,77,0.39)"/>
+                        <MFXTextField floatMode="BORDER" fx:id="moduleSuffix" prefHeight="50" prefWidth="300.0"
+                                      promptText="匹配字段(可用;分隔,按顺序配置)"
+                                      style="-fx-prompt-text-fill:rgba(63,75,77,0.39)">
+                        </MFXTextField>
+                        <MFXButton text="+" onAction="#addItem"/>
+                        <VBox.margin>
+                            <Insets right="10" top="10.0"/>
+                        </VBox.margin>
+                        <padding>
+                            <Insets left="10.0" top="10"/>
+                        </padding>
+                    </HBox>
+                </VBox>
+            </StackPane>
+        </top>
+        <center>
+            <ScrollPane fitToWidth="true">
+                <VBox fx:id="operateCenterVbox" spacing="2.0">
+                    <!-- <HBox fx:id="moduleDbTemplate" spacing="3.0" VBox.vgrow="ALWAYS">
+                         <JFXCheckBox fx:id="chooseCheckBox"/>
+                         <MFXTextField fx:id="moduleDbInfoTemplate" editable="false" prefHeight="30" style="-fx-prompt-text-fill:rgba(63,75,77,0.39)"  HBox.hgrow="ALWAYS" />
+                         <MFXTextField fx:id="moduleDbTableNameTemplate" editable="false" prefHeight="30" prefWidth="70.0" style="-fx-prompt-text-fill:rgba(63,75,77,0.39)"  />
+                         <MFXTextField fx:id="moduleSuffixTemplate" editable="false" prefHeight="30" prefWidth="90.0" style="-fx-prompt-text-fill:rgba(63,75,77,0.39)" >
+                         </MFXTextField>
+                         <MFXButton fx:id="delTemplate" prefHeight="30" text="-" />
+                         <VBox.margin>
+                             <Insets right="10" top="10.0" />
+                         </VBox.margin>
+                         <padding>
+                             <Insets left="10.0" top="10" />
+                         </padding>
+                     </HBox>-->
+                </VBox>
+            </ScrollPane>
+        </center>
+        <bottom>
+            <HBox alignment="CENTER_RIGHT">
+                <MFXButton fx:id="execute" buttonType="RAISED" onAction="#execute"
+                           prefHeight="30.0" prefWidth="10.0"/>
+            </HBox>
+        </bottom>
+    </BorderPane>
+</StackPane>

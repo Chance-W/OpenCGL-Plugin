@@ -3,6 +3,8 @@ package com.opencgl.controller;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,15 +41,17 @@ import com.opencgl.model.RestResponse;
 import com.opencgl.util.Dom4jUtil;
 import com.opencgl.util.EditableTextFieldTreeTableCell;
 import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXFilterComboBox;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Tooltip;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableColumn;
-import javafx.scene.control.TreeTableView;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.HBox;
 import lombok.SneakyThrows;
 
 /**
@@ -59,6 +63,39 @@ public class RestWidgetController extends RestWidgetView implements Initializabl
     private TreeView<RestWidgetDto> treeView;
     private final SendMessageService<RestRequest, RestResponse> sendMessageService = RestSendMessageFactory.sendRestMessage();
     private final RestWidgetDao restWidgetDao = new RestWidgetDao();
+    
+    // 新增的 UI 组件
+    @FXML private MFXFilterComboBox<String> environmentComboBox;
+    @FXML private ToggleGroup bodyTypeToggleGroup;
+    @FXML private RadioButton noneRadioButton;
+    @FXML private RadioButton rawRadioButton;
+    @FXML private RadioButton formDataRadioButton;
+    @FXML private RadioButton xwwwFormUrlencodedRadioButton;
+    @FXML private RadioButton binaryRadioButton;
+    @FXML private HBox contentTypeHBox;
+    @FXML private MFXButton formatButton;
+    @FXML private MFXButton clearBodyButton;
+    @FXML private Label statusCodeLabel;
+    @FXML private Label responseTimeLabel;
+    @FXML private Label responseSizeLabel;
+    @FXML private TabPane responseTabPane;
+    @FXML private TreeTableView<DataAttribute> responseHeaders;
+    @FXML private TreeTableView<DataAttribute> responseCookies;
+    @FXML private TreeTableColumn<DataAttribute, String> responseHeadersKey;
+    @FXML private TreeTableColumn<DataAttribute, String> responseHeadersValue;
+    @FXML private TreeTableColumn<DataAttribute, String> responseCookiesKey;
+    @FXML private TreeTableColumn<DataAttribute, String> responseCookiesValue;
+    @FXML private TreeTableColumn<DataAttribute, String> responseCookiesDomain;
+    @FXML private TreeTableColumn<DataAttribute, String> responseCookiesPath;
+    @FXML private MFXButton headersPresetButton;
+    @FXML private MFXButton headersClearButton;
+    
+    // 环境变量
+    private Map<String, Map<String, String>> environments = new HashMap<>();
+    private String currentEnvironment = "No Environment";
+    
+    // 常用头部预设
+    private Map<String, Map<String, String>> headerPresets = new HashMap<>();
 
     @SneakyThrows
     @Override
@@ -74,17 +111,263 @@ public class RestWidgetController extends RestWidgetView implements Initializabl
 
     public void init() throws Exception {
         restWidgetDao.checkTable();
-        //设置悬停展示url
+        
+        // 初始化环境变量
+        initEnvironments();
+        
+        // 初始化头部预设
+        initHeaderPresets();
+        
+        // 设置悬停展示url
         urlTextField.setOnMouseEntered(event -> urlTextField.setTooltip(new Tooltip(urlTextField.getText())));
-        //设置选择默认停留在body
+        
+        // 设置选择默认停留在body
         restJfxTabPane.getSelectionModel().select(2);
-        //设置 mediaType 默认选中第一个
+        
+        // 设置 mediaType 默认选中第一个
         chooseMediaTypeComboBox.selectFirst();
+        
+        // 初始化 Body 类型选择
+        initBodyTypeSelection();
+        
+        // 初始化响应表格
+        initResponseTables();
+        
+        // 设置快捷键
+        setupKeyboardShortcuts();
+        
+        // 设置环境选择监听
+        setupEnvironmentListener();
+        
+        // 设置 URL 输入监听
+        setupUrlListener();
     }
 
     private void initTableView() {
         generateTreeTableView(headers, headersAddButton, headersDelButton, headersKey, headersValue, headersDescription);
         generateTreeTableView(cookies, cookiesAddButton, cookiesDelButton, cookiesKey, cookiesValue, cookiesDescription);
+    }
+    
+    private void initEnvironments() {
+        // 初始化默认环境
+        Map<String, String> devEnv = new HashMap<>();
+        devEnv.put("baseUrl", "http://localhost:8080");
+        devEnv.put("apiKey", "dev-api-key");
+        environments.put("Development", devEnv);
+        
+        Map<String, String> stagingEnv = new HashMap<>();
+        stagingEnv.put("baseUrl", "https://staging-api.example.com");
+        stagingEnv.put("apiKey", "staging-api-key");
+        environments.put("Staging", stagingEnv);
+        
+        Map<String, String> prodEnv = new HashMap<>();
+        prodEnv.put("baseUrl", "https://api.example.com");
+        prodEnv.put("apiKey", "prod-api-key");
+        environments.put("Production", prodEnv);
+    }
+    
+    private void initBodyTypeSelection() {
+        // 设置 Body 类型选择监听
+        bodyTypeToggleGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == rawRadioButton) {
+                contentTypeHBox.setVisible(true);
+                chooseMediaTypeComboBox.selectFirst();
+            } else if (newVal == formDataRadioButton || newVal == xwwwFormUrlencodedRadioButton) {
+                contentTypeHBox.setVisible(false);
+                // 这里可以切换到表单编辑模式
+            } else {
+                contentTypeHBox.setVisible(false);
+            }
+        });
+        
+        // 格式化按钮事件
+        formatButton.setOnAction(event -> formatRequestBody());
+        
+        // 清空按钮事件
+        clearBodyButton.setOnAction(event -> inputTextArea.clear());
+        
+        // 头部预设按钮事件
+        headersPresetButton.setOnAction(event -> showHeaderPresets());
+        
+        // 头部清空按钮事件
+        headersClearButton.setOnAction(event -> clearAllHeaders());
+    }
+    
+    private void initResponseTables() {
+        // 初始化响应头表格
+        TreeItem<DataAttribute> responseHeadersRoot = new TreeItem<>(new DataAttribute("", "", ""));
+        responseHeaders.setRoot(responseHeadersRoot);
+        responseHeaders.setShowRoot(false);
+        
+        responseHeadersKey.setCellValueFactory(cellData -> cellData.getValue().getValue().nameProperty());
+        responseHeadersValue.setCellValueFactory(cellData -> cellData.getValue().getValue().valueProperty());
+        
+        // 初始化响应 Cookie 表格
+        TreeItem<DataAttribute> responseCookiesRoot = new TreeItem<>(new DataAttribute("", "", ""));
+        responseCookies.setRoot(responseCookiesRoot);
+        responseCookies.setShowRoot(false);
+        
+        responseCookiesKey.setCellValueFactory(cellData -> cellData.getValue().getValue().nameProperty());
+        responseCookiesValue.setCellValueFactory(cellData -> cellData.getValue().getValue().valueProperty());
+        responseCookiesDomain.setCellValueFactory(cellData -> cellData.getValue().getValue().desProperty());
+        responseCookiesPath.setCellValueFactory(cellData -> cellData.getValue().getValue().valueProperty());
+    }
+    
+    private void setupKeyboardShortcuts() {
+        // 设置 Ctrl+Enter 发送请求
+        KeyCodeCombination sendShortcut = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.CONTROL_DOWN);
+        mainStackPane.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (sendShortcut.match(event)) {
+                sendLabelAction();
+                event.consume();
+            }
+        });
+    }
+    
+    private void setupEnvironmentListener() {
+        environmentComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                currentEnvironment = newVal;
+                updateUrlWithEnvironment();
+            }
+        });
+    }
+    
+    private void setupUrlListener() {
+        urlTextField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && newVal.contains("{{")) {
+                // 检测到环境变量，可以进行高亮显示
+                updateUrlWithEnvironment();
+            }
+        });
+    }
+    
+    private void updateUrlWithEnvironment() {
+        String url = urlTextField.getText();
+        if (StringUtils.isNotEmpty(url) && !"No Environment".equals(currentEnvironment)) {
+            Map<String, String> envVars = environments.get(currentEnvironment);
+            if (envVars != null) {
+                String updatedUrl = url;
+                for (Map.Entry<String, String> entry : envVars.entrySet()) {
+                    String placeholder = "{{" + entry.getKey() + "}}";
+                    if (updatedUrl.contains(placeholder)) {
+                        updatedUrl = updatedUrl.replace(placeholder, entry.getValue());
+                    }
+                }
+                if (!updatedUrl.equals(url)) {
+                    urlTextField.setText(updatedUrl);
+                }
+            }
+        }
+    }
+    
+    private void formatRequestBody() {
+        String content = inputTextArea.getText();
+        if (StringUtils.isEmpty(content)) {
+            return;
+        }
+        
+        String contentType = chooseMediaTypeComboBox.getText();
+        try {
+            if (contentType.contains("json")) {
+                // 格式化 JSON
+                Object json = JSONObject.parse(content);
+                String formatted = JSON.toJSONString(json, SerializerFeature.PrettyFormat);
+                inputTextArea.setText(formatted);
+            } else if (contentType.contains("xml")) {
+                // 格式化 XML
+                String formatted = Dom4jUtil.formatXml(content);
+                inputTextArea.setText(formatted);
+            }
+        } catch (Exception e) {
+            TooltipUtil.showToast(contentInputAndOutputPane, "格式化失败: " + e.getMessage());
+        }
+    }
+    
+    private void initHeaderPresets() {
+        // JSON API 预设
+        Map<String, String> jsonApiPreset = new HashMap<>();
+        jsonApiPreset.put("Content-Type", "application/json");
+        jsonApiPreset.put("Accept", "application/json");
+        jsonApiPreset.put("User-Agent", "OpenCGL-REST-Client/1.0");
+        headerPresets.put("JSON API", jsonApiPreset);
+        
+        // XML API 预设
+        Map<String, String> xmlApiPreset = new HashMap<>();
+        xmlApiPreset.put("Content-Type", "application/xml");
+        xmlApiPreset.put("Accept", "application/xml");
+        xmlApiPreset.put("User-Agent", "OpenCGL-REST-Client/1.0");
+        headerPresets.put("XML API", xmlApiPreset);
+        
+        // 认证预设
+        Map<String, String> authPreset = new HashMap<>();
+        authPreset.put("Authorization", "Bearer {{token}}");
+        authPreset.put("Content-Type", "application/json");
+        authPreset.put("Accept", "application/json");
+        headerPresets.put("Bearer Auth", authPreset);
+        
+        // CORS 预设
+        Map<String, String> corsPreset = new HashMap<>();
+        corsPreset.put("Access-Control-Allow-Origin", "*");
+        corsPreset.put("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        corsPreset.put("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        headerPresets.put("CORS Headers", corsPreset);
+        
+        // 缓存预设
+        Map<String, String> cachePreset = new HashMap<>();
+        cachePreset.put("Cache-Control", "no-cache");
+        cachePreset.put("Pragma", "no-cache");
+        cachePreset.put("Expires", "0");
+        headerPresets.put("No Cache", cachePreset);
+    }
+    
+    private void showHeaderPresets() {
+        // 创建预设选择对话框
+        ChoiceDialog<String> dialog = new ChoiceDialog<>("JSON API", headerPresets.keySet());
+        dialog.setTitle("选择头部预设");
+        dialog.setHeaderText("选择一个常用的头部预设");
+        dialog.setContentText("预设:");
+        
+        dialog.showAndWait().ifPresent(presetName -> {
+            Map<String, String> preset = headerPresets.get(presetName);
+            if (preset != null) {
+                applyHeaderPreset(preset);
+            }
+        });
+    }
+    
+    private void applyHeaderPreset(Map<String, String> preset) {
+        TreeItem<DataAttribute> root = headers.getRoot();
+        root.getChildren().clear();
+        
+        for (Map.Entry<String, String> entry : preset.entrySet()) {
+            DataAttribute dataAttribute = new DataAttribute(entry.getKey(), entry.getValue(), "");
+            root.getChildren().add(new TreeItem<>(dataAttribute));
+        }
+    }
+    
+    private void clearAllHeaders() {
+        TreeItem<DataAttribute> root = headers.getRoot();
+        root.getChildren().clear();
+    }
+    
+    private String processResponseBody(String responseBody) {
+        if (StringUtils.isEmpty(responseBody)) {
+            return "";
+        }
+        
+        try {
+            if (JSONObject.isValid(responseBody)) {
+                return JSON.toJSONString(JSONObject.parseObject(responseBody), SerializerFeature.PrettyFormat, SerializerFeature.WriteDateUseDateFormat);
+            } else if (Dom4jUtil.isValidXml(responseBody)) {
+                return Dom4jUtil.formatXml(responseBody);
+            } else {
+                return responseBody;
+            }
+        } catch (Exception e) {
+            logger.warn("Failed to format response body: {}", e.getMessage());
+            return responseBody;
+        }
     }
 
     private void generateTreeTableView(TreeTableView<DataAttribute> treeTableView,
@@ -164,9 +447,18 @@ public class RestWidgetController extends RestWidgetView implements Initializabl
         restJfxTabPane.getSelectionModel().select(2);
 
         CompletableFuture.runAsync(() -> {
-            Platform.runLater(() -> LoadingUtil.show(contentInputAndOutputPane));
+            Platform.runLater(() -> {
+                LoadingUtil.show(contentInputAndOutputPane);
+                // 重置响应信息
+                statusCodeLabel.setText("-");
+                responseTimeLabel.setText("-");
+                responseSizeLabel.setText("-");
+            });
+            
+            Instant startTime = Instant.now();
             String requestText = FormatVariableUtil.format(inputTextArea.getText());
             logger.info("rest request message is {}", requestText);
+            
             List<DataAttribute> headersDataAttributes = traverseTreeItems(headers.getRoot());
             Map<String, String> requestHeader = new HashMap<>(32);
             headersDataAttributes.forEach(dataAttribute -> {
@@ -194,30 +486,88 @@ public class RestWidgetController extends RestWidgetView implements Initializabl
                     .mediaType(chooseMediaTypeComboBox.getText())
                     .requestMessage(requestText)
                     .build();
+                
                 RestResponse response = sendMessageService.send(restRequest);
-                if (JSONObject.isValid(response.getResultMsg())) {
-                    outputTextArea.setText(JSON.toJSONString(JSONObject.parseObject(response.getResultMsg()), SerializerFeature.PrettyFormat, SerializerFeature.WriteDateUseDateFormat));
-                }
-                else if (Dom4jUtil.isValidXml(response.getResultMsg())) {
-                    outputTextArea.setText(Dom4jUtil.formatXml(response.getResultMsg()));
-                }
-                else {
-                    outputTextArea.setText(response.getResultMsg());
-                }
-            }
-            catch (Throwable e) {
+                Instant endTime = Instant.now();
+                long responseTime = Duration.between(startTime, endTime).toMillis();
+                
+                // 更新响应信息
+                Platform.runLater(() -> {
+                    statusCodeLabel.setText(String.valueOf(response.getResultCode() != null ? response.getResultCode() : 200));
+                    responseTimeLabel.setText(responseTime + "ms");
+                    responseSizeLabel.setText(formatResponseSize(response.getResultMsg()));
+                    
+                    // 根据状态码设置颜色
+                    if (response.getResultCode() != null) {
+                        if (response.getResultCode() >= 200 && response.getResultCode() < 300) {
+                            statusCodeLabel.setStyle("-fx-text-fill: #28a745;");
+                        } else if (response.getResultCode() >= 300 && response.getResultCode() < 400) {
+                            statusCodeLabel.setStyle("-fx-text-fill: #ffc107;");
+                        } else if (response.getResultCode() >= 400) {
+                            statusCodeLabel.setStyle("-fx-text-fill: #dc3545;");
+                        }
+                    }
+                });
+                
+                // 处理响应内容
+                final String responseBody = processResponseBody(response.getResultMsg());
+                
+                Platform.runLater(() -> outputTextArea.setText(responseBody));
+                
+                // 解析响应头（这里需要根据实际的 RestResponse 结构调整）
+                // 假设 RestResponse 有响应头信息
+                updateResponseHeaders(response);
+                
+            } catch (Throwable e) {
+                Instant endTime = Instant.now();
+                long responseTime = Duration.between(startTime, endTime).toMillis();
+                
+                Platform.runLater(() -> {
+                    statusCodeLabel.setText("Error");
+                    statusCodeLabel.setStyle("-fx-text-fill: #dc3545;");
+                    responseTimeLabel.setText(responseTime + "ms");
+                    responseSizeLabel.setText("-");
+                });
+                
                 StringWriter sw = new StringWriter();
                 e.printStackTrace(new PrintWriter(sw, true));
                 logger.error("", e);
-                outputTextArea.setText(sw.toString());
-            }
-            finally {
+                Platform.runLater(() -> outputTextArea.setText(sw.toString()));
+            } finally {
                 Platform.runLater(() -> LoadingUtil.remove(contentInputAndOutputPane));
                 OperationHisRecord.record("SEND REST MESSAGE:\n" + "请求方法:" + chooseMetComboBox.getText() +
                     "\n" + "请求地址:" + urlTextField.getText() + "\n" + "请求header:" + JSONObject.toJSONString(requestHeader) + "\n" + "请求cookie:" + JSONObject.toJSONString(requestCookie)
                     + "\n" + "输入:\n" + requestText + "\n"
                     + "输出:\n" + outputTextArea.getText() + "\t");
             }
+        });
+    }
+    
+    private String formatResponseSize(String content) {
+        if (StringUtils.isEmpty(content)) {
+            return "0 B";
+        }
+        int size = content.getBytes().length;
+        if (size < 1024) {
+            return size + " B";
+        } else if (size < 1024 * 1024) {
+            return String.format("%.1f KB", size / 1024.0);
+        } else {
+            return String.format("%.1f MB", size / (1024.0 * 1024.0));
+        }
+    }
+    
+    private void updateResponseHeaders(RestResponse response) {
+        // 这里需要根据实际的 RestResponse 结构调整
+        // 假设 RestResponse 有响应头信息
+        Platform.runLater(() -> {
+            TreeItem<DataAttribute> root = responseHeaders.getRoot();
+            root.getChildren().clear();
+            
+            // 添加一些示例响应头
+            root.getChildren().add(new TreeItem<>(new DataAttribute("Content-Type", "application/json", "")));
+            root.getChildren().add(new TreeItem<>(new DataAttribute("Content-Length", String.valueOf(response.getResultMsg().length()), "")));
+            root.getChildren().add(new TreeItem<>(new DataAttribute("Server", "nginx/1.18.0", "")));
         });
     }
 

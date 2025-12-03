@@ -1,25 +1,327 @@
-.mfx-button .mfx-font-icon {
-    -mfx-color: #4d804d;
-    -fx-opacity: 0.5;
+/* Postman 风格的 REST 测试工具样式 */
+
+/* 主容器样式 */
+.main-container {
+    -fx-background-color: #f8f9fa;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 1;
 }
 
-#operateTopVbox {
-    -fx-background-color: WHITE;
-    -fx-fill-height: true;
+/* 工具栏样式 */
+.toolbar {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 8 12;
 }
 
-/*单独设置combobox的下拉框的宽度
-#chooseIntComboBox .combo-popup .virtual-flow {
-    -fx-min-width: 800;
-}*/
-
-.mfx-text-field .floating-text {
-    -fx-padding: 0 10 0 10;
-    -fx-text-fill: gray;
+/* 请求行样式 */
+.request-row {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 8 12;
 }
 
-.no-button-bar .button-bar {
-    -fx-padding: 0;
-    -fx-pref-height: 0;
-    -fx-max-height: 0;
+/* 按钮样式 */
+.btn-primary {
+    -fx-background-color: #ff6b35;
+    -fx-text-fill: white;
+    -fx-background-radius: 4;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #e55a2b;
+}
+
+.btn-secondary {
+    -fx-background-color: #6c757d;
+    -fx-text-fill: white;
+    -fx-background-radius: 4;
+    -fx-padding: 6 12;
+}
+
+.btn-secondary:hover {
+    -fx-background-color: #5a6268;
+}
+
+.btn-success {
+    -fx-background-color: #28a745;
+    -fx-text-fill: white;
+    -fx-background-radius: 4;
+    -fx-padding: 6 12;
+}
+
+.btn-success:hover {
+    -fx-background-color: #218838;
+}
+
+.btn-info {
+    -fx-background-color: #17a2b8;
+    -fx-text-fill: white;
+    -fx-background-radius: 4;
+    -fx-padding: 6 12;
+}
+
+.btn-info:hover {
+    -fx-background-color: #138496;
+}
+
+.btn-danger {
+    -fx-background-color: #dc3545;
+    -fx-text-fill: white;
+    -fx-background-radius: 4;
+    -fx-padding: 6 12;
+}
+
+.btn-danger:hover {
+    -fx-background-color: #c82333;
+}
+
+/* 输入框样式 */
+.input-field {
+    -fx-background-color: white;
+    -fx-border-color: #ced4da;
+    -fx-border-radius: 4;
+    -fx-padding: 8 12;
+    -fx-font-size: 14;
+}
+
+.input-field:focused {
+    -fx-border-color: #80bdff;
+    -fx-box-border: #80bdff;
+}
+
+/* 下拉框样式 */
+.combo-box {
+    -fx-background-color: white;
+    -fx-border-color: #ced4da;
+    -fx-border-radius: 4;
+    -fx-padding: 6 12;
+}
+
+.combo-box:hover {
+    -fx-border-color: #80bdff;
+}
+
+/* 标签页样式 */
+.tab-pane {
+    -fx-background-color: white;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 1;
+}
+
+.tab {
+    -fx-background-color: #f8f9fa;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 8 16;
+}
+
+.tab:selected {
+    -fx-background-color: white;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 0 0 2 0;
+    -fx-border-bottom-color: #ff6b35;
+}
+
+.tab:hover {
+    -fx-background-color: #e9ecef;
+}
+
+/* 表格样式 */
+.tree-table-view {
+    -fx-background-color: white;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 1;
+}
+
+.tree-table-view .column-header {
+    -fx-background-color: #f8f9fa;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 8 12;
+    -fx-font-weight: bold;
+}
+
+.tree-table-view .table-cell {
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 8 12;
+}
+
+.tree-table-view .table-row-cell:selected {
+    -fx-background-color: #e3f2fd;
+}
+
+.tree-table-view .table-row-cell:hover {
+    -fx-background-color: #f5f5f5;
+}
+
+/* 文本区域样式 */
+.text-area {
+    -fx-background-color: white;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 1;
+    -fx-font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    -fx-font-size: 13;
+    -fx-padding: 8;
+}
+
+.text-area:focused {
+    -fx-border-color: #80bdff;
+}
+
+/* 状态标签样式 */
+.status-success {
+    -fx-text-fill: #28a745;
+    -fx-font-weight: bold;
+}
+
+.status-warning {
+    -fx-text-fill: #ffc107;
+    -fx-font-weight: bold;
+}
+
+.status-error {
+    -fx-text-fill: #dc3545;
+    -fx-font-weight: bold;
+}
+
+.status-info {
+    -fx-text-fill: #6c757d;
+}
+
+/* 响应区域样式 */
+.response-container {
+    -fx-background-color: white;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 1;
+}
+
+.response-header {
+    -fx-background-color: #f8f9fa;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 12;
+}
+
+/* 环境变量高亮 */
+.environment-variable {
+    -fx-background-color: #fff3cd;
+    -fx-border-color: #ffeaa7;
+    -fx-border-width: 1;
+    -fx-border-radius: 3;
+    -fx-padding: 2 4;
+}
+
+/* 分隔线样式 */
+.separator {
+    -fx-background-color: #dee2e6;
+}
+
+/* 工具提示样式 */
+.tooltip {
+    -fx-background-color: #343a40;
+    -fx-text-fill: white;
+    -fx-background-radius: 4;
+    -fx-padding: 6 8;
+    -fx-font-size: 12;
+}
+
+/* 加载动画样式 */
+.loading-overlay {
+    -fx-background-color: rgba(248, 249, 250, 0.8);
+}
+
+/* 滚动条样式 */
+.scroll-bar {
+    -fx-background-color: #f8f9fa;
+    -fx-border-color: #e9ecef;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #ced4da;
+    -fx-background-radius: 4;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #adb5bd;
+}
+
+/* 单选按钮样式 */
+.radio-button {
+    -fx-font-size: 13;
+    -fx-text-fill: #495057;
+}
+
+.radio-button:selected {
+    -fx-text-fill: #ff6b35;
+}
+
+/* 标签样式 */
+.label {
+    -fx-font-size: 13;
+    -fx-text-fill: #495057;
+}
+
+.label-bold {
+    -fx-font-weight: bold;
+    -fx-text-fill: #495057;
+}
+
+/* 响应状态码样式 */
+.status-code-2xx {
+    -fx-text-fill: #28a745;
+    -fx-font-weight: bold;
+}
+
+.status-code-3xx {
+    -fx-text-fill: #ffc107;
+    -fx-font-weight: bold;
+}
+
+.status-code-4xx {
+    -fx-text-fill: #fd7e14;
+    -fx-font-weight: bold;
+}
+
+.status-code-5xx {
+    -fx-text-fill: #dc3545;
+    -fx-font-weight: bold;
+}
+
+/* 代码高亮样式 */
+.json-key {
+    -fx-fill: #d73a49;
+}
+
+.json-string {
+    -fx-fill: #032f62;
+}
+
+.json-number {
+    -fx-fill: #005cc5;
+}
+
+.json-boolean {
+    -fx-fill: #e36209;
+}
+
+.json-null {
+    -fx-fill: #6f42c1;
+}
+
+/* 响应时间样式 */
+.response-time {
+    -fx-text-fill: #6c757d;
+    -fx-font-size: 12;
+}
+
+/* 响应大小样式 */
+.response-size {
+    -fx-text-fill: #6c757d;
+    -fx-font-size: 12;
 }

@@ -3,8 +3,9 @@ package com.opencgl.template;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.github.palexdev.materialfx.css.themes.MFXThemeManager;
-import io.github.palexdev.materialfx.css.themes.Themes;
+import io.github.palexdev.materialfx.theming.JavaFXThemes;
+import io.github.palexdev.materialfx.theming.MaterialFXStylesheets;
+import io.github.palexdev.materialfx.theming.UserAgentBuilder;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
@@ -38,7 +39,15 @@ public class TemplateLaunchApplication extends Application {
             logger.error("", e);
         }
         Scene scene = new Scene(loader.load(), width, height);
-        MFXThemeManager.addOn(scene, Themes.DEFAULT, Themes.LEGACY);
+
+        UserAgentBuilder.builder()
+            .themes(JavaFXThemes.MODENA)
+            .themes(MaterialFXStylesheets.forAssemble(true))
+            .setDeploy(true)
+            .setResolveAssets(true)
+            .build()
+            .setGlobal();
+
         stage.setScene(scene);
         stage.show();
     }

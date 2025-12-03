@@ -10,6 +10,8 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>TemplatePlugin</module>
+        <module>TemplatePlugin2</module>
+        <module>TemplatePlugin3</module>
         <module>DubboServiceTestPlugin</module>
         <module>JsonXmlFormatModule</module>
         <module>EncryptAndDecryptModule</module>
@@ -25,13 +27,15 @@
         <module>CronExpBuilderModule</module>
         <module>FormOrHtmlWriteModule</module>
         <module>QRCodeGenerateModule</module>
+        <module>Word2MarkdownModule</module>
+        <module>DbMatchExecuteToolModule</module>
     </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.source>19</maven.compiler.source>
-        <maven.compiler.target>19</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
     </properties>
 
 
