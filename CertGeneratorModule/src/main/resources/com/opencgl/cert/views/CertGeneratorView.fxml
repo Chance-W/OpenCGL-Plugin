@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXComboBox?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
+<?import io.github.palexdev.materialfx.controls.MFXCheckbox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+
+<TabPane xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml"
+         stylesheets="@../styles/cert-generator.css"
+         fx:controller="com.opencgl.cert.controller.CertGeneratorController"
+         tabClosingPolicy="UNAVAILABLE">
+
+    <Tab fx:id="generatorTab" text="%tab.generator">
+        <ScrollPane fitToWidth="true">
+            <VBox spacing="20">
+                <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+                
+                <!-- Section 1: Subject Information -->
+                <VBox spacing="10">
+                    <Label text="%section.subject" styleClass="section-header"/>
+                    <GridPane hgap="10" vgap="10">
+                        <MFXTextField fx:id="commonNameField" floatMode="BORDER" floatingText="%label.cn" prefWidth="300" GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+                        
+                        <MFXTextField fx:id="orgField" floatMode="BORDER" floatingText="%label.org" prefWidth="200" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <MFXTextField fx:id="orgUnitField" floatMode="BORDER" floatingText="%label.unit" prefWidth="200" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                        
+                        <MFXTextField fx:id="localityField" floatMode="BORDER" floatingText="%label.city" prefWidth="130" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                        <MFXTextField fx:id="stateField" floatMode="BORDER" floatingText="%label.state" prefWidth="130" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                        <MFXTextField fx:id="countryField" floatMode="BORDER" floatingText="%label.country" text="CN" prefWidth="60" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+                    </GridPane>
+                </VBox>
+                
+                <Separator/>
+                
+                <!-- Section 2: Key Configuration -->
+                 <VBox spacing="10">
+                    <Label text="%section.key" styleClass="section-header"/>
+                     <GridPane hgap="10" vgap="10">
+                        <MFXComboBox fx:id="keyAlgoCombo" floatingText="%label.algo" prefWidth="150" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <MFXComboBox fx:id="keySizeCombo" floatingText="%label.size" prefWidth="150" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                        <MFXTextField fx:id="validityField" floatMode="BORDER" floatingText="%label.validity" text="365" prefWidth="150" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                     </GridPane>
+                 </VBox>
+                 
+                 <Separator/>
+
+                 <!-- Section 3: Extensions -->
+                 <VBox spacing="10">
+                    <Label text="%section.ext" styleClass="section-header"/>
+                    <Label text="%label.san.helper" styleClass="helper-text"/>
+                    <TextArea fx:id="sanArea" prefHeight="100"/>
+                 </VBox>
+                 
+                 <Separator/>
+                 
+                 <!-- Section 4: Output -->
+                 <VBox spacing="10">
+                    <Label text="%section.output" styleClass="section-header"/>
+                    <HBox spacing="20">
+                        <MFXCheckbox fx:id="outputJksCheck" text="%check.jks" selected="true"/>
+                        <MFXCheckbox fx:id="outputP12Check" text="%check.p12"/>
+                        <MFXCheckbox fx:id="outputPemCheck" text="%check.pem"/>
+                    </HBox>
+                    
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <MFXTextField fx:id="keystorePassField" floatMode="BORDER" floatingText="%label.password" text="changeit" prefWidth="200"/>
+                        <MFXTextField fx:id="aliasField" floatMode="BORDER" floatingText="%label.alias" text="mycert" prefWidth="150"/>
+                    </HBox>
+                 </VBox>
+                 
+                 <HBox spacing="10" alignment="CENTER_RIGHT">
+                     <Label fx:id="statusLabel" text="" style="-fx-text-fill: green;"/>
+                     <MFXButton fx:id="generateButton" text="%btn.generate" styleClass="action-button"/>
+                 </HBox>
+            </VBox>
+        </ScrollPane>
+    </Tab>
+    
+    <Tab fx:id="verifierTab" text="%tab.verifier">
+        <VBox spacing="20">
+            <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+            
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <MFXTextField fx:id="verifyFilePathField" floatMode="BORDER" floatingText="%label.file_path" prefWidth="400" HBox.hgrow="ALWAYS"/>
+                <MFXButton fx:id="verifyBrowseBtn" text="%btn.browse"/>
+            </HBox>
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                 <MFXTextField fx:id="verifyPasswordField" floatMode="BORDER" floatingText="%label.password" prefWidth="200"/>
+                 <MFXButton fx:id="verifyButton" text="%btn.verify" styleClass="action-button"/>
+            </HBox>
+            
+            <TextArea fx:id="verifyResultArea" VBox.vgrow="ALWAYS" editable="false" style="-fx-font-family: monospace;"/>
+        </VBox>
+    </Tab>
+
+</TabPane>

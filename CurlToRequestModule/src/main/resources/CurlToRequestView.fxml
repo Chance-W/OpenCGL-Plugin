@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.*?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+
+<StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.opencgl.curl.controller.CurlToRequestController">
+    <BorderPane fx:id="contentBorderPane" style="-fx-background-color: -theme-bg-primary;">
+        <top>
+            <VBox spacing="10" style="-fx-background-color: -theme-bg-secondary; -fx-padding: 10 15;">
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <Label fx:id="curlInputLabel" text="%label.curl_input" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: -theme-text-primary;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <MFXButton fx:id="parseButton" text="%button.parse" prefWidth="90" prefHeight="36"/>
+                    <MFXButton fx:id="sendButton" text="%button.send" prefWidth="90" prefHeight="36"/>
+                    <MFXButton fx:id="clearButton" text="%button.clear" prefWidth="90" prefHeight="36"/>
+                </HBox>
+            </VBox>
+        </top>
+        <center>
+            <SplitPane dividerPositions="0.35, 0.65" style="-fx-background-color: transparent;">
+                <VBox spacing="5" style="-fx-padding: 8;">
+                    <Label text="%label.curl_input" style="-fx-text-fill: -theme-text-secondary; -fx-font-size: 12;"/>
+                    <TextArea fx:id="curlInputArea" wrapText="true" promptText="curl -X GET 'https://example.com/api'"
+                              style="-fx-font-family: monospace; -fx-font-size: 13; -fx-text-fill: -theme-text-primary;"
+                              VBox.vgrow="ALWAYS"/>
+                </VBox>
+                <VBox spacing="5" style="-fx-padding: 8;">
+                    <Label fx:id="parsedResultLabel" text="%label.parsed_result" style="-fx-text-fill: -theme-text-secondary; -fx-font-size: 12;"/>
+                    <TextArea fx:id="parsedResultArea" wrapText="true" editable="false"
+                              style="-fx-font-family: monospace; -fx-font-size: 12; -fx-text-fill: -theme-success;"
+                              VBox.vgrow="ALWAYS"/>
+                </VBox>
+                <VBox spacing="5" style="-fx-padding: 8;">
+                    <Label fx:id="responseLabel" text="%label.response" style="-fx-text-fill: -theme-text-secondary; -fx-font-size: 12;"/>
+                    <TextArea fx:id="responseArea" wrapText="true" editable="false"
+                              style="-fx-font-family: monospace; -fx-font-size: 12; -fx-text-fill: -theme-info;"
+                              VBox.vgrow="ALWAYS"/>
+                </VBox>
+            </SplitPane>
+        </center>
+        <bottom>
+            <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-background-color: -theme-bg-secondary; -fx-padding: 8 15;">
+                <Label fx:id="statusLabel" text="%label.ready" style="-fx-text-fill: -theme-text-secondary;"/>
+            </HBox>
+        </bottom>
+    </BorderPane>
+</StackPane>

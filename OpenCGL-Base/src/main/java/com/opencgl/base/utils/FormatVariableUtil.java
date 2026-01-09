@@ -1,105 +1,106 @@
 package com.opencgl.base.utils;
 
-
-import java.text.ParseException;
-import java.util.Random;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
+ * 通用变量格式化工具类
+ * 支持 ${VAR} 格式替换，包括 UUID, 时间戳, 随机数以及动态日期格式
  * @author Chance.W
  */
-@SuppressWarnings("unused")
 public class FormatVariableUtil {
     private static final Logger log = LoggerFactory.getLogger(FormatVariableUtil.class);
+    private static final Pattern VAR_PATTERN = Pattern.compile("\\$\\{([^}]+)\\}");
 
-    public static String format(String string) {
-        // YYYYMMDDHHMMSS
-        String date = null;
-        Long dateLong = 0L;
-        //YYYY-MM-DD HH:MM:SS
-        String date2 = null;
-        //"yyyy-MM-dd"
-        String date3 = null;
-        //"yyMM"
-        String date4 = null;
-        //"yyyyMMdd"
-        String date5 = null;
-        //yyyyMM
-        String date6 = null;
-        //dd.MM.yyyy HH:mm:ss
-        String date7 = null;
-        //yyyy
-        String date8 = null;
+    /**
+     * 格式化字符串，替换其中的变量
+     * @param template 模板字符串
+     * @return 替换后的字符串
+     */
+    public static String format(String template) {
+        if (template == null || template.isEmpty()) {
+            return template;
+        }
 
+        StringBuffer sb = new StringBuffer();
+        Matcher matcher = VAR_PATTERN.matcher(template);
+
+        while (matcher.find()) {
+            String varName = matcher.group(1);
+            String replacement;
+            try {
+                replacement = resolveVariable(varName);
+            } catch (Exception e) {
+                // log.warn("Resolve variable error: " + varName, e);
+                // 无法解析时保留原样
+                replacement = matcher.group(0);
+            }
+            matcher.appendReplacement(sb, Matcher.quoteReplacement(replacement));
+        }
+        matcher.appendTail(sb);
+        return sb.toString();
+    }
+
+    private static String resolveVariable(String varName) {
+        if (varName == null) return "";
+        
+        // 1. UUID
+        if ("UUID".equalsIgnoreCase(varName)) {
+            return UUID.randomUUID().toString();
+        }
+        if ("UUID_SIMPLE".equalsIgnoreCase(varName)) {
+            return UUID.randomUUID().toString().replace("-", "");
+        }
+        if ("UUID_UPPER".equalsIgnoreCase(varName)) {
+            return UUID.randomUUID().toString().toUpperCase();
+        }
+
+        // 2. Timestamp
+        if ("TIMESTAMP".equalsIgnoreCase(varName) || "DATE".equalsIgnoreCase(varName)) {
+            return String.valueOf(System.currentTimeMillis());
+        }
+        if ("TIMESTAMP_S".equalsIgnoreCase(varName)) {
+            return String.valueOf(System.currentTimeMillis() / 1000);
+        }
+
+        // 3. Random
+        if (varName.startsWith("Random")) {
+            String suffix = varName.substring(6);
+            int length = 8; // 默认长度
+            if (!suffix.isEmpty()) {
+                try {
+                    length = Integer.parseInt(suffix);
+                } catch (NumberFormatException ignored) {}
+            }
+            return getRandom(length);
+        }
+        
+        // 4. 尝试直接作为 Date Pattern 解析 (e.g. yyyyMMdd)
         try {
-            //yyyymmddHHmmss
-            date = new DateFormatUtil().getDateformatyyyymmddHHmmss();
-            //DATE
-            dateLong = new DateFormatUtil().getDateFormatDate();
-            //${YYYY-MM-DD HH:MM:SS}
-            date2 = new DateFormatUtil().getFormat7();
-            //"yyyy-MM-dd"
-            date3 = new DateFormatUtil().getDate();
-            //"yyMM"
-            date4 = new DateFormatUtil().getDateYYMM();
-            //"yyyyMMdd"
-            date5 = new DateFormatUtil().getDateyyyyMMdd();
-            //yyyyMM
-            date6 = new DateFormatUtil().getYyyymm();
-            //dd.MM.yyyy HH:mm:ss
-            date7 = new DateFormatUtil().getDateDdmmyy();
-            //
-            date8 = new DateFormatUtil().getDate();
-
+            return LocalDateTime.now().format(DateTimeFormatter.ofPattern(varName));
+        } catch (IllegalArgumentException e) {
+            // 无法解析为日期格式，并不是已知变量，返回原字符串
+            return "${" + varName + "}";
         }
-        catch (ParseException e) {
-            log.error("", e);
-        }
-
-        assert date != null;
-        assert date2 != null;
-        assert date3 != null;
-        assert date4 != null;
-        assert date5 != null;
-        assert date6 != null;
-        assert date7 != null;
-        assert date8 != null;
-
-
-        return string.replace("${YYYYMMDDHHMMSS}", date)
-            .replace("${DATE}", dateLong.toString())
-            .replace("${YYYY-MM-DD HH:MM:SS}", date2)
-            .replace("${YYYY-MM-DD}", date3)
-            .replace("${YYMM}", date4)
-            .replace("${YYYYMMDD}", date5)
-            .replace("${YYYYMM}", date6)
-            .replace("${DD.MM.YYYY HH:MM:SS}", date7)
-            .replace("${YYYY}", date8)
-            .replace("${Random}", getRandom(8))
-            .replace("${Random1}", getRandom(1))
-            .replace("${Random2}", getRandom(2))
-            .replace("${Random3}", getRandom(3))
-            .replace("${Random4}", getRandom(4))
-            .replace("${Random5}", getRandom(5))
-            .replace("${Random6}", getRandom(6))
-            .replace("${Random7}", getRandom(7))
-            .replace("${Random8}", getRandom(8))
-            .replace("${Random9}", getRandom(9))
-            .replace("${Random10}", getRandom(10));
     }
 
     public static String getRandom(int length) {
+        if (length <= 0) length = 8;
+        ThreadLocalRandom random = ThreadLocalRandom.current();
         StringBuilder val = new StringBuilder();
-        Random random = new Random();
-        int num = random.nextInt(10);
-        if (num != 0) {
-            val.append(num);
-        }
-        else {
-            val.append(1);
-        }
+        // 保持原逻辑：首位生成1-9，或者按照原 getRandom 逻辑：首位 (random 10) if 0 -> 1.
+        // 原逻辑：
+        // int num = random.nextInt(10); if(num!=0) append(num) else append(1);
+        int first = random.nextInt(10);
+        val.append(first == 0 ? 1 : first);
+        
         for (int i = 0; i < length - 1; i++) {
             val.append(random.nextInt(10));
         }

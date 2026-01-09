@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import org.fxmisc.richtext.CodeArea?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<StackPane fx:id="rootPane" xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.opencgl.decompiler.controller.DecompilerController">
+
+    <VBox spacing="0">
+        <!-- 工具栏 -->
+        <HBox spacing="10" alignment="CENTER_LEFT" 
+              style="-fx-padding: 8;">
+            <MFXButton fx:id="openFileButton" text="%button.open_file"
+                       style="-fx-background-color: -theme-accent; -fx-text-fill: -theme-text-inverse;"/>
+            <MFXButton fx:id="openFolderButton" text="%button.open_folder"
+                       style="-fx-background-color: -theme-accent; -fx-text-fill: -theme-text-inverse;"/>
+            <Separator orientation="VERTICAL"/>
+            <MFXButton fx:id="exportButton" text="%button.export"
+                       style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
+            <MFXButton fx:id="exportAllButton" text="%button.export_all"
+                       style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <TextField fx:id="searchField" promptText="%prompt.search_class"
+                       prefWidth="200"/>
+        </HBox>
+
+        <!-- 主内容区 -->
+        <SplitPane dividerPositions="0.25" VBox.vgrow="ALWAYS">
+            <!-- 左侧：文件树 -->
+            <VBox spacing="5" style="-fx-padding: 10;">
+                <Label text="%label.file_browser" 
+                       style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+                <TreeView fx:id="fileTreeView" VBox.vgrow="ALWAYS"/>
+            </VBox>
+
+            <!-- 右侧：代码显示区 -->
+            <VBox spacing="5" style="-fx-padding: 10;">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label fx:id="classNameLabel" text="%label.select_class_hint" 
+                           style="-fx-font-size: 14; -fx-font-weight: bold;"
+                           HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="lineCountLabel" text=""
+                           style="-fx-text-fill: #888;"/>
+                </HBox>
+                
+                <CodeArea fx:id="codeArea" VBox.vgrow="ALWAYS"
+                          style="-fx-font-family: 'Consolas', 'Monaco', monospace; -fx-font-size: 12;"/>
+            </VBox>
+        </SplitPane>
+
+        <!-- 状态栏 -->
+        <HBox spacing="20" alignment="CENTER_LEFT" 
+              style="-fx-background-color: #007acc; -fx-padding: 5 15;">
+            <Label fx:id="statusLabel" text="%label.ready" 
+                   style="-fx-text-fill: white;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="fileInfoLabel" text="" 
+                   style="-fx-text-fill: white;"/>
+        </HBox>
+    </VBox>
+</StackPane>

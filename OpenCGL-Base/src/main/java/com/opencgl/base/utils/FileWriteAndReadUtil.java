@@ -9,13 +9,14 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Chance.W
  */
 public class FileWriteAndReadUtil {
-    private final Logger log = Logger.getLogger(FileWriteAndReadUtil.class);
+    private final Logger log = LoggerFactory.getLogger(FileWriteAndReadUtil.class);
     private final File file;
 
     public FileWriteAndReadUtil(File file) {

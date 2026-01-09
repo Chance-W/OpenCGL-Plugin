@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import io.github.palexdev.materialfx.controls.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.opencgl.dbbatch.controller.DbBatchController">
+   <children>
+      <SplitPane dividerPositions="0.25" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <items>
+            <!-- 左侧：任务树 -->
+            <VBox spacing="10.0">
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+               <children>
+                  <HBox spacing="5.0">
+                     <children>
+                        <MFXButton fx:id="addGroupBtn" style="-fx-background-color: -theme-warning; -fx-text-fill: -theme-text-inverse;" text="%btn.addGroup" />
+                        <MFXButton fx:id="addTaskBtn" style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;" text="%btn.addTask" />
+                        <MFXButton fx:id="deleteBtn" style="-fx-background-color: -theme-danger; -fx-text-fill: -theme-text-inverse;" text="%btn.delete" />
+                     </children>
+                  </HBox>
+                  <TreeView fx:id="taskTree" VBox.vgrow="ALWAYS" />
+               </children>
+            </VBox>
+            
+            <!-- 右侧：配置与执行 -->
+            <VBox spacing="10.0">
+               <padding>
+                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+               <children>
+                  <HBox spacing="10.0" alignment="CENTER_LEFT">
+                      <Label text="%label.taskName" minWidth="60"/>
+                      <MFXTextField fx:id="nameField" floatMode="BORDER" prefWidth="200" />
+                      <Region HBox.hgrow="ALWAYS" />
+                      <MFXButton fx:id="saveBtn" style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;" text="%btn.save" />
+                      <MFXButton id="previewBtn" text="%btn.preview" onAction="#handlePreview" prefHeight="35.0" prefWidth="100.0" style="-fx-background-color: #2196F3; -fx-text-fill: white;" />
+                      <MFXButton id="executeBtn" text="%btn.execute" onAction="#handleExecute" prefHeight="35.0" prefWidth="100.0" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" />
+                      <MFXButton id="helpBtn" text="%btn.help" onAction="#handleHelp" prefHeight="35.0" prefWidth="100.0" style="-fx-background-color: #FF9800; -fx-text-fill: white;" />
+                  </HBox>
+                  
+                  <Separator />
+                  
+                  <!-- 数据库连接配置 -->
+                  <GridPane hgap="10.0" vgap="10.0">
+                      <columnConstraints>
+                          <ColumnConstraints hgrow="SOMETIMES" minWidth="60" />
+                          <ColumnConstraints hgrow="ALWAYS" />
+                          <ColumnConstraints hgrow="SOMETIMES" minWidth="60" />
+                          <ColumnConstraints hgrow="ALWAYS" />
+                      </columnConstraints>
+                      <children>
+                          <Label text="%label.dbType" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                          <MFXComboBox fx:id="dbTypeCombo" floatMode="BORDER" maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                          
+                          <Label text="%label.host" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                          <MFXTextField fx:id="hostField" floatMode="BORDER" maxWidth="Infinity" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                          
+                          <Label text="%label.port" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                          <MFXTextField fx:id="portField" floatMode="BORDER" maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                          
+                          <Label text="%label.dbName" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                          <MFXTextField fx:id="dbNameField" floatMode="BORDER" maxWidth="Infinity" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                          
+                          <Label text="%label.username" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                          <MFXTextField fx:id="userField" floatMode="BORDER" maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                          
+                          <Label text="%label.password" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                          <MFXPasswordField fx:id="passField" floatMode="BORDER" maxWidth="Infinity" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                      </children>
+                  </GridPane>
+                  
+                  <!-- SQL 与 替换变量 -->
+                  <SplitPane dividerPositions="0.6" orientation="VERTICAL" VBox.vgrow="ALWAYS">
+                      <items>
+                          <VBox spacing="5.0">
+                              <padding><Insets top="5" right="5" bottom="5" left="5"/></padding>
+                              <Label text="%label.sqlScript" style="-fx-font-weight: bold;"/>
+                              <TextArea fx:id="sqlArea" style="-fx-font-family: monospace;" VBox.vgrow="ALWAYS"/>
+                          </VBox>
+                          
+                          <VBox spacing="5.0">
+                              <padding><Insets top="5" right="5" bottom="5" left="5"/></padding>
+                              <Label text="%label.replaceConfig" style="-fx-font-weight: bold;"/>
+                              <TextArea fx:id="replaceArea" style="-fx-font-family: monospace;" VBox.vgrow="ALWAYS"/>
+                          </VBox>
+                      </items>
+                  </SplitPane>
+                  
+                  <!-- 日志区域 -->
+                  <Label text="%label.execLog" style="-fx-font-weight: bold;"/>
+                  <TextArea fx:id="logArea" prefHeight="100.0" editable="false" style="-fx-text-fill: #333;" />
+                  
+               </children>
+            </VBox>
+         </items>
+      </SplitPane>
+   </children>
+</AnchorPane>

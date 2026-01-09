@@ -1,0 +1,22 @@
+.root {
+    -oc-bg-app: #F5F7FA;
+    -oc-surface: #FFFFFF;
+    -oc-surface-secondary: #F8FAFC;
+    -oc-text-primary: #172033;
+    -oc-text-secondary: #667085;
+    -oc-text-disabled: #98A2B3;
+    -oc-border: #DDE3EA;
+    -oc-divider: #E9EDF2;
+    -oc-accent: #0F9D8A;
+    -oc-accent-hover: #0B8979;
+    -oc-accent-pressed: #087568;
+    -oc-selection: #E5F5F2;
+    -oc-hover: #F0F3F7;
+    -oc-success: #198754;
+    -oc-warning: #D97706;
+    -oc-danger: #DC3545;
+    -oc-info: #1677FF;
+    -oc-focus-ring: rgba(15, 157, 138, 0.28);
+    -oc-shadow-sm: dropshadow(gaussian, rgba(16, 24, 40, 0.08), 5, 0, 0, 1);
+    -oc-shadow-md: dropshadow(gaussian, rgba(16, 24, 40, 0.12), 12, 0, 0, 3);
+}

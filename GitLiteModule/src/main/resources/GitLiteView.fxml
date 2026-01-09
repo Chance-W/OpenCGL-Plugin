@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.String?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXComboBox?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
+
+<StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.opencgl.gitlite.controller.GitLiteController">
+    <BorderPane fx:id="contentBorderPane" style="-fx-background-color: -theme-bg-primary;">
+        <top>
+            <VBox spacing="5" style="-fx-background-color: -theme-bg-secondary; -fx-background-radius: 0 0 12 12;">
+                <padding>
+                    <Insets top="15" right="20" bottom="15" left="20"/>
+                </padding>
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <Label fx:id="titleLabel" text="%label.title" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: -theme-text-primary;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="statusLabel" text="%label.status_ready" style="-fx-text-fill: -theme-text-secondary;"/>
+                </HBox>
+            </VBox>
+        </top>
+        <center>
+            <TabPane fx:id="mainTabPane" style="-fx-padding: 10;">
+                
+                <!-- .gitignore 生成器 Tab -->
+                <Tab text="%tab.gitignore" closable="false">
+                    <VBox spacing="15" style="-fx-padding: 20; -fx-background-color: -theme-bg-tertiary; -fx-background-radius: 8;">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label fx:id="selectLanguageLabel" text="%label.select_language" style="-fx-font-weight: bold;"/>
+                            <MFXComboBox fx:id="languageComboBox" prefWidth="200"/>
+                            <MFXButton fx:id="addTemplateButton" text="%btn.add" 
+                                       style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
+                            <MFXButton fx:id="clearTemplateButton" text="%btn.clear" 
+                                       style="-fx-background-color: -theme-danger; -fx-text-fill: -theme-text-inverse;"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <MFXButton fx:id="copyGitignoreButton" text="%btn.copy" 
+                                       style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;"/>
+                            <MFXButton fx:id="saveGitignoreButton" text="%btn.save" 
+                                       style="-fx-background-color: -theme-accent; -fx-text-fill: -theme-text-inverse;"/>
+                        </HBox>
+                        <Label fx:id="gitignoreContentLabel" text="%label.gitignore_content" style="-fx-font-weight: bold;"/>
+                        <TextArea fx:id="gitignoreArea" wrapText="true" VBox.vgrow="ALWAYS"
+                                  promptText="%prompt.gitignore_edit"
+                                  style="-fx-font-family: monospace; -fx-text-fill: -theme-text-primary;"/>
+                    </VBox>
+                </Tab>
+                
+                <!-- 提交记录 Tab -->
+                <Tab text="%tab.commits" closable="false">
+                    <VBox spacing="15" style="-fx-padding: 20; -fx-background-color: -theme-bg-tertiary; -fx-background-radius: 8;">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label fx:id="repoPathLabel" text="%label.repo_path" style="-fx-font-weight: bold;"/>
+                            <MFXTextField fx:id="repoPathField" prefWidth="400" promptText="%prompt.select_repo"/>
+                            <MFXButton fx:id="selectRepoButton" text="%btn.select" 
+                                       style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;"/>
+                            <MFXButton fx:id="loadCommitsButton" text="%btn.load" 
+                                       style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
+                        </HBox>
+                        <TableView fx:id="commitsTable" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="colHash" text="%col.hash" prefWidth="80"/>
+                                <TableColumn fx:id="colMessage" text="%col.message" prefWidth="350"/>
+                                <TableColumn fx:id="colAuthor" text="%col.author" prefWidth="120"/>
+                                <TableColumn fx:id="colDate" text="%col.date" prefWidth="150"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+                </Tab>
+                
+                <!-- 命令速查 Tab -->
+                <Tab text="%tab.cheatsheet" closable="false">
+                    <HBox spacing="15" style="-fx-padding: 20; -fx-background-color: -theme-bg-tertiary; -fx-background-radius: 8;">
+                        <VBox spacing="10" prefWidth="300">
+                            <MFXTextField fx:id="searchCommandField" promptText="%prompt.search_command" prefWidth="280"/>
+                            <TreeView fx:id="commandsTree" VBox.vgrow="ALWAYS"/>
+                        </VBox>
+                        <VBox spacing="10" HBox.hgrow="ALWAYS">
+                            <Label fx:id="commandDetailLabel" text="%label.command_detail" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+                            <TextArea fx:id="commandDetailArea" editable="false" wrapText="true" VBox.vgrow="ALWAYS"
+                                      style="-fx-font-family: monospace; -fx-font-size: 14;"/>
+                        </VBox>
+                    </HBox>
+                </Tab>
+                
+            </TabPane>
+        </center>
+    </BorderPane>
+</StackPane>

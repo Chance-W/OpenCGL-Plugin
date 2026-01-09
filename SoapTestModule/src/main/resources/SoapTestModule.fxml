@@ -9,8 +9,8 @@
     <BorderPane fx:id="contentBorderPane" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
                 AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
         <top>
-            <VBox fx:id="operateTopVbox" spacing="1.0" style="-fx-background-color:WHITE" BorderPane.alignment="CENTER">
-                <HBox alignment="CENTER_LEFT" spacing="2.0" style="-fx-background-color:WHITE">
+            <VBox fx:id="operateTopVbox" spacing="1.0" BorderPane.alignment="CENTER">
+                <HBox alignment="CENTER_LEFT" spacing="2.0">
                     <JFXButton fx:id="sendButton" buttonType="RAISED" onMouseClicked="#sendLabelAction"
                                prefHeight="30.0" prefWidth="10.0"/>
                     <JFXButton fx:id="refreshButton" buttonType="RAISED" onMouseClicked="#refershLabelAction"
@@ -20,9 +20,7 @@
                     <JFXButton fx:id="settingButton" buttonType="RAISED" onMouseClicked="#settingLabelAction"
                                prefHeight="30.0" prefWidth="10.0"/>
                     <JFXComboBox fx:id="chooseIntComboBox" editable="true" labelFloat="true" prefHeight="30"
-                                 prefWidth="500.0" promptText="请选择请求地址"
-                                 style="-fx-prompt-text-fill:rgba(63,75,77,0.39)"
-                                 unFocusColor="#4d4d4d35" HBox.hgrow="ALWAYS">
+                                 prefWidth="500.0" promptText="%promptText.choose_url" HBox.hgrow="ALWAYS">
                     </JFXComboBox>
                     <padding>
                         <Insets left="10.0" top="10"/>

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.String?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXComboBox?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
+<?import io.github.palexdev.materialfx.controls.MFXToggleButton?>
+
+<StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.opencgl.nginx.controller.NginxConfigController">
+    <BorderPane fx:id="contentBorderPane" style="-fx-background-color: linear-gradient(to bottom right, #009688, #00796b);">
+        <top>
+            <VBox spacing="5" style="-fx-background-color: -theme-bg-secondary; -fx-background-radius: 0 0 12 12;">
+                <padding>
+                    <Insets top="15" right="20" bottom="15" left="20"/>
+                </padding>
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <Label text="%title.generator" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #009688;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <MFXButton fx:id="generateButton" text="%btn.generate" 
+                               style="-fx-background-color: #27ae60; -fx-text-fill: white;"/>
+                    <MFXButton fx:id="copyButton" text="%btn.copy" 
+                               style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+                    <MFXButton fx:id="saveButton" text="%btn.save" 
+                               style="-fx-background-color: #9b59b6; -fx-text-fill: white;"/>
+                    <Label fx:id="statusLabel" text="%status.ready" style="-fx-text-fill: #7f8c8d;"/>
+                </HBox>
+            </VBox>
+        </top>
+        <center>
+            <SplitPane dividerPositions="0.45" style="-fx-padding: 15;">
+                <!-- 左侧配置面板 -->
+                <ScrollPane fitToWidth="true" style="-fx-background-color: white; -fx-background-radius: 8;">
+                    <VBox spacing="20" style="-fx-padding: 20;">
+                        
+                        <!-- 基础配置 -->
+                        <TitledPane text="%panel.basic" expanded="true">
+                            <VBox spacing="10" style="-fx-padding: 10;">
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <Label text="%label.serverName" prefWidth="100"/>
+                                    <MFXTextField fx:id="serverNameField" text="localhost" prefWidth="200"/>
+                                </HBox>
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <Label text="%label.listenPort" prefWidth="100"/>
+                                    <MFXTextField fx:id="listenPortField" text="80" prefWidth="100"/>
+                                </HBox>
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <Label text="%label.root" prefWidth="100"/>
+                                    <MFXTextField fx:id="rootPathField" text="/var/www/html" prefWidth="300"/>
+                                </HBox>
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <Label text="%label.index" prefWidth="100"/>
+                                    <MFXTextField fx:id="indexField" text="index.html index.htm" prefWidth="300"/>
+                                </HBox>
+                            </VBox>
+                        </TitledPane>
+                        
+                        <!-- SSL 配置 -->
+                        <TitledPane text="%panel.ssl" expanded="false">
+                            <VBox spacing="10" style="-fx-padding: 10;">
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <Label text="%label.enableHttps"/>
+                                    <MFXToggleButton fx:id="sslToggle"/>
+                                </HBox>
+                                <VBox fx:id="sslConfigBox" spacing="10" disable="true">
+                                    <HBox spacing="10" alignment="CENTER_LEFT">
+                                        <Label text="%label.certPath" prefWidth="100"/>
+                                        <MFXTextField fx:id="sslCertField" prefWidth="300" 
+                                                      promptText="%prompt.sslCert"/>
+                                    </HBox>
+                                    <HBox spacing="10" alignment="CENTER_LEFT">
+                                        <Label text="%label.keyPath" prefWidth="100"/>
+                                        <MFXTextField fx:id="sslKeyField" prefWidth="300" 
+                                                      promptText="%prompt.sslKey"/>
+                                    </HBox>
+                                </VBox>
+                            </VBox>
+                        </TitledPane>
+                        
+                        <!-- 反向代理 -->
+                        <TitledPane text="%panel.proxy" expanded="false">
+                            <VBox spacing="10" style="-fx-padding: 10;">
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <Label text="%label.enableProxy"/>
+                                    <MFXToggleButton fx:id="proxyToggle"/>
+                                </HBox>
+                                <VBox fx:id="proxyConfigBox" spacing="10" disable="true">
+                                    <HBox spacing="10" alignment="CENTER_LEFT">
+                                        <Label text="%label.location" prefWidth="100"/>
+                                        <MFXTextField fx:id="proxyLocationField" text="/" prefWidth="150"/>
+                                    </HBox>
+                                    <HBox spacing="10" alignment="CENTER_LEFT">
+                                        <Label text="%label.proxyPass" prefWidth="100"/>
+                                        <MFXTextField fx:id="proxyPassField" prefWidth="300" 
+                                                      promptText="%prompt.proxyPass"/>
+                                    </HBox>
+                                </VBox>
+                            </VBox>
+                        </TitledPane>
+                        
+                        <!-- 负载均衡 -->
+                        <TitledPane text="%panel.upstream" expanded="false">
+                            <VBox spacing="10" style="-fx-padding: 10;">
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <Label text="%label.enableUpstream"/>
+                                    <MFXToggleButton fx:id="upstreamToggle"/>
+                                </HBox>
+                                <VBox fx:id="upstreamConfigBox" spacing="10" disable="true">
+                                    <HBox spacing="10" alignment="CENTER_LEFT">
+                                        <Label text="%label.upstreamName" prefWidth="100"/>
+                                        <MFXTextField fx:id="upstreamNameField" text="backend" prefWidth="150"/>
+                                    </HBox>
+                                    <HBox spacing="10" alignment="CENTER_LEFT">
+                                        <Label text="%label.loadBalance" prefWidth="100"/>
+                                        <MFXComboBox fx:id="loadBalanceComboBox" prefWidth="150"/>
+                                    </HBox>
+                                    <Label text="%label.upstreamServers" style="-fx-font-size: 12;"/>
+                                    <TextArea fx:id="upstreamServersArea" prefHeight="100" 
+                                              promptText="%prompt.upstreamServers"/>
+                                </VBox>
+                            </VBox>
+                        </TitledPane>
+                        
+                    </VBox>
+                </ScrollPane>
+                
+                <!-- 右侧预览 -->
+                <VBox spacing="10" style="-fx-padding: 15; -fx-background-color: white; -fx-background-radius: 8;">
+                    <Label text="%label.preview" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+                    <TextArea fx:id="previewArea" editable="false" wrapText="true" VBox.vgrow="ALWAYS"
+                              style="-fx-font-family: monospace; -fx-text-fill: -theme-text-primary; -fx-font-size: 13;"/>
+                </VBox>
+            </SplitPane>
+        </center>
+    </BorderPane>
+</StackPane>

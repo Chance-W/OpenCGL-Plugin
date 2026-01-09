@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.opencgl.base.controls.CustomTextArea?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.opencgl.dubbo.mock.controller.DubboMockController">
+
+    <!-- 左右双栏：左侧管理树，右侧配置/日志 -->
+    <SplitPane dividerPositions="0.25">
+        <!-- 左侧：全局树结构管理 -->
+        <VBox spacing="5" SplitPane.resizableWithParent="false">
+            <padding><Insets top="5" right="5" bottom="5" left="5"/></padding>
+            <!-- 顶部工具栏 -->
+            <HBox spacing="5" alignment="CENTER_LEFT">
+                <Button fx:id="addRegistryBtn" text="%button.add_registry" styleClass="primary-button"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="refreshTreeBtn" text="%button.refresh"/>
+            </HBox>
+            
+            <!-- 核心树控件 -->
+            <TreeView fx:id="mockTreeView" VBox.vgrow="ALWAYS" showRoot="false"/>
+        </VBox>
+
+        <!-- 右侧：动态详情配置面板 (注册中心/Provider/Method) -->
+        <StackPane fx:id="contentArea">
+            <!-- 空状态 / 欢迎提示 -->
+            <VBox fx:id="emptyState" alignment="CENTER" spacing="20">
+                <Label text="%message.select_hint" style="-fx-font-size: 14px; -fx-text-fill: -theme-text-secondary;"/>
+            </VBox>
+            
+            <!-- 具体的右侧面板容器 -->
+
+            <!-- 1. 注册中心配置面板 -->
+            <VBox fx:id="registryConfigPane" visible="false" managed="false" spacing="15" VBox.vgrow="ALWAYS">
+                <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+                
+                <Label fx:id="registryConfigTitleLabel" text="%label.registry_config" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                
+                <Separator/>
+                
+                <VBox spacing="10">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="%label.name_field" prefWidth="140" alignment="CENTER_RIGHT"/>
+                        <TextField fx:id="registryNameField" HBox.hgrow="ALWAYS" promptText="%prompt.registry_name"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="%label.type_field" prefWidth="140" alignment="CENTER_RIGHT"/>
+                        <ComboBox fx:id="registryTypeCombo" prefWidth="200"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="%label.address_field" prefWidth="140" alignment="CENTER_RIGHT"/>
+                        <TextField fx:id="registryAddressField" HBox.hgrow="ALWAYS" promptText="%prompt.registry_address"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="%label.zk_group" prefWidth="140" alignment="CENTER_RIGHT"/>
+                        <TextField fx:id="registryZkGroupField" HBox.hgrow="ALWAYS" promptText="%prompt.zk_group"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="%label.protocol" prefWidth="140" alignment="CENTER_RIGHT"/>
+                        <TextField fx:id="registryProtocolField" prefWidth="200" promptText="%prompt.protocol"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="%label.port" prefWidth="140" alignment="CENTER_RIGHT"/>
+                        <TextField fx:id="registryPortField" prefWidth="200" promptText="%prompt.port"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="%label.host" prefWidth="140" alignment="CENTER_RIGHT"/>
+                        <TextField fx:id="providerHostField" HBox.hgrow="ALWAYS" promptText="%prompt.host"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="%label.app_name" prefWidth="140" alignment="CENTER_RIGHT"/>
+                        <TextField fx:id="registryAppField" HBox.hgrow="ALWAYS" promptText="%prompt.app_name"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="" prefWidth="140"/>
+                        <CheckBox fx:id="noRegistryCheck" text="%label.no_registry"/>
+                    </HBox>
+                </VBox>
+                
+                <Region VBox.vgrow="ALWAYS"/>
+                <Separator/>
+                
+                <HBox spacing="15" alignment="CENTER_RIGHT">
+                    <Button fx:id="deleteRegistryBtn" text="%button.delete" style="-fx-text-fill: #e74c3c; -fx-border-color: transparent; -fx-background-color: transparent; -fx-cursor: hand;"/>
+                    <Button fx:id="saveRegistryBtn" text="%button.save_config" styleClass="primary-button"/>
+                </HBox>
+            </VBox>
+
+            <!-- 2. 提供者配置面板 -->
+            <VBox fx:id="providerConfigPane" visible="false" managed="false" spacing="15" VBox.vgrow="ALWAYS">
+                <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+                <HBox spacing="15" alignment="CENTER_LEFT">
+                    <Label fx:id="providerConfigTitleLabel" text="%label.provider_config" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="startProviderBtn" text="%button.start_mock" styleClass="primary-button" style="-fx-background-color: #27ae60;"/>
+                    <Button fx:id="stopProviderBtn" text="%button.stop_mock" style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-cursor: hand;" disable="true"/>
+                </HBox>
+                
+                <Separator/>
+                
+                <VBox spacing="10">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="%label.interface" prefWidth="140" alignment="CENTER_RIGHT"/>
+                        <TextField fx:id="providerInterfaceField" HBox.hgrow="ALWAYS" promptText="%prompt.interface"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="%label.version" prefWidth="140" alignment="CENTER_RIGHT"/>
+                        <TextField fx:id="providerVersionField" HBox.hgrow="ALWAYS" promptText="%prompt.version_default"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="%label.group" prefWidth="140" alignment="CENTER_RIGHT"/>
+                        <TextField fx:id="providerGroupField" HBox.hgrow="ALWAYS" promptText="%prompt.group_default"/>
+                    </HBox>
+                </VBox>
+                
+                <HBox spacing="15" alignment="CENTER_RIGHT">
+                    <Button fx:id="deleteProviderBtn" text="%button.delete" style="-fx-text-fill: #e74c3c; -fx-border-color: transparent; -fx-background-color: transparent; -fx-cursor: hand;"/>
+                    <Button fx:id="saveProviderBtn" text="%button.save_config" styleClass="primary-button"/>
+                </HBox>
+                
+                <Separator/>
+                
+                <VBox VBox.vgrow="ALWAYS" spacing="5">
+                    <Label text="%label.console_log" style="-fx-font-weight: bold; -fx-text-fill: #7f8c8d;"/>
+                    <CustomTextArea fx:id="providerLogArea" VBox.vgrow="ALWAYS" editable="false" 
+                              style="-fx-font-family: 'Consolas', 'Courier New', monospace; -fx-text-fill: -theme-text-primary;" 
+                              promptText="%prompt.wait_intercept"/>
+                </VBox>
+            </VBox>
+
+            <!-- 3. 方法 Mock 规则配置面板 -->
+            <VBox fx:id="methodRulePane" visible="false" managed="false" spacing="15" VBox.vgrow="ALWAYS">
+                <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+                
+                <HBox spacing="15" alignment="CENTER_LEFT">
+                    <Label fx:id="methodRuleTitleLabel" text="%label.method_rule" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="deleteMethodBtn" text="%button.delete" style="-fx-text-fill: #e74c3c; -fx-border-color: transparent; -fx-background-color: transparent; -fx-cursor: hand;"/>
+                    <Button fx:id="saveMethodBtn" text="%button.save_config" styleClass="primary-button"/>
+                </HBox>
+                
+                <Separator/>
+
+                <HBox spacing="15" alignment="CENTER_LEFT">
+                    <Label text="%label.method_name" style="-fx-font-weight: bold;"/>
+                    <TextField fx:id="methodNameField" prefWidth="300" promptText="%prompt.method_name"/>
+                    
+                    <Label text="%label.delay_ms" style="-fx-font-weight: bold;"/>
+                    <TextField fx:id="methodDelayField" prefWidth="80" text="0" alignment="CENTER"/>
+                </HBox>
+                
+                <VBox VBox.vgrow="ALWAYS" spacing="8">
+                    <Label text="%label.response_body" style="-fx-font-weight: bold; -fx-text-fill: #7f8c8d;"/>
+                    <CustomTextArea fx:id="methodResponseArea" VBox.vgrow="ALWAYS" 
+                              style="-fx-font-family: 'Consolas', 'Courier New', monospace;"
+                              promptText="%prompt.response_json"/>
+                </VBox>
+            </VBox>
+        </StackPane>
+    </SplitPane>
+</StackPane>

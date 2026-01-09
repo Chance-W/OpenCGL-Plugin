@@ -7,6 +7,6 @@ import javafx.application.Application;
  */
 public class JsonAndXmlFormatAppLauncherPlugin {
     public static void main(String[] args) {
-        Application.launch(NewMainPlugin.class, args);
+        Application.launch(JsonAndXmlFormatStartAppLauncherPlugin.class, args);
     }
 }

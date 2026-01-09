@@ -1,41 +1,96 @@
+/* CustomTextArea 样式 - 支持主题切换 */
+
+.custom-text-area {
+    -fx-background-color: -theme-bg-primary;
+    background-color: -theme-bg-primary;
+    -rtfx-background-color: -theme-bg-primary;
+    background-color: -theme-bg-primary;
+    -fx-border-color: -theme-border;
+}
+
+.custom-text-area .content {
+    -fx-background-color: -theme-bg-primary;
+    background-color: -theme-bg-primary;
+    -rtfx-background-color: -theme-bg-primary;
+}
+
+/* 默认文字颜色 */
+.custom-text-area .text {
+    -fx-fill: -theme-text-primary;
+    fill: -theme-text-primary;
+}
+
+/* 光标颜色 */
+.custom-text-area .caret {
+    -fx-stroke: -theme-text-primary;
+    stroke: -theme-text-primary;
+}
+
+/* 语法高亮颜色 - 引用主题变量 */
 .custom-text-area .keyword {
-    -fx-fill: blue;
+    -fx-fill: -code-keyword;
+    fill: -code-keyword;
 }
 
 .custom-text-area .paren {
-    -fx-fill: green;
+    -fx-fill: -code-paren;
+    fill: -code-paren;
 }
 
 .custom-text-area .brace {
-    -fx-fill: darkgreen;
+    -fx-fill: -code-brace;
+    fill: -code-brace;
 }
 
 .custom-text-area .bracket {
-    -fx-fill: purple;
+    -fx-fill: -code-bracket;
+    fill: -code-bracket;
 }
 
 .custom-text-area .semicolon {
-    -fx-fill: red;
+    -fx-fill: -code-semicolon;
+    fill: -code-semicolon;
 }
 
 .custom-text-area .string {
-    -fx-fill: orange;
+    -fx-fill: -code-string;
+    fill: -code-string;
 }
 
 .custom-text-area .comment {
-    -fx-fill: gray;
+    -fx-fill: -code-comment;
+    fill: -code-comment;
 }
 
 .custom-text-area .text-input .prompt-text {
-    -fx-fill: gray;
-    -fx-text-fill: gray;
+    -fx-fill: -theme-text-secondary;
+    -fx-text-fill: -theme-text-secondary;
 }
 
+/* 滚动条主题适配 */
 .custom-text-area .scroll-bar {
-    -fx-visible: true;
+    -fx-background-color: -theme-bg-primary;
+    background-color: -theme-bg-primary;
 }
 
-.custom-text-area {
-    /* -fx-background-color: #f5f5f5;*/
-    -fx-background-color: white;
+.custom-text-area .scroll-bar .track {
+    -fx-background-color: -theme-bg-primary;
+    background-color: -theme-bg-primary;
+}
+
+.custom-text-area .scroll-bar .thumb {
+    -fx-background-color: -theme-scrollbar-thumb;
+    background-color: -theme-scrollbar-thumb;
+    -fx-background-radius: 5;
+}
+
+.custom-text-area .scroll-bar .thumb:hover {
+    -fx-background-color: derive(-theme-scrollbar-thumb, -20%);
+    background-color: derive(-theme-scrollbar-thumb, -20%);
+}
+
+.custom-text-area .scroll-bar .increment-button,
+.custom-text-area .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    background-color: transparent;
 }

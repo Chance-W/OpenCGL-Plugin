@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="com.opencgl.csvviewer.controller.CsvViewerController">
+    <top>
+        <VBox spacing="10">
+            <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button fx:id="openButton" text="%btn.open"/>
+                <Button fx:id="pasteButton" text="%btn.paste"/>
+                <Button fx:id="exportButton" text="%btn.export"/>
+                <Button fx:id="clearButton" text="%btn.clear"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label text="%label.filter"/>
+                <TextField fx:id="filterField" promptText="%prompt.filter" HBox.hgrow="SOMETIMES" maxWidth="300"/>
+            </HBox>
+        </VBox>
+    </top>
+    <center>
+        <VBox spacing="5" BorderPane.alignment="CENTER">
+            <padding><Insets top="0" right="10" bottom="10" left="10"/></padding>
+            <TableView fx:id="tableView" VBox.vgrow="ALWAYS">
+                <placeholder>
+                    <Label text="%label.statusReady"/>
+                </placeholder>
+            </TableView>
+        </VBox>
+    </center>
+    <bottom>
+        <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 10;">
+            <Label fx:id="statusLabel" text="%label.statusReady" style="-fx-text-fill: -theme-text-secondary;"/>
+        </HBox>
+    </bottom>
+</BorderPane>

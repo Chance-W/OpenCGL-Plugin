@@ -3,19 +3,19 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<AnchorPane fx:id="mainAnchorPane" prefHeight="517.0" prefWidth="859.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.opencgl.controller.ZookeeperToolController">
+<AnchorPane fx:id="mainAnchorPane" prefHeight="517.0" prefWidth="859.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.opencgl.plugin.zookeeper.controller.ZookeeperToolController">
    <children>
       <BorderPane AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
          <top>
             <HBox alignment="CENTER_LEFT" prefWidth="200.0" spacing="10.0" BorderPane.alignment="CENTER">
                <children>
-                  <Label text="zkServers" />
-                  <TextField fx:id="zkServersTextField" text="localhost:2181" />
-                  <Label text="connectionTimeout" />
+                  <Label fx:id="zkServersLabel" text="%label.zk_servers" />
+                  <TextField fx:id="zkServersTextField" text="%default.zk_servers" />
+                  <Label fx:id="connectionTimeoutLabel" text="%label.connection_timeout" />
                   <Spinner fx:id="connectionTimeoutSpinner" prefHeight="23.0" prefWidth="84.0" />
-                  <Button fx:id="connectButton" mnemonicParsing="false" onAction="#connectOnAction" text="连接" />
-                  <Button fx:id="disconnectButton" mnemonicParsing="false" onAction="#disconnectOnAction" text="关闭" />
-                  <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refreshOnAction" text="刷新" />
+                  <Button fx:id="connectButton" mnemonicParsing="false" onAction="#connectOnAction" text="%button.connect" />
+                  <Button fx:id="disconnectButton" mnemonicParsing="false" onAction="#disconnectOnAction" text="%button.disconnect" />
+                  <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refreshOnAction" text="%button.refresh" />
                </children>
                <BorderPane.margin>
                   <Insets bottom="10.0" />
@@ -27,14 +27,14 @@
               <items>
                   <TreeView fx:id="nodeTreeView" />
                   <TabPane tabClosingPolicy="UNAVAILABLE">
-                      <Tab fx:id="ttt1" text="Node Data">
+                      <Tab fx:id="nodeDataTab" text="%tab.node_data">
                           <content>
                               <BorderPane>
                                   <top>
                                       <HBox alignment="CENTER_LEFT" spacing="10.0" BorderPane.alignment="CENTER">
                                           <children>
                                               <Button fx:id="nodeDataSaveButton" mnemonicParsing="false"
-                                                      onAction="#nodeDataSaveOnAction" text="保存"/>
+                                                      onAction="#nodeDataSaveOnAction" text="%button.save"/>
                                           </children>
                                           <BorderPane.margin>
                                               <Insets bottom="5.0" top="5.0"/>
@@ -47,7 +47,7 @@
                               </BorderPane>
                           </content>
                       </Tab>
-                      <Tab fx:id="ttt2" text="Node Metadata">
+                      <Tab fx:id="nodeMetadataTab" text="%tab.node_metadata">
                           <content>
                               <GridPane>
                                   <columnConstraints>
@@ -71,7 +71,7 @@
                                   </rowConstraints>
                                   <children>
                                       <TextField fx:id="A_VERSIONTextField" editable="false" GridPane.columnIndex="1"/>
-                                      <Label text="ACL Version"/>
+                                      <Label fx:id="aclVersionLabel" text="%label.acl_version"/>
                                       <TextField fx:id="C_TIMETextField" editable="false" GridPane.columnIndex="1"
                                                  GridPane.rowIndex="1"/>
                                       <TextField fx:id="C_VERSIONTextField" editable="false" GridPane.columnIndex="1"
@@ -92,16 +92,16 @@
                                                  GridPane.rowIndex="9"/>
                                       <TextField fx:id="VERSIONTextField" editable="false" GridPane.columnIndex="1"
                                                  GridPane.rowIndex="10"/>
-                                      <Label text="Creation Time" GridPane.rowIndex="1"/>
-                                      <Label text="Children Version" GridPane.rowIndex="2"/>
-                                      <Label text="Creation ID" GridPane.rowIndex="3"/>
-                                      <Label text="Data Length" GridPane.rowIndex="4"/>
-                                      <Label text="Ephemeral Owner" GridPane.rowIndex="5"/>
-                                      <Label text="Last Modified Time" GridPane.rowIndex="6"/>
-                                      <Label text="Modified ID" GridPane.rowIndex="7"/>
-                                      <Label text="Number of Children" GridPane.rowIndex="8"/>
-                                      <Label text="Node ID" GridPane.rowIndex="9"/>
-                                      <Label text="Data Version" GridPane.rowIndex="10"/>
+                                      <Label fx:id="creationTimeLabel" text="%label.creation_time" GridPane.rowIndex="1"/>
+                                      <Label fx:id="childrenVersionLabel" text="%label.children_version" GridPane.rowIndex="2"/>
+                                      <Label fx:id="creationIdLabel" text="%label.creation_id" GridPane.rowIndex="3"/>
+                                      <Label fx:id="dataLengthLabel" text="%label.data_length" GridPane.rowIndex="4"/>
+                                      <Label fx:id="ephemeralOwnerLabel" text="%label.ephemeral_owner" GridPane.rowIndex="5"/>
+                                      <Label fx:id="lastModifiedTimeLabel" text="%label.last_modified_time" GridPane.rowIndex="6"/>
+                                      <Label fx:id="modifiedIdLabel" text="%label.modified_id" GridPane.rowIndex="7"/>
+                                      <Label fx:id="numChildrenLabel" text="%label.num_children" GridPane.rowIndex="8"/>
+                                      <Label fx:id="nodeIdLabel" text="%label.node_id" GridPane.rowIndex="9"/>
+                                      <Label fx:id="dataVersionLabel" text="%label.data_version" GridPane.rowIndex="10"/>
                                   </children>
                                   <padding>
                                       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
@@ -109,16 +109,16 @@
                               </GridPane>
                           </content>
                       </Tab>
-                      <Tab fx:id="ttt3" text="Node ACLs">
+                      <Tab fx:id="nodeAclTab" text="%tab.node_acl">
                           <content>
                             <AnchorPane minHeight="0.0" minWidth="0.0">
                                 <children>
-                                    <Label layoutX="14.0" layoutY="14.0" text="Scheme:"/>
+                                    <Label fx:id="schemeLabel" layoutX="14.0" layoutY="14.0" text="%label.scheme"/>
                                     <TextField fx:id="aclSchemeTextField" editable="false" layoutX="98.0"
                                                layoutY="10.0"/>
-                                    <Label layoutX="14.0" layoutY="53.0" text="Id:"/>
+                                    <Label fx:id="idLabel" layoutX="14.0" layoutY="53.0" text="%label.id"/>
                                     <TextField fx:id="aclIdTextField" editable="false" layoutX="98.0" layoutY="49.0"/>
-                                    <Label layoutX="14.0" layoutY="94.0" text="Permissions:"/>
+                                    <Label fx:id="permissionsLabel" layoutX="14.0" layoutY="94.0" text="%label.permissions"/>
                                     <TextField fx:id="aclPermissionsTextField" editable="false" layoutX="98.0"
                                                layoutY="90.0"/>
                                 </children>

@@ -1,16 +1,259 @@
-.menu-bar {
-    -fx-background-color: #00BCD4;
-    -fx-arc-height: 40px;
+/* ============================================================
+   RestMock 插件 - 全新样式（跟随主程序主题）
+   ============================================================ */
+
+.rest-mock-root {
+    -fx-background-color: -theme-bg-primary;
 }
 
-.jfx-button {
+.rest-mock-wrap {
+    -fx-background-color: -theme-bg-primary;
+}
+
+/* 顶部工具栏 */
+.rest-mock-toolbar {
+    -fx-background-color: -theme-bg-secondary;
+    -fx-border-color: -theme-border transparent transparent transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.rest-mock-toolbar-label {
+    -fx-text-fill: -theme-text-secondary;
+    -fx-font-size: 13px;
+}
+
+.rest-mock-port-field {
+    -fx-font-size: 13px;
+}
+
+.rest-mock-btn-primary {
+    -fx-background-color: -theme-accent;
+    -fx-text-fill: -theme-text-inverse;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+
+.rest-mock-btn-primary:hover {
+    -fx-background-color: -theme-accent-hover;
+}
+
+.rest-mock-btn-secondary {
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+
+.rest-mock-btn-danger {
+    -fx-background-color: transparent;
+    -fx-text-fill: #e74c3c;
+    -fx-border-color: transparent;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+
+.rest-mock-btn-danger:hover {
+    -fx-text-fill: #c0392b;
+}
+
+.rest-mock-root .text-field,
+.rest-mock-root .text-area {
+    -fx-background-color: -theme-bg-tertiary;
+    -fx-text-fill: -theme-text-primary;
+    -fx-prompt-text-fill: -theme-text-secondary;
+    -fx-font-size: 13px;
+}
+
+.rest-mock-status {
+    -fx-text-fill: -theme-text-secondary;
+    -fx-font-size: 12px;
+}
+
+.rest-mock-progress {
+    -fx-progress-color: -theme-accent;
+}
+
+/* ============================================================
+   左侧面板
+   ============================================================ */
+
+.rest-mock-left-panel {
+    -fx-background-color: -theme-bg-primary;
+}
+
+.rest-mock-search-field {
+    -fx-prompt-text-fill: -theme-text-secondary;
+}
+
+/* ============================================================
+   HTTP 方法彩色徽章
+   ============================================================ */
+
+.rest-mock-method-badge {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 2 6;
+    -fx-background-radius: 4;
     -fx-text-fill: white;
-    /*-fx-font-size: 20px;*/
-    -fx-background-color: #00BCD4;
-   /* -fx-pref-width: 200px;
-    -fx-pref-height: 100px;*/
-    -jfx-button-type: RAISED;
-    -fx-background-insets: 10px, 10px, 10px, 10px;
 }
 
+.method-get {
+    -fx-background-color: #22c55e;
+}
 
+.method-post {
+    -fx-background-color: #3b82f6;
+}
+
+.method-put {
+    -fx-background-color: #f59e0b;
+}
+
+.method-delete {
+    -fx-background-color: #ef4444;
+}
+
+.method-patch {
+    -fx-background-color: #8b5cf6;
+}
+
+.method-head {
+    -fx-background-color: #06b6d4;
+}
+
+.method-options {
+    -fx-background-color: #6b7280;
+}
+
+/* ============================================================
+   表格
+   ============================================================ */
+
+.rest-mock-table {
+    -fx-background-color: transparent;
+    -fx-border-color: -theme-border;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-font-size: 12px;
+}
+
+.rest-mock-table .column-header-background {
+    -fx-background-color: -theme-bg-tertiary;
+    -fx-background-radius: 6 6 0 0;
+}
+
+.rest-mock-table .column-header {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent -theme-border transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 10 12;
+}
+
+.rest-mock-table .column-header .label {
+    -fx-text-fill: -theme-text-primary;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.rest-mock-table .table-row-cell {
+    -fx-background-color: -theme-bg-primary;
+}
+
+.rest-mock-table .table-row-cell:odd {
+    -fx-background-color: -theme-bg-secondary;
+}
+
+.rest-mock-table .table-row-cell:selected {
+    -fx-background-color: -theme-selected-bg;
+}
+
+.rest-mock-table .table-cell {
+    -fx-text-fill: -theme-text-primary;
+    -fx-padding: 8 12;
+    -fx-border-color: transparent;
+}
+
+.rest-mock-table .table-row-cell:hover {
+    -fx-background-color: -theme-hover-bg;
+}
+
+/* ============================================================
+   右侧详情面板
+   ============================================================ */
+
+.rest-mock-body-editor {
+    -fx-control-inner-background: -theme-bg-primary;
+    -fx-background-color: -theme-bg-primary;
+    -fx-text-fill: -theme-text-primary;
+    -fx-font-family: "SF Mono", "Consolas", "Monaco", "Menlo", monospace;
+    -fx-font-size: 13px;
+}
+
+/* ============================================================
+   请求日志抽屉
+   ============================================================ */
+
+.rest-mock-log-drawer {
+    -fx-background-color: -theme-bg-secondary;
+    -fx-border-color: -theme-border;
+    -fx-border-width: 1 0 0 0;
+}
+
+.rest-mock-log-drawer>.title {
+    -fx-background-color: -theme-bg-tertiary;
+    -fx-padding: 8 12;
+}
+
+.rest-mock-log-drawer .content {
+    -fx-background-color: -theme-bg-secondary;
+    -fx-padding: 8;
+}
+
+.rest-mock-log-area {
+    -fx-control-inner-background: -theme-bg-primary;
+    -fx-background-color: -theme-bg-primary;
+    -fx-text-fill: -theme-text-primary;
+    -fx-font-family: "SF Mono", "Consolas", "Monaco", "Menlo", monospace;
+    -fx-font-size: 12px;
+    -fx-padding: 10;
+}
+
+/* ============================================================
+   CheckBox 样式（深色/浅色主题兼容）
+   ============================================================ */
+
+.rest-mock-checkbox {
+    -fx-cursor: hand;
+}
+
+.rest-mock-checkbox .box {
+    -fx-background-color: -theme-bg-tertiary;
+    -fx-border-color: -theme-text-secondary;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+    -fx-min-width: 16;
+    -fx-min-height: 16;
+    -fx-max-width: 16;
+    -fx-max-height: 16;
+}
+
+.rest-mock-checkbox:selected .box {
+    -fx-background-color: #22c55e;
+    -fx-border-color: #22c55e;
+}
+
+.rest-mock-checkbox:selected .mark {
+    -fx-background-color: white;
+}
+
+.rest-mock-checkbox .mark {
+    -fx-background-color: transparent;
+}
+
+.rest-mock-checkbox:hover .box {
+    -fx-border-color: -theme-accent;
+}
+
+/* 全局 */
+.rest-mock-root .label {
+    -fx-text-fill: -theme-text-primary;
+}

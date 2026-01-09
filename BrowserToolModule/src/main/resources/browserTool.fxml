@@ -9,7 +9,7 @@
 <?import javafx.scene.web.WebView?>
 
 <BorderPane fx:id="contentBorderPane" xmlns="http://javafx.com/javafx/8.0.999-ea" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.opencgl.controller.WebSourcesToolController">
+            fx:controller="com.opencgl.brower.controller.WebSourcesToolController">
     <center>
       <!--  <WebView fx:id="showHtmlWebView" BorderPane.alignment="CENTER">
             <BorderPane.margin>
@@ -19,12 +19,12 @@
     </center>
     <top>
         <HBox alignment="CENTER" prefHeight="37.0" prefWidth="992.0" spacing="5.0" BorderPane.alignment="CENTER">
-            <Label text="网址："/>
+            <Label text="%label.url"/>
             <TextField fx:id="urlTextField" prefHeight="23.0" prefWidth="500.0" HBox.hgrow="ALWAYS"/>
-            <Button fx:id="jumpButton" mnemonicParsing="false" onAction="#jumpAction" text="跳转"/>
-            <Button fx:id="homePageReturnHome" mnemonicParsing="false" onAction="#returnHomePage" text="返回首页"/>
+            <Button fx:id="jumpButton" mnemonicParsing="false" onAction="#jumpAction" text="%button.jump"/>
+            <Button fx:id="homePageReturnHome" mnemonicParsing="false" onAction="#returnHomePage" text="%button.home"/>
             <Button fx:id="browserOpenButton" mnemonicParsing="false" onAction="#browserOpenAction"
-                    text="在默认浏览器中打开"/>
+                    text="%button.open_browser"/>
         </HBox>
     </top>
 </BorderPane>

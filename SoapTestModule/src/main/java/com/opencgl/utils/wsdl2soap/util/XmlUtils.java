@@ -1,7 +1,8 @@
 package com.opencgl.utils.wsdl2soap.util;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -23,7 +24,7 @@ import java.util.*;
 
 public class XmlUtils {
     private static DocumentBuilder documentBuilder;
-    private final static Logger log = Logger.getLogger(XmlUtils.class);
+    private final static Logger log = LoggerFactory.getLogger(XmlUtils.class);
 
     static synchronized public Document parse(InputStream in) {
         try {

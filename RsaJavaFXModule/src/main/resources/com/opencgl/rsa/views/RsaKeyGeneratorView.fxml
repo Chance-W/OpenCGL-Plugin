@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXComboBox?>
+<?import io.github.palexdev.materialfx.controls.MFXCheckbox?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<StackPane fx:id="rootPane" xmlns="http://javafx.com/javafx/19"
+           xmlns:fx="http://javafx.com/fxml/1" 
+           fx:controller="com.opencgl.rsa.controller.RsaKeyGeneratorController"
+           stylesheets="@../styles/rsa-style.css">
+    
+    <BorderPane fx:id="contentBorderPane">
+        <top>
+            <VBox styleClass="header-section">
+                <padding>
+                    <Insets top="12" left="20" right="20" bottom="8"/>
+                </padding>
+                <Label text="%title.tool" styleClass="title-label">
+                    <font><Font name="System Bold" size="20"/></font>
+                </Label>
+            </VBox>
+        </top>
+        
+        <center>
+            <TabPane side="TOP" tabClosingPolicy="UNAVAILABLE" styleClass="main-tabs">
+                
+                <Tab text="%tab.keyGen">
+                    <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="content-scroll">
+                        <VBox spacing="15">
+                            <padding><Insets top="15" left="20" right="20" bottom="15"/></padding>
+                            
+                            <VBox spacing="12" styleClass="config-section">
+                                <padding><Insets top="15" left="15" right="15" bottom="15"/></padding>
+                                
+                                <Label text="⚙️ 密钥配置" styleClass="section-title">
+                                    <font><Font name="System Bold" size="14"/></font>
+                                </Label>
+                                
+                                <HBox spacing="15" alignment="CENTER_LEFT">
+                                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                        <Label text="密钥位数" styleClass="field-label"/>
+                                        <MFXComboBox fx:id="keySizeCombo" prefWidth="250" styleClass="config-combo"/>
+                                    </VBox>
+                                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                        <Label text="算法类型" styleClass="field-label"/>
+                                        <MFXComboBox fx:id="algorithmCombo" prefWidth="250" styleClass="config-combo"/>
+                                    </VBox>
+                                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                        <Label text="哈希算法" styleClass="field-label"/>
+                                        <MFXComboBox fx:id="hashAlgorithmCombo" prefWidth="250" styleClass="config-combo"/>
+                                    </VBox>
+                                </HBox>
+                                
+                                <HBox spacing="15" alignment="CENTER">
+                                    <MFXButton fx:id="generateButton" text="🔐 生成RSA公私钥对" 
+                                              styleClass="generate-button" prefWidth="250" prefHeight="40">
+                                        <font><Font name="System Bold" size="13"/></font>
+                                    </MFXButton>
+                                    <MFXCheckbox fx:id="removePemHeaderCheckbox" text="移除PEM头尾（仅输出Base64）"/>
+                                </HBox>
+                            </VBox>
+                            
+                            <HBox spacing="15" VBox.vgrow="ALWAYS">
+                                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                    <HBox spacing="10" alignment="CENTER_LEFT">
+                                        <Label text="🔑 公钥" styleClass="section-title">
+                                            <font><Font name="System Bold" size="14"/></font>
+                                        </Label>
+                                        <MFXButton fx:id="savePublicKeyButton" text="💾 保存" styleClass="small-button" prefWidth="70"/>
+                                        <MFXButton fx:id="copyPublicKeyButton" text="📋 复制" styleClass="small-button" prefWidth="70"/>
+                                    </HBox>
+                                    <TextArea fx:id="publicKeyArea" wrapText="true" prefHeight="320"
+                                             promptText="生成的公钥将显示在这里..."
+                                             styleClass="key-textarea" VBox.vgrow="ALWAYS"/>
+                                </VBox>
+                                
+                                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                    <HBox spacing="10" alignment="CENTER_LEFT">
+                                        <Label text="🔐 私钥" styleClass="section-title">
+                                            <font><Font name="System Bold" size="14"/></font>
+                                        </Label>
+                                        <MFXButton fx:id="savePrivateKeyButton" text="💾 保存" styleClass="small-button" prefWidth="70"/>
+                                        <MFXButton fx:id="copyPrivateKeyButton" text="📋 复制" styleClass="small-button" prefWidth="70"/>
+                                    </HBox>
+                                    <TextArea fx:id="privateKeyArea" wrapText="true" prefHeight="320"
+                                             promptText="生成的私钥将显示在这里..."
+                                             styleClass="key-textarea" VBox.vgrow="ALWAYS"/>
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                    </ScrollPane>
+                </Tab>
+                
+                <Tab text="%tab.encrypt">
+                    <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="content-scroll">
+                        <VBox spacing="15">
+                            <padding><Insets top="15" left="20" right="20" bottom="15"/></padding>
+                            
+                            <!-- 密钥输入区 -->
+                            <HBox spacing="15">
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="🔑 公钥（用于加密）" styleClass="field-label"/>
+                                    <TextArea fx:id="encryptPublicKeyArea" wrapText="true" prefHeight="120"
+                                             promptText="粘贴公钥（支持PEM格式或纯Base64）..."
+                                             styleClass="key-textarea-small"/>
+                                </VBox>
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="🔐 私钥（用于解密）" styleClass="field-label"/>
+                                    <TextArea fx:id="encryptPrivateKeyArea" wrapText="true" prefHeight="120"
+                                             promptText="粘贴私钥（支持PEM格式或纯Base64）..."
+                                             styleClass="key-textarea-small"/>
+                                </VBox>
+                            </HBox>
+                            
+                            <Separator/>
+                            
+                            <!-- 加密解密区 -->
+                            <HBox spacing="15" VBox.vgrow="ALWAYS">
+                                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                    <Label text="📝 明文" styleClass="section-title">
+                                        <font><Font name="System Bold" size="14"/></font>
+                                    </Label>
+                                    <TextArea fx:id="plaintextArea" wrapText="true" prefHeight="280"
+                                             promptText="输入要加密的明文..."
+                                             styleClass="crypto-textarea" VBox.vgrow="ALWAYS"/>
+                                    <MFXButton fx:id="encryptButton" text="🔒 加密 →" 
+                                              styleClass="crypto-button" prefWidth="200" prefHeight="38"/>
+                                </VBox>
+                                
+                                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                    <Label text="🔐 密文（Base64）" styleClass="section-title">
+                                        <font><Font name="System Bold" size="14"/></font>
+                                    </Label>
+                                    <TextArea fx:id="ciphertextArea" wrapText="true" prefHeight="280"
+                                             promptText="加密结果或输入要解密的密文..."
+                                             styleClass="crypto-textarea" VBox.vgrow="ALWAYS"/>
+                                    <MFXButton fx:id="decryptButton" text="← 🔓 解密" 
+                                              styleClass="crypto-button" prefWidth="200" prefHeight="38"/>
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                    </ScrollPane>
+                </Tab>
+                
+                <Tab text="%tab.sign">
+                    <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="content-scroll">
+                        <VBox spacing="15">
+                            <padding><Insets top="15" left="20" right="20" bottom="15"/></padding>
+                            
+                            <!-- 密钥输入区 -->
+                            <HBox spacing="15">
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="🔐 私钥（用于签名）" styleClass="field-label"/>
+                                    <TextArea fx:id="signPrivateKeyArea" wrapText="true" prefHeight="120"
+                                             promptText="粘贴私钥（支持PEM格式或纯Base64）..."
+                                             styleClass="key-textarea-small"/>
+                                </VBox>
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="🔑 公钥（用于验签）" styleClass="field-label"/>
+                                    <TextArea fx:id="signPublicKeyArea" wrapText="true" prefHeight="120"
+                                             promptText="粘贴公钥（支持PEM格式或纯Base64）..."
+                                             styleClass="key-textarea-small"/>
+                                </VBox>
+                            </HBox>
+                            
+                            <Separator/>
+                            
+                            <!-- 签名验签区 -->
+                            <HBox spacing="15" VBox.vgrow="ALWAYS">
+                                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                    <Label text="📄 原始数据" styleClass="section-title">
+                                        <font><Font name="System Bold" size="14"/></font>
+                                    </Label>
+                                    <TextArea fx:id="signDataArea" wrapText="true" prefHeight="250"
+                                             promptText="输入要签名或验证的原始数据..."
+                                             styleClass="crypto-textarea" VBox.vgrow="ALWAYS"/>
+                                    <MFXButton fx:id="signButton" text="✍️ 签名 →" 
+                                              styleClass="crypto-button" prefWidth="200" prefHeight="38"/>
+                                </VBox>
+                                
+                                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                    <Label text="🔏 签名（Base64）" styleClass="section-title">
+                                        <font><Font name="System Bold" size="14"/></font>
+                                    </Label>
+                                    <TextArea fx:id="signatureArea" wrapText="true" prefHeight="250"
+                                             promptText="签名结果或输入要验证的签名..."
+                                             styleClass="crypto-textarea" VBox.vgrow="ALWAYS"/>
+                                    <MFXButton fx:id="verifyButton" text="✅ 验签" 
+                                              styleClass="crypto-button" prefWidth="200" prefHeight="38"/>
+                                </VBox>
+                            </HBox>
+                            
+                            <!-- 验签结果 -->
+                            <HBox spacing="10" alignment="CENTER_LEFT" styleClass="verify-result-box">
+                                <padding><Insets top="10" left="15" right="15" bottom="10"/></padding>
+                                <Label text="验签结果：" styleClass="field-label"/>
+                                <TextField fx:id="verifyResultField" editable="false" 
+                                          promptText="点击验签按钮查看结果"
+                                          styleClass="verify-result-field" HBox.hgrow="ALWAYS"/>
+                            </HBox>
+                        </VBox>
+                    </ScrollPane>
+                </Tab>
+                
+                <Tab text="%tab.aes">
+                    <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="content-scroll">
+                        <VBox spacing="15">
+                            <padding><Insets top="15" left="20" right="20" bottom="15"/></padding>
+                            
+                            <!-- AES密钥配置 -->
+                            <HBox spacing="15" alignment="CENTER_LEFT">
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="🔑 AES密钥（16/24/32字节）" styleClass="field-label"/>
+                                    <TextField fx:id="aesKeyField" promptText="输入AES密钥..."
+                                              styleClass="input-field"/>
+                                </VBox>
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="🔢 IV向量（16字节，可选）" styleClass="field-label"/>
+                                    <TextField fx:id="aesIvField" promptText="输入IV向量（CBC模式需要）..."
+                                              styleClass="input-field"/>
+                                </VBox>
+                            </HBox>
+                            
+                            <Separator/>
+                            
+                            <!-- AES加解密区 -->
+                            <HBox spacing="15" VBox.vgrow="ALWAYS">
+                                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                    <Label text="📝 明文" styleClass="section-title">
+                                        <font><Font name="System Bold" size="14"/></font>
+                                    </Label>
+                                    <TextArea fx:id="aesPlaintextArea" wrapText="true" prefHeight="350"
+                                             promptText="输入要加密的明文..."
+                                             styleClass="crypto-textarea" VBox.vgrow="ALWAYS"/>
+                                    <MFXButton fx:id="aesEncryptButton" text="🔒 AES加密 →" 
+                                              styleClass="crypto-button" prefWidth="200" prefHeight="38"/>
+                                </VBox>
+                                
+                                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                    <Label text="🔐 密文（Base64）" styleClass="section-title">
+                                        <font><Font name="System Bold" size="14"/></font>
+                                    </Label>
+                                    <TextArea fx:id="aesCiphertextArea" wrapText="true" prefHeight="350"
+                                             promptText="加密结果或输入要解密的密文..."
+                                             styleClass="crypto-textarea" VBox.vgrow="ALWAYS"/>
+                                    <MFXButton fx:id="aesDecryptButton" text="← 🔓 AES解密" 
+                                              styleClass="crypto-button" prefWidth="200" prefHeight="38"/>
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                    </ScrollPane>
+                </Tab>
+                
+                <Tab text="%tab.license">
+                    <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="content-scroll">
+                        <VBox spacing="12">
+                            <padding><Insets top="15" left="20" right="20" bottom="15"/></padding>
+                            
+                            <!-- 第1部分：许可证字段输入 -->
+                            <Label text="1️⃣ 许可证字段输入" styleClass="section-title">
+                                <font><Font name="System Bold" size="14"/></font>
+                            </Label>
+                            
+                            <GridPane hgap="15" vgap="8">
+                                <Label text="licenseApplicantEmail" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                                <TextField fx:id="jsonEmailField" promptText="邮箱" 
+                                          GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.hgrow="ALWAYS"/>
+                                
+                                <Label text="licenseApplicantJobNumber" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                                <TextField fx:id="jsonJobNumberField" promptText="工号" 
+                                          GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.hgrow="ALWAYS"/>
+                                
+                                <Label text="licenseApplicantName" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                                <TextField fx:id="jsonNameField" promptText="姓名" 
+                                          GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.hgrow="ALWAYS"/>
+                                
+                                <Label text="licenseEffectiveDays" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                                <TextField fx:id="jsonEffectiveDaysField" promptText="有效天数（数字）" 
+                                          GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.hgrow="ALWAYS"/>
+                                
+                                <Label text="licenseExpiryDate" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                                <TextField fx:id="jsonExpiryDateField" promptText="yyyy-MM-dd HH:mm:ss" 
+                                          GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.hgrow="ALWAYS"/>
+                                
+                                <Label text="licenseIssueDate" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+                                <TextField fx:id="jsonIssueDateField" promptText="yyyy-MM-dd HH:mm:ss" 
+                                          GridPane.columnIndex="1" GridPane.rowIndex="5" GridPane.hgrow="ALWAYS"/>
+                                
+                                <Label text="licenseUsePurpose" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
+                                <TextField fx:id="jsonUsePurposeField" promptText="用途" 
+                                          GridPane.columnIndex="1" GridPane.rowIndex="6" GridPane.hgrow="ALWAYS"/>
+                                
+                                <Label text="projectCode" GridPane.columnIndex="0" GridPane.rowIndex="7"/>
+                                <TextField fx:id="jsonProjectCodeField" promptText="项目代码" 
+                                          GridPane.columnIndex="1" GridPane.rowIndex="7" GridPane.hgrow="ALWAYS"/>
+                                
+                                <columnConstraints>
+                                    <ColumnConstraints minWidth="200" prefWidth="200"/>
+                                    <ColumnConstraints hgrow="ALWAYS"/>
+                                </columnConstraints>
+                            </GridPane>
+                            
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <MFXButton fx:id="generateJsonButton" text="📋 生成JSON" 
+                                          styleClass="generate-button" prefWidth="150" prefHeight="35"/>
+                                <MFXButton fx:id="copyJsonButton" text="📋 复制" 
+                                          styleClass="small-button" prefWidth="80"/>
+                            </HBox>
+                            
+                            <Label text="📄 JSON输出（按ASCII排序）" styleClass="field-label"/>
+                            <TextArea fx:id="jsonOutputArea" wrapText="true" prefHeight="100"
+                                     promptText="生成的JSON..."
+                                     styleClass="crypto-textarea"/>
+                            
+                            <Separator/>
+                            
+                            <!-- 第2部分：签名 -->
+                            <Label text="2️⃣ RSA签名" styleClass="section-title">
+                                <font><Font name="System Bold" size="14"/></font>
+                            </Label>
+                            
+                            <HBox spacing="15">
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="🔐 私钥（签名用）" styleClass="field-label"/>
+                                    <TextArea fx:id="licensePrivateKeyArea" wrapText="true" prefHeight="80"
+                                             promptText="粘贴私钥..."
+                                             styleClass="key-textarea-small"/>
+                                </VBox>
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="🔑 公钥（验签用）" styleClass="field-label"/>
+                                    <TextArea fx:id="licensePublicKeyArea" wrapText="true" prefHeight="80"
+                                             promptText="粘贴公钥..."
+                                             styleClass="key-textarea-small"/>
+                                </VBox>
+                            </HBox>
+                            
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <MFXButton fx:id="licenseSignButton" text="✍️ 签名JSON" 
+                                          styleClass="crypto-button" prefWidth="150" prefHeight="35"/>
+                                <MFXButton fx:id="licenseVerifyButton" text="✅ 验证签名" 
+                                          styleClass="crypto-button" prefWidth="150" prefHeight="35"/>
+                                <MFXButton fx:id="appendSignatureButton" text="📎 追加signature字段" 
+                                          styleClass="small-button" prefWidth="150"/>
+                            </HBox>
+                            
+                            <HBox spacing="15">
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="🔏 签名结果" styleClass="field-label"/>
+                                    <TextArea fx:id="licenseSignatureArea" wrapText="true" prefHeight="60"
+                                             promptText="签名Base64..."
+                                             styleClass="crypto-textarea"/>
+                                </VBox>
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="✅ 验签结果" styleClass="field-label"/>
+                                    <TextField fx:id="licenseVerifyResultField" editable="false" 
+                                              promptText="验签结果" styleClass="verify-result-field"/>
+                                </VBox>
+                            </HBox>
+                            
+                            <Separator/>
+                            
+                            <!-- 第3部分：AES加解密 -->
+                            <Label text="3️⃣ AES加解密" styleClass="section-title">
+                                <font><Font name="System Bold" size="14"/></font>
+                            </Label>
+                            
+                            <HBox spacing="15" alignment="CENTER_LEFT">
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="🔑 AES密钥（16/24/32字节）" styleClass="field-label"/>
+                                    <TextField fx:id="licenseAesKeyField" promptText="AES密钥..."
+                                              styleClass="input-field"/>
+                                </VBox>
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="🔢 IV（16字节，可选）" styleClass="field-label"/>
+                                    <TextField fx:id="licenseAesIvField" promptText="IV向量..."
+                                              styleClass="input-field"/>
+                                </VBox>
+                            </HBox>
+                            
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <MFXButton fx:id="licenseAesEncryptButton" text="🔒 AES加密JSON" 
+                                          styleClass="crypto-button" prefWidth="150" prefHeight="35"/>
+                                <MFXButton fx:id="licenseAesDecryptButton" text="🔓 AES解密" 
+                                          styleClass="crypto-button" prefWidth="150" prefHeight="35"/>
+                                <MFXButton fx:id="copyEncryptedButton" text="📋 复制密文" 
+                                          styleClass="small-button" prefWidth="100"/>
+                            </HBox>
+                            
+                            <Label text="🔐 加密/解密结果" styleClass="field-label"/>
+                            <TextArea fx:id="licenseEncryptedArea" wrapText="true" prefHeight="80"
+                                     promptText="加密后的Base64或待解密的密文..."
+                                     styleClass="crypto-textarea"/>
+                        </VBox>
+                    </ScrollPane>
+                </Tab>
+                
+            </TabPane>
+        </center>
+    </BorderPane>
+</StackPane>
+

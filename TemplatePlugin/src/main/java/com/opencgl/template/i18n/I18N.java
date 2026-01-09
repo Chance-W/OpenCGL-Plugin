@@ -1,107 +1,42 @@
 package com.opencgl.template.i18n;
 
-import java.text.MessageFormat;
+import com.opencgl.base.utils.i18n.BaseI18N;
+import com.opencgl.base.utils.i18n.I18nResolver;
+import javafx.beans.binding.StringBinding;
+
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
 
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.StringBinding;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-
-@SuppressWarnings("unused")
+/**
+ * Template \u6A21\u5757\u56FD\u9645\u5316\u5DE5\u5177\u7C7B\u3002
+ */
 public class I18N {
-    private static final ObjectProperty<Locale> locale = new SimpleObjectProperty<>();
-
-    static {
-        setLanguage(Language.defaultLanguage());
-        locale.addListener(invalidated -> Locale.setDefault(getLocale()));
-    }
+    private static final I18nResolver RESOLVER = new I18nResolver(
+            "com.opencgl.template.i18n.Template",
+            I18N.class.getClassLoader());
 
     public static String get(String key, Object... args) {
-        ResourceBundle bundle = getBundle(getLocale());
-        return MessageFormat.format(bundle.getString(key), args);
-    }
-
-    public static String get(Language language, String key, Object... args) {
-        ResourceBundle bundle = getBundle(language.getLocale());
-        return MessageFormat.format(bundle.getString(key), args);
-    }
-
-    public static String getOrDefault(String key, Object... args) {
-        ResourceBundle bundle = getBundle(getLocale());
-        try {
-            String s = bundle.getString(key);
-            return MessageFormat.format(s, args);
-        }
-        catch (Exception ex) {
-            return get(Language.defaultLanguage(), key, args);
-        }
-    }
-
-    public static String getOrDefault(Language language, String key, Object... args) {
-        ResourceBundle bundle = getBundle(language.getLocale());
-        try {
-            String s = bundle.getString(key);
-            return MessageFormat.format(s, args);
-        }
-        catch (Exception ex) {
-            return get(Language.defaultLanguage(), key, args);
-        }
+        return RESOLVER.get(key, args);
     }
 
     public static String getOrDefault(String key, String def, Object... args) {
-        ResourceBundle bundle = getBundle(getLocale());
-        try {
-            String s = bundle.getString(key);
-            return MessageFormat.format(s, args);
-        }
-        catch (Exception ex) {
-            return def;
-        }
-    }
-
-    public static String getOrDefault(Language language, String key, String def, Object... args) {
-        ResourceBundle bundle = getBundle(language.getLocale());
-        try {
-            String s = bundle.getString(key);
-            return MessageFormat.format(s, args);
-        }
-        catch (Exception ex) {
-            return def;
-        }
+        return RESOLVER.getOrDefault(key, def, args);
     }
 
     public static StringBinding getBinding(String key, Object... args) {
-        return Bindings.createStringBinding(() -> getOrDefault(key, args), locale);
+        return RESOLVER.getBinding(key, args);
     }
 
     public static StringBinding getBinding(Callable<String> callable) {
-        return Bindings.createStringBinding(callable, locale);
-    }
-
-    private static ResourceBundle getBundle(Locale locale) {
-        return ResourceBundle.getBundle(getBundleBaseName(), locale);
+        return RESOLVER.getBinding(callable);
     }
 
     public static Locale getLocale() {
-        return locale.get();
+        return BaseI18N.getLocale();
     }
 
-    public static ObjectProperty<Locale> localeProperty() {
-        return locale;
-    }
-
-    public static void setLanguage(Language language) {
-        locale.set(language.getLocale());
-    }
-
-    public static Language[] getSupportedLanguages() {
-        return Language.values();
-    }
-
-    public static String getBundleBaseName() {
-        return "com/opencgl/template/i18n/I18N";
+    public static ResourceBundle getBundle(Locale locale) {
+        return RESOLVER.getBundle(locale);
     }
 }

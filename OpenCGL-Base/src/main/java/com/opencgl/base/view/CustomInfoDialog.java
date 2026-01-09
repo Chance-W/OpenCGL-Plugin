@@ -3,7 +3,7 @@ package com.opencgl.base.view;
 
 import java.util.Objects;
 
-import com.opencgl.base.utils.i18n.BASE18N;
+import com.opencgl.base.utils.i18n.BaseI18N;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.enums.ButtonType;
 import javafx.application.Platform;
@@ -32,9 +32,9 @@ import javafx.stage.Window;
 @SuppressWarnings("unused")
 public class CustomInfoDialog extends Dialog<Void> {
 
-    private final Label labelHeader = new Label(BASE18N.getOrDefault("opencgl.base.info.dialog.labelHeader"));
+    private final Label labelHeader = new Label(BaseI18N.getOrDefault("opencgl.base.info.dialog.labelHeader"));
 
-    private final Label labelText = new Label(BASE18N.getOrDefault("opencgl.base.info.dialog.labelText"));
+    private final Label labelText = new Label(BaseI18N.getOrDefault("opencgl.base.info.dialog.labelText"));
 
     public CustomInfoDialog() {
         super();
@@ -44,15 +44,15 @@ public class CustomInfoDialog extends Dialog<Void> {
     private void initCustomDialog() {
         initStyle(StageStyle.UNDECORATED);
         initModality(Modality.APPLICATION_MODAL);
-        getDialogPane().getStylesheets().setAll(Objects.requireNonNull(this.getClass().getResource("/com/opencgl/base/css/opencgl-dialog.css")).toExternalForm());
-        getDialogPane().getStyleClass().add(0, "opencgl-dialog");
+//        getDialogPane().getStylesheets().setAll(Objects.requireNonNull(this.getClass().getResource("/com/opencgl/base/css/opencgl-dialog.css")).toExternalForm());
+//        getDialogPane().getStyleClass().addFirst("opencgl-dialog");
         VBox alertVBox = new VBox();
         alertVBox.setMinWidth(400.0);
         alertVBox.setMinHeight(150.0);
         VBox.setVgrow(alertVBox, Priority.ALWAYS);
         alertVBox.setSpacing(30);
 
-        MFXButton confirmButton = new MFXButton(BASE18N.getOrDefault("opencgl.base.button.confirm"));
+        MFXButton confirmButton = new MFXButton(BaseI18N.getOrDefault("opencgl.base.button.confirm"));
         confirmButton.setButtonType(ButtonType.RAISED);
         confirmButton.setOnAction(event -> {
             Scene scene = this.getDialogPane().getScene();

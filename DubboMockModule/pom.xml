@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>com.opencgl</groupId>
+        <artifactId>com.opencgl.plugin</artifactId>
+        <version>1.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>DubboMockModule</artifactId>
+    <version>1.0.0</version>
+    <description>Dubbo Provider Mock 插件 - 基于 GenericService 泛化实现，无需 API Jar 包即可 Mock Dubbo 提供者接口</description>
+
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+        <!-- Shaded 包名前缀，保证与其他插件和主程序完全物理隔离 -->
+        <shaded.prefix>com.opencgl.dubbomock.shaded</shaded.prefix>
+    </properties>
+
+    <dependencies>
+        <!-- Dubbo 核心 (含 GenericService 支持) -->
+        <dependency>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo</artifactId>
+            <version>3.2.4</version>
+            <exclusions>
+                <!-- 排除 Dubbo 自带的 slf4j，避免与主程序日志冲突 -->
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Zookeeper 注册中心客户端 (Curator) -->
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-framework</artifactId>
+            <version>4.2.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-x-discovery</artifactId>
+            <version>4.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+            <version>3.4.11</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- JSON, IO 及 Lombok (防构建丢失显式声明) -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.30</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>2.0.7</version>
+        </dependency>
+        
+        <!-- 子进程独立解析需要的 FastJson -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.83</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!--
+                ====================================================================
+                【核心看点】Maven Shade Plugin - 对 Dubbo/Zookeeper/Netty 进行包名重定位
+                解决与主程序或其他插件间可能存在的 ClassLoader/SPI/Netty 类冲突问题
+                ====================================================================
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+
+                            <transformers>
+                                <!--
+                                    【极其重要】合并 META-INF/services (SPI 描述文件)
+                                    Dubbo 和 Zookeeper 都大量使用 Java SPI，
+                                    不加此 Transformer 则 Shade 后 SPI 找不到实现类，导致启动崩溃
+                                -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <!--
+                                    【核心修复】合并 Dubbo 扩展点 SPI 文件 (META-INF/dubbo/*)
+                                    maven-shade-plugin 默认只保留最后一个同名文件（winner-takes-all），
+                                    导致自定义的 mockcurator SPI 注册条目被 dubbo-3.2.4.jar 中的同名文件覆盖。
+                                    使用 AppendingTransformer 追加合并，确保 mockcurator 条目保留在最终 JAR 中。
+                                -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/dubbo/org.apache.dubbo.remoting.zookeeper.ZookeeperTransporter</resource>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- 将 Shade 后的 JAR 复制到 ../bin 目录 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>copy-shaded-jar-to-bin</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <mkdir dir="../bin"/>
+                                <copy file="${project.build.directory}/${project.build.finalName}.jar"
+                                      tofile="../bin/${project.build.finalName}.jar"
+                                      overwrite="true"
+                                      failonerror="false"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

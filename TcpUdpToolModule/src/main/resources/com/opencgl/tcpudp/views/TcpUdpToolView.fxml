@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.opencgl.tcpudp.controller.TcpUdpToolController"
+      spacing="10" style="-fx-padding: 15;">
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="%label.host" style="-fx-text-fill: -theme-text-primary;"/>
+        <TextField fx:id="hostField" prefWidth="180" promptText="127.0.0.1"/>
+        <Label text="%label.port" style="-fx-text-fill: -theme-text-primary;"/>
+        <TextField fx:id="portField" prefWidth="80" promptText="8080"/>
+        <Label text="%label.protocol" style="-fx-text-fill: -theme-text-primary;"/>
+        <ComboBox fx:id="protocolCombo" maxWidth="100"/>
+        <Button fx:id="btnConnectOrSend" text="%button.connect" onAction="#onConnectOrSend"/>
+    </HBox>
+    <Label text="%label.send" style="-fx-text-fill: -theme-text-primary;"/>
+    <TextArea fx:id="sendArea" prefRowCount="5" wrapText="true"
+              style="-fx-text-fill: -theme-text-primary; -fx-border-color: -theme-border; -fx-font-family: 'Consolas';"/>
+    <Label text="%label.receive" style="-fx-text-fill: -theme-text-primary;"/>
+    <TextArea fx:id="receiveArea" prefRowCount="12" editable="false" wrapText="true" VBox.vgrow="ALWAYS"
+              style="-fx-text-fill: -theme-text-primary; -fx-border-color: -theme-border; -fx-font-family: 'Consolas';"/>
+</VBox>

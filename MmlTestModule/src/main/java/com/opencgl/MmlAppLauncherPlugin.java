@@ -7,6 +7,6 @@ import javafx.application.Application;
  */
 public class MmlAppLauncherPlugin {
     public static void main(String[] args) {
-        Application.launch(NewMainPlugin.class, args);
+        Application.launch(MmlStartAppLauncherPlugin.class, args);
     }
 }

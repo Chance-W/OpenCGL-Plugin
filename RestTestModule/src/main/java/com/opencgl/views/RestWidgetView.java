@@ -11,6 +11,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -71,6 +72,16 @@ public class RestWidgetView {
     protected VBox operateTopVbox;
     @FXML
     protected MFXComboBox<String> chooseMediaTypeComboBox;
-
-
+    
+    // Body 类型切换容器
+    @FXML
+    protected StackPane bodyContentPane;
+    @FXML
+    protected AnchorPane rawBodyPane;
+    @FXML
+    protected AnchorPane formDataPane;
+    @FXML
+    protected AnchorPane urlEncodedPane;
+    @FXML
+    protected VBox noneBodyPane;
 }

@@ -59,7 +59,14 @@ logs/*
 #node
 node_modules
 
+# Python test/build cache
+**/__pycache__/
+*.py[cod]
+
 # mac
 .DS_Store
 **/.DS_Store
 
+
+# others
+**/bin/

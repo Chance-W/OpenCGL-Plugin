@@ -1,0 +1,340 @@
+package com.opencgl.httpdebugger.repository.impl;
+
+import com.opencgl.http.model.HttpTreeItem;
+import com.opencgl.httpdebugger.repository.HttpTreeItemRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+/**
+ * SQL树节点Repository实现（基于JDBC）
+ * 
+ * @author Chance.W
+ */
+public class HttpTreeItemRepositoryImpl implements HttpTreeItemRepository {
+    
+    private static final Logger logger = LoggerFactory.getLogger(HttpTreeItemRepositoryImpl.class);
+    private static final String DB_URL = "jdbc:sqlite:opencgl_httpdebugger.db";
+    
+    public HttpTreeItemRepositoryImpl() {
+        initializeDatabase();
+    }
+    
+    private Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(DB_URL);
+    }
+    
+    @Override
+    public void initializeDatabase() {
+        try (Connection conn = getConnection();
+             InputStream is = getClass().getClassLoader().getResourceAsStream("sql/schema.sql")) {
+            
+            if (is == null) {
+                logger.warn("schema.sql not found, creating table manually");
+                createTableManually(conn);
+                return;
+            }
+            
+            String sql = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))
+                    .lines().collect(Collectors.joining("\n"));
+            
+            try (Statement stmt = conn.createStatement()) {
+                stmt.execute(sql);
+                logger.info("Database initialized successfully");
+            }
+            
+        } catch (Exception e) {
+            logger.error("Failed to initialize database", e);
+        }
+    }
+    
+    private void createTableManually(Connection conn) throws SQLException {
+        String sql = "CREATE TABLE IF NOT EXISTS http_tree_item (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "parent_id INTEGER," +
+                "name VARCHAR(200) NOT NULL," +
+                "is_leaf BOOLEAN DEFAULT 0," +
+                "sort_order INTEGER DEFAULT 0," +
+                "node_type VARCHAR(50) NOT NULL," +
+                "icon_name VARCHAR(50)," +
+                "host VARCHAR(200)," +
+                "port INTEGER," +
+                "database_name VARCHAR(100)," +
+                "username VARCHAR(100)," +
+                "password VARCHAR(500)," +
+                "db_type VARCHAR(20)," +
+                "schema_name VARCHAR(100)," +
+                "table_name VARCHAR(100)," +
+                "object_type VARCHAR(50)," +
+                "object_ddl TEXT," +
+                "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+                ")";
+        
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
+        }
+    }
+    
+    @Override
+    public List<HttpTreeItem> findAll() {
+        List<HttpTreeItem> items = new ArrayList<>();
+        String sql = "SELECT * FROM http_tree_item ORDER BY sort_order";
+        
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            
+            while (rs.next()) {
+                items.add(mapResultSet(rs));
+            }
+            
+        } catch (SQLException e) {
+            logger.error("Error finding all items", e);
+        }
+        
+        return items;
+    }
+    
+    @Override
+    public Optional<HttpTreeItem> findById(Long id) {
+        String sql = "SELECT * FROM http_tree_item WHERE id = ?";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setLong(1, id);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapResultSet(rs));
+                }
+            }
+            
+        } catch (SQLException e) {
+            logger.error("Error finding item by id: " + id, e);
+        }
+        
+        return Optional.empty();
+    }
+    
+    @Override
+    public List<HttpTreeItem> findByParentId(Long parentId) {
+        List<HttpTreeItem> items = new ArrayList<>();
+        String sql = "SELECT * FROM http_tree_item WHERE parent_id = ? ORDER BY sort_order";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            if (parentId == null) {
+                pstmt.setNull(1, Types.BIGINT);
+            } else {
+                pstmt.setLong(1, parentId);
+            }
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    items.add(mapResultSet(rs));
+                }
+            }
+            
+        } catch (SQLException e) {
+            logger.error("Error finding items by parent_id: " + parentId, e);
+        }
+        
+        return items;
+    }
+    
+    
+    public List<HttpTreeItem> findByNodeType(HttpTreeItem.NodeType nodeType) {
+        List<HttpTreeItem> items = new ArrayList<>();
+        String sql = "SELECT * FROM http_tree_item WHERE node_type = ? ORDER BY sort_order";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, nodeType.name());
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    items.add(mapResultSet(rs));
+                }
+            }
+            
+        } catch (SQLException e) {
+            logger.error("Error finding items by node_type: " + nodeType, e);
+        }
+        
+        return items;
+    }
+    
+    @Override
+    public HttpTreeItem save(HttpTreeItem item) {
+        if (item.getId() == null) {
+            return insert(item);
+        } else {
+            return update(item);
+        }
+    }
+    
+    private HttpTreeItem insert(HttpTreeItem item) {
+        String sql = "INSERT INTO http_tree_item (parent_id, name, is_leaf, sort_order, node_type, icon_name, " +
+                "method, url, headers, params, body, body_type, timeout) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            
+            setPreparedStatement(pstmt, item);
+            pstmt.executeUpdate();
+            
+            try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    item.setId(rs.getLong(1));
+                }
+            }
+            
+        } catch (SQLException e) {
+            logger.error("Error inserting item", e);
+        }
+        
+        return item;
+    }
+    
+    private HttpTreeItem update(HttpTreeItem item) {
+        String sql = "UPDATE http_tree_item SET parent_id=?, name=?, is_leaf=?, sort_order=?, node_type=?, icon_name=?, " +
+                "method=?, url=?, headers=?, params=?, body=?, body_type=?, timeout=?, " +
+                "updated_at=CURRENT_TIMESTAMP WHERE id=?";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            setPreparedStatement(pstmt, item);
+            pstmt.setLong(14, item.getId());
+            pstmt.executeUpdate();
+            
+        } catch (SQLException e) {
+            logger.error("Error updating item", e);
+        }
+        
+        return item;
+    }
+    
+    @Override
+    public void saveAll(List<HttpTreeItem> items) {
+        for (HttpTreeItem item : items) {
+            save(item);
+        }
+    }
+    
+    @Override
+    public void delete(HttpTreeItem item) {
+        deleteById(item.getId());
+    }
+    
+    @Override
+    public void deleteById(Long id) {
+        String sql = "DELETE FROM http_tree_item WHERE id = ?";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setLong(1, id);
+            pstmt.executeUpdate();
+            
+        } catch (SQLException e) {
+            logger.error("Error deleting item: " + id, e);
+        }
+    }
+    
+    @Override
+    public void deleteWithChildren(Long id) {
+        // 递归删除所有子节点
+        List<HttpTreeItem> children = findByParentId(id);
+        for (HttpTreeItem child : children) {
+            deleteWithChildren(child.getId());
+        }
+        deleteById(id);
+    }
+    
+    @Override
+    public void updateSortOrder(Long id, Integer sortOrder) {
+        String sql = "UPDATE http_tree_item SET sort_order = ? WHERE id = ?";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, sortOrder);
+            pstmt.setLong(2, id);
+            pstmt.executeUpdate();
+            
+        } catch (SQLException e) {
+            logger.error("Error updating sort order", e);
+        }
+    }
+    
+    private void setPreparedStatement(PreparedStatement pstmt, HttpTreeItem item) throws SQLException {
+        pstmt.setObject(1, item.getParentId());
+        pstmt.setString(2, item.getName());
+        pstmt.setBoolean(3, item.getIsLeaf() != null ? item.getIsLeaf() : false);
+        pstmt.setInt(4, item.getSortOrder() != null ? item.getSortOrder() : 0);
+        pstmt.setString(5, item.getNodeType() != null ? item.getNodeType().name() : null);
+        pstmt.setString(6, item.getIconName());
+        
+        // HTTP-specific fields
+        pstmt.setString(7, item.getMethod() != null ? item.getMethod().name() : null);
+        pstmt.setString(8, item.getUrl());
+        pstmt.setString(9, item.getHeaders());
+        pstmt.setString(10, item.getParams());
+        pstmt.setString(11, item.getBody());
+        pstmt.setString(12, item.getBodyType());
+        pstmt.setObject(13, item.getTimeout());
+    }
+    
+    private HttpTreeItem mapResultSet(ResultSet rs) throws SQLException {
+        HttpTreeItem item = new HttpTreeItem();
+        item.setId(rs.getLong("id"));
+        
+        long parentId = rs.getLong("parent_id");
+        item.setParentId(rs.wasNull() ? null : parentId);
+        
+        item.setName(rs.getString("name"));
+        item.setIsLeaf(rs.getBoolean("is_leaf"));
+        item.setSortOrder(rs.getInt("sort_order"));
+        
+        String nodeTypeStr = rs.getString("node_type");
+        if (nodeTypeStr != null) {
+            item.setNodeType(HttpTreeItem.NodeType.valueOf(nodeTypeStr));
+        }
+        
+        item.setIconName(rs.getString("icon_name"));
+        
+        // HTTP-specific fields
+        String methodStr = rs.getString("method");
+        if (methodStr != null) {
+            item.setMethod(HttpTreeItem.HttpMethod.valueOf(methodStr));
+        }
+        
+        item.setUrl(rs.getString("url"));
+        item.setHeaders(rs.getString("headers"));
+        item.setParams(rs.getString("params"));
+        item.setBody(rs.getString("body"));
+        item.setBodyType(rs.getString("body_type"));
+        
+        int timeout = rs.getInt("timeout");
+        item.setTimeout(rs.wasNull() ? null : timeout);
+        
+        item.setCreatedAt(rs.getTimestamp("created_at"));
+        item.setUpdatedAt(rs.getTimestamp("updated_at"));
+        
+        return item;
+    }
+}

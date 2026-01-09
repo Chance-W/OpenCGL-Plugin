@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox fx:id="root" spacing="0" style="-fx-background-color: -theme-bg-primary;"
+      xmlns="http://javafx.com/javafx/8.0.999-ea"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.opencgl.redis.controller.RedisSessionController">
+    
+    <!-- 连接状态栏 -->
+    <HBox fx:id="statusBar" spacing="12" alignment="CENTER_LEFT" 
+          style="-fx-background-color: -theme-bg-secondary; -fx-padding: 8 16; -fx-border-color: -theme-border; -fx-border-width: 0 0 1 0;">
+        <Label fx:id="connectionStatusLabel" text="" 
+                style="-fx-text-fill: -theme-success; -fx-font-weight: bold;"/>
+        <Label fx:id="serverInfoLabel" text="" style="-fx-text-fill: -theme-text-secondary;"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <MFXButton fx:id="disconnectBtn" text="%button.disconnect" buttonType="RAISED"
+                   style="-fx-background-color: -theme-danger; -fx-text-fill: -theme-text-inverse;"/>
+    </HBox>
+    
+    <!-- 功能 Tab -->
+    <TabPane fx:id="contentTabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+        <!-- 数据浏览 Tab -->
+        <Tab fx:id="dataBrowserTab" text="">
+            <AnchorPane fx:id="dataBrowserPane"/>
+        </Tab>
+        
+        <!-- CLI 终端 Tab -->
+        <Tab fx:id="cliTab" text="">
+            <AnchorPane fx:id="cliTerminalPane"/>
+        </Tab>
+        
+        <!-- 服务器信息 Tab -->
+        <Tab fx:id="serverInfoTab" text="">
+            <VBox spacing="12" style="-fx-padding: 16;">
+                <HBox spacing="8">
+                    <MFXButton fx:id="refreshInfoBtn" text="" buttonType="RAISED"
+                               style="-fx-background-color: -theme-accent; -fx-text-fill: -theme-text-inverse;"/>
+                </HBox>
+                <TextArea fx:id="serverInfoArea" editable="false" 
+                          style="-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px;"
+                          VBox.vgrow="ALWAYS"/>
+            </VBox>
+        </Tab>
+    </TabPane>
+</VBox>

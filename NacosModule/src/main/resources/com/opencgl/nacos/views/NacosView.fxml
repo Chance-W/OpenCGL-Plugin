@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.opencgl.nacos.controller.NacosController"
+      spacing="10" style="-fx-padding: 15; -fx-background-color: -theme-bg-primary;">
+
+    <!-- 连接配置 -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="%label.server" style="-fx-text-fill: -theme-text-primary;"/>
+        <TextField fx:id="serverAddrField" prefWidth="180"
+                   style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+        <Label text="%label.namespace" style="-fx-text-fill: -theme-text-primary;"/>
+        <TextField fx:id="namespaceField" prefWidth="150" promptText="%promptText.namespace_optional"
+                   style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+        <Button fx:id="connectBtn" text="%button.connect" onAction="#onConnect"
+                style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
+        <Label fx:id="connectionStatusLabel"/>
+    </HBox>
+
+    <TabPane VBox.vgrow="ALWAYS">
+        <!-- 配置管理 Tab -->
+        <Tab text="%tab.config" closable="false">
+            <VBox spacing="10" style="-fx-padding: 10;">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="%label.data_id" style="-fx-text-fill: -theme-text-primary;"/>
+                    <TextField fx:id="dataIdField" prefWidth="200"
+                               style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                    <Label text="%label.group" style="-fx-text-fill: -theme-text-primary;"/>
+                    <TextField fx:id="groupField" prefWidth="150"
+                               style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                </HBox>
+                
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Button text="%button.get_config" onAction="#onGetConfig"
+                            style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;"/>
+                    <Button text="%button.publish_config" onAction="#onPublishConfig"
+                            style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
+                    <Button text="%button.delete_config" onAction="#onDeleteConfig"
+                            style="-fx-background-color: -theme-danger; -fx-text-fill: -theme-text-inverse;"/>
+                    <Button text="%button.clear" onAction="#onClear"
+                            style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-inverse;"/>
+                    <Label fx:id="configStatusLabel"/>
+                </HBox>
+                
+                <VBox spacing="5" VBox.vgrow="ALWAYS">
+                    <Label text="%label.config_content" style="-fx-text-fill: -theme-text-primary;"/>
+                    <TextArea fx:id="configContentArea" VBox.vgrow="ALWAYS"
+                              style="-fx-control-inner-background: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary; -fx-font-family: 'Consolas';"/>
+                </VBox>
+            </VBox>
+        </Tab>
+
+        <!-- 服务发现 Tab -->
+        <Tab text="%tab.service" closable="false">
+            <SplitPane dividerPositions="0.3">
+                <VBox spacing="5" style="-fx-padding: 10;">
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="%label.group" style="-fx-text-fill: -theme-text-primary;"/>
+                        <TextField fx:id="serviceGroupField" prefWidth="150"
+                                   style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                        <Button text="%button.refresh" onAction="#onRefreshServices"
+                                style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;"/>
+                    </HBox>
+                    <Label text="%label.service_list" style="-fx-text-fill: -theme-text-primary; -fx-font-weight: bold;"/>
+                    <ListView fx:id="serviceListView" VBox.vgrow="ALWAYS"
+                              style="-fx-control-inner-background: -theme-bg-tertiary;"/>
+                </VBox>
+                <VBox spacing="5" style="-fx-padding: 10;">
+                    <Label text="%label.instance_detail" style="-fx-text-fill: -theme-text-primary; -fx-font-weight: bold;"/>
+                    <TextArea fx:id="instancesArea" VBox.vgrow="ALWAYS" editable="false"
+                              style="-fx-control-inner-background: -theme-bg-primary; -fx-text-fill: -theme-success; -fx-font-family: 'Consolas';"/>
+                </VBox>
+            </SplitPane>
+        </Tab>
+    </TabPane>
+
+</VBox>

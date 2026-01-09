@@ -2,51 +2,101 @@ package com.opencgl.dao;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.opencgl.base.model.BaseDataDto;
 import com.opencgl.base.utils.SqliteUtil;
 import com.opencgl.model.RocketMqProducerWidgetDto;
 
 /**
  * @author Chance.W
+ * 
+ * 增加 SORT_ORDER 字段支持拖拽排序
  */
 public class RocketMqProducerWidgetDao {
 
+    private static final Logger logger = LoggerFactory.getLogger(RocketMqProducerWidgetDao.class);
+    private static final String TABLE_NAME = "ROCKET_MQ_PRODUCER_ITEM";
+
     public void checkTable() throws Exception {
-        if (!SqliteUtil.checkTableExist("ROCKET_MQ_PRODUCER_ITEM")) {
-            SqliteUtil.update("CREATE TABLE ROCKET_MQ_PRODUCER_ITEM (ID INTEGER PRIMARY KEY AUTOINCREMENT,PARENT_ID INTEGER,NAME VARCHAR(150) NOT NULL,IS_LEAF BOOLEAN NOT NULL,NAMESERVER_ADDR VARCHAR,NAME_TOPIC VARCHAR,TAGS VARCHAR,COUNT VARCHAR,INPUT_TEXT VARCHAR)");
+        if (!SqliteUtil.checkTableExist(TABLE_NAME)) {
+            // 创建表，包含SORT_ORDER字段
+            SqliteUtil.update("CREATE TABLE " + TABLE_NAME + " (" +
+                "ID INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "PARENT_ID INTEGER," +
+                "NAME VARCHAR(150) NOT NULL," +
+                "IS_LEAF BOOLEAN NOT NULL," +
+                "NAMESERVER_ADDR VARCHAR," +
+                "NAME_TOPIC VARCHAR," +
+                "TAGS VARCHAR," +
+                "COUNT VARCHAR," +
+                "INPUT_TEXT VARCHAR," +
+                "SORT_ORDER INTEGER DEFAULT 0" +
+                ")");
+            logger.info("创建表 {} 成功", TABLE_NAME);
+        } else {
+            // 检查是否有SORT_ORDER字段，没有则添加
+            try {
+                SqliteUtil.query("SELECT SORT_ORDER FROM " + TABLE_NAME + " LIMIT 1");
+            } catch (Exception e) {
+                SqliteUtil.update("ALTER TABLE " + TABLE_NAME + " ADD COLUMN SORT_ORDER INTEGER DEFAULT 0;");
+                logger.info("为表 {} 添加 SORT_ORDER 字段成功", TABLE_NAME);
+            }
         }
     }
 
+    /**
+     * 查询所有数据，按SORT_ORDER排序
+     */
     public List<RocketMqProducerWidgetDto> queryAllData() throws Exception {
-        return SqliteUtil.queryForList("SELECT * FROM ROCKET_MQ_PRODUCER_ITEM", RocketMqProducerWidgetDto.class);
-
+        return SqliteUtil.queryForList(
+            "SELECT ID, PARENT_ID, NAME, IS_LEAF, NAMESERVER_ADDR, NAME_TOPIC, TAGS, COUNT, INPUT_TEXT, SORT_ORDER FROM " + TABLE_NAME + " ORDER BY SORT_ORDER, ID", 
+            RocketMqProducerWidgetDto.class);
     }
 
-    public Long insertData(RocketMqProducerWidgetDto rockerMqProducerWidgetDto) throws Exception {
-       return SqliteUtil.insert("INSERT INTO ROCKET_MQ_PRODUCER_ITEM(PARENT_ID, NAME, IS_LEAF, NAMESERVER_ADDR ,NAME_TOPIC ,TAGS ,COUNT ,INPUT_TEXT)VALUES(? ,? ,? ,? ,? ,? ,? ,?)",
-            rockerMqProducerWidgetDto.getParentId(),
-            rockerMqProducerWidgetDto.getName(),
-            rockerMqProducerWidgetDto.getIsLeaf(),
-            rockerMqProducerWidgetDto.getNameServerAddr(),
-            rockerMqProducerWidgetDto.getNameTopic(),
-            rockerMqProducerWidgetDto.getTags(),
-            rockerMqProducerWidgetDto.getCount(),
-            rockerMqProducerWidgetDto.getInputText());
+    public Long insertData(RocketMqProducerWidgetDto dto) throws Exception {
+        BaseDataDto base = dto;
+        return SqliteUtil.insert(
+            "INSERT INTO " + TABLE_NAME + "(PARENT_ID, NAME, IS_LEAF, NAMESERVER_ADDR, NAME_TOPIC, TAGS, COUNT, INPUT_TEXT, SORT_ORDER) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            base.getParentId(),
+            base.getName(),
+            base.getIsLeaf(),
+            dto.getNameServerAddr(),
+            dto.getNameTopic(),
+            dto.getTags(),
+            dto.getCount(),
+            dto.getInputText(),
+            base.getSortOrder() != null ? base.getSortOrder() : 0);
     }
 
-    public void delLevelData(RocketMqProducerWidgetDto rockerMqProducerWidgetDto) throws Exception {
-        SqliteUtil.update("DELETE FROM ROCKET_MQ_PRODUCER_ITEM WHERE ID = ?",
-            rockerMqProducerWidgetDto.getId());
+    public void delLevelData(RocketMqProducerWidgetDto dto) throws Exception {
+        SqliteUtil.update("DELETE FROM " + TABLE_NAME + " WHERE ID = ?", dto.getId());
     }
 
-    public void updateData(RocketMqProducerWidgetDto rockerMqProducerWidgetDto) throws Exception {
-        SqliteUtil.update("UPDATE ROCKET_MQ_PRODUCER_ITEM SET NAME=?, NAMESERVER_ADDR=?, NAME_TOPIC=? ,TAGS=? ,COUNT=? ,INPUT_TEXT=? WHERE ID = ?",
-            rockerMqProducerWidgetDto.getName(),
-            rockerMqProducerWidgetDto.getNameServerAddr(),
-            rockerMqProducerWidgetDto.getNameTopic(),
-            rockerMqProducerWidgetDto.getTags(),
-            rockerMqProducerWidgetDto.getCount(),
-            rockerMqProducerWidgetDto.getInputText(),
-            rockerMqProducerWidgetDto.getId());
+    public void updateData(RocketMqProducerWidgetDto dto) throws Exception {
+        BaseDataDto base = dto;
+        SqliteUtil.update(
+            "UPDATE " + TABLE_NAME + " SET NAME=?, PARENT_ID=?, NAMESERVER_ADDR=?, NAME_TOPIC=?, TAGS=?, COUNT=?, INPUT_TEXT=?, SORT_ORDER=? WHERE ID = ?",
+            base.getName(),
+            base.getParentId(),
+            dto.getNameServerAddr(),
+            dto.getNameTopic(),
+            dto.getTags(),
+            dto.getCount(),
+            dto.getInputText(),
+            base.getSortOrder() != null ? base.getSortOrder() : 0,
+            base.getId());
+    }
+
+    /**
+     * 只更新位置信息（拖拽时使用）
+     */
+    public void updatePositionOnly(RocketMqProducerWidgetDto dto) throws Exception {
+        SqliteUtil.update(
+            "UPDATE " + TABLE_NAME + " SET PARENT_ID = ?, SORT_ORDER = ? WHERE ID = ?",
+            dto.getParentId(),
+            dto.getSortOrder() != null ? dto.getSortOrder() : 0,
+            dto.getId());
     }
 }
-

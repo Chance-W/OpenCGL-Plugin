@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <style>
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #container {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container"></div>
+
+    <!-- Load Monaco Editor from Local Resources -->
+    <script>
+        var require = { paths: { 'vs': 'monaco/min/vs' } };
+    </script>
+    <script src="monaco/min/vs/loader.js"></script>
+    <script>
+        // Define worker paths to enable standard language features (Validation, etc.)
+        window.MonacoEnvironment = {
+            getWorkerUrl: function (workerId, label) {
+                var basePath = 'monaco/min/vs';
+                if (label === 'json') {
+                    return basePath + '/language/json/json.worker.js';
+                }
+                if (label === 'css' || label === 'scss' || label === 'less') {
+                    return basePath + '/language/css/css.worker.js';
+                }
+                if (label === 'html' || label === 'handlebars' || label === 'razor') {
+                    return basePath + '/language/html/html.worker.js';
+                }
+                if (label === 'typescript' || label === 'javascript') {
+                    return basePath + '/language/typescript/ts.worker.js';
+                }
+                return basePath + '/base/worker/workerMain.js';
+            }
+        };
+    </script>
+    <script>
+
+        var editor;
+
+        require(['vs/editor/editor.main'], function () {
+
+            // Register a fake completion provider for Java to demonstrate the UI
+            monaco.languages.registerCompletionItemProvider('java', {
+                provideCompletionItems: function (model, position) {
+                    var suggestions = [
+                        {
+                            label: 'System.out.println',
+                            kind: monaco.languages.CompletionItemKind.Method,
+                            insertText: 'System.out.println("${1:text}");',
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            documentation: 'Print to standard output'
+                        },
+                        {
+                            label: 'public',
+                            kind: monaco.languages.CompletionItemKind.Keyword,
+                            insertText: 'public '
+                        },
+                        {
+                            label: 'static',
+                            kind: monaco.languages.CompletionItemKind.Keyword,
+                            insertText: 'static '
+                        },
+                        {
+                            label: 'void',
+                            kind: monaco.languages.CompletionItemKind.Keyword,
+                            insertText: 'void '
+                        },
+                        {
+                            label: 'main',
+                            kind: monaco.languages.CompletionItemKind.Snippet,
+                            insertText: 'public static void main(String[] args) {\n\t${1}\n}',
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            documentation: 'Main method snippet'
+                        }
+                    ];
+                    return { suggestions: suggestions };
+                }
+            });
+
+            editor = monaco.editor.create(document.getElementById('container'), {
+                value: [
+                    'public class HelloWorld {',
+                    '    public static void main(String[] args) {',
+                    '        System.out.println("Hello, Monaco!");',
+                    '    }',
+                    '}'
+                ].join('\n'),
+                language: 'java',
+                theme: 'vs-dark',
+                automaticLayout: true,
+                minimap: { enabled: true }
+            });
+
+            // Force Keybindings for Comments
+            editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Slash, function () {
+                editor.getAction('editor.action.commentLine').run();
+            });
+            editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.Slash, function () {
+                editor.getAction('editor.action.blockComment').run();
+            });
+
+
+
+            // Expose to Java
+            window.javaEditor = {
+                setValue: function (text) {
+                    editor.setValue(text);
+                },
+                getValue: function () {
+                    return editor.getValue();
+                },
+                setLanguage: function (lang) {
+                    monaco.editor.setModelLanguage(editor.getModel(), lang);
+                },
+                format: function () {
+                    editor.getAction('editor.action.formatDocument').run();
+                },
+                // function to add custom markers from Java
+                addMarker: function (line, message, isError) {
+                    var markers = monaco.editor.getModelMarkers({ owner: "java" });
+                    markers.push({
+                        startLineNumber: line,
+                        startColumn: 1,
+                        endLineNumber: line,
+                        endColumn: 100,
+                        message: message,
+                        severity: isError ? monaco.MarkerSeverity.Error : monaco.MarkerSeverity.Warning
+                    });
+                    monaco.editor.setModelMarkers(editor.getModel(), "java", markers);
+                },
+                clearMarkers: function () {
+                    monaco.editor.setModelMarkers(editor.getModel(), "java", []);
+                }
+            };
+        });
+    </script>
+</body>
+
+</html>

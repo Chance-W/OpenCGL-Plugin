@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.opencgl.jwt.controller.JWTToolController"
+      spacing="10" style="-fx-padding: 15; -fx-background-color: -theme-bg-primary;">
+
+    <TabPane VBox.vgrow="ALWAYS">
+        <!-- 解码/验证 Tab -->
+        <Tab fx:id="decodeTab" text="%tab.decode" closable="false">
+            <VBox spacing="10" style="-fx-padding: 10;">
+                <VBox spacing="5">
+                    <Label text="%label.token" style="-fx-text-fill: -theme-text-primary;"/>
+                    <TextArea fx:id="tokenInput" prefHeight="100"
+                              promptText="%prompt.token"
+                              style="-fx-control-inner-background: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary; -fx-font-family: 'Consolas';"/>
+                </VBox>
+
+                <!-- 签名验证 -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="%label.secret" style="-fx-text-fill: -theme-text-primary;"/>
+                    <TextField fx:id="secretField" HBox.hgrow="ALWAYS"
+                               promptText="%prompt.secret"
+                               style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                    <ComboBox fx:id="algorithmCombo" prefWidth="100"/>
+                    <Button text="%button.verify" onAction="#onVerify"
+                            style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
+                </HBox>
+
+                <!-- 解码结果 -->
+                <HBox spacing="10" VBox.vgrow="ALWAYS">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="%label.header" style="-fx-text-fill: -theme-text-primary;"/>
+                        <TextArea fx:id="headerOutput" VBox.vgrow="ALWAYS" editable="false"
+                                  style="-fx-control-inner-background: -theme-bg-primary; -fx-text-fill: -theme-info; -fx-font-family: 'Consolas';"/>
+                    </VBox>
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="%label.payload" style="-fx-text-fill: -theme-text-primary;"/>
+                        <TextArea fx:id="payloadOutput" VBox.vgrow="ALWAYS" editable="false"
+                                  style="-fx-control-inner-background: -theme-bg-primary; -fx-text-fill: -theme-success; -fx-font-family: 'Consolas';"/>
+                    </VBox>
+                </HBox>
+
+                <!-- 状态 -->
+                <HBox alignment="CENTER">
+                    <Label fx:id="statusLabel" style="-fx-font-size: 14px;"/>
+                </HBox>
+            </VBox>
+        </Tab>
+
+        <!-- 生成 Tab -->
+        <Tab fx:id="generateTab" text="%tab.generate" closable="false">
+            <VBox spacing="10" style="-fx-padding: 10;">
+                <VBox spacing="5" VBox.vgrow="ALWAYS">
+                    <Label text="%label.claims" style="-fx-text-fill: -theme-text-primary;"/>
+                    <TextArea fx:id="claimsInput" VBox.vgrow="ALWAYS"
+                              promptText="%prompt.claims"
+                              style="-fx-control-inner-background: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary; -fx-font-family: 'Consolas';"/>
+                </VBox>
+
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="%label.secret_len" style="-fx-text-fill: -theme-text-primary;"/>
+                    <TextField fx:id="genSecretField" HBox.hgrow="ALWAYS"
+                               promptText="%prompt.gen_secret"
+                               style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                    <Label text="%label.expire_min" style="-fx-text-fill: -theme-text-primary;"/>
+                    <TextField fx:id="expireMinutesField" prefWidth="80" text="60"
+                               style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                </HBox>
+
+                <HBox spacing="10" alignment="CENTER">
+                    <Button text="%button.generate" onAction="#onGenerate" prefWidth="120"
+                            style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse; -fx-font-weight: bold;"/>
+                    <Button text="%button.copy" onAction="#onCopyToken" prefWidth="80"
+                            style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;"/>
+                </HBox>
+
+                <VBox spacing="5">
+                    <Label text="%label.generated_token" style="-fx-text-fill: -theme-text-primary;"/>
+                    <TextArea fx:id="generatedTokenArea" prefHeight="100" editable="false"
+                              style="-fx-control-inner-background: -theme-bg-primary; -fx-text-fill: -theme-accent; -fx-font-family: 'Consolas';"/>
+                </VBox>
+            </VBox>
+        </Tab>
+    </TabPane>
+
+</VBox>

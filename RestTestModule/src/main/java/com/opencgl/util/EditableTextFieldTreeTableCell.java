@@ -5,6 +5,7 @@ import org.apache.commons.lang.StringUtils;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.control.TreeTableCell;
 
 /**
@@ -18,12 +19,20 @@ import javafx.scene.control.TreeTableCell;
 public class EditableTextFieldTreeTableCell<S, T> extends TreeTableCell<S, T> {
     private final TextField textField;
     private final BooleanProperty editing = new SimpleBooleanProperty(false);
+    private boolean explicitCancel;
 
     public EditableTextFieldTreeTableCell() {
         textField = new TextField();
         textField.setOnAction(event -> commitEdit((T) textField.getText()));
+        textField.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                explicitCancel = true;
+                cancelEdit();
+                event.consume();
+            }
+        });
         textField.focusedProperty().addListener((obs, oldValue, newValue) -> {
-            if (!newValue) {
+            if (!newValue && shouldCommitOnFocusLost(isEditing(), explicitCancel)) {
                 commitEdit((T) textField.getText());
             }
         });
@@ -36,6 +45,7 @@ public class EditableTextFieldTreeTableCell<S, T> extends TreeTableCell<S, T> {
             return;
         }
         editing.set(true);
+        explicitCancel = false;
         setText(null);
         setGraphic(textField);
         if (StringUtils.isNotEmpty(getString())){
@@ -52,10 +62,15 @@ public class EditableTextFieldTreeTableCell<S, T> extends TreeTableCell<S, T> {
 
     @Override
     public void cancelEdit() {
+        if (isEditing() && !explicitCancel) {
+            commitEdit((T) textField.getText());
+            return;
+        }
         super.cancelEdit();
         setText(textField.getText());
         setGraphic(null);
         editing.set(false);
+        explicitCancel = false;
     }
 
     @Override
@@ -81,5 +96,8 @@ public class EditableTextFieldTreeTableCell<S, T> extends TreeTableCell<S, T> {
     private String getString() {
         return getItem() == null ? "" : getItem().toString();
     }
-}
 
+    static boolean shouldCommitOnFocusLost(boolean editing, boolean explicitlyCancelled) {
+        return editing && !explicitlyCancelled;
+    }
+}

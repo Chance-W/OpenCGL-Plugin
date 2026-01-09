@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.web.WebView?>
+<?import org.fxmisc.richtext.CodeArea?>
+
+<BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+    <top>
+        <!-- 工具栏 -->
+        <ToolBar>
+            <Button fx:id="newButton" text="%btn.new"/>
+            <Button fx:id="openButton" text="%btn.open"/>
+            <Button fx:id="saveButton" text="%btn.save"/>
+            <Separator orientation="VERTICAL"/>
+            <Button fx:id="boldButton" text="B" style="-fx-font-weight: bold;"/>
+            <Button fx:id="italicButton" text="I" style="-fx-font-style: italic;"/>
+            <Button fx:id="codeButton" text="&lt;/&gt;"/>
+        </ToolBar>
+    </top>
+
+    <center>
+        <!-- 分屏：编辑器 | 预览 -->
+        <SplitPane fx:id="splitPane" dividerPositions="0.5">
+            <!-- 左侧：Markdown编辑器 -->
+            <VBox>
+                <Label fx:id="markdownLabel" text="%label.markdown" style="-fx-font-weight: bold; -fx-padding: 5;"/>
+                <CodeArea fx:id="markdownEditor" VBox.vgrow="ALWAYS"/>
+            </VBox>
+
+            <!-- 右侧：HTML预览 -->
+            <VBox>
+                <Label fx:id="previewLabel" text="%label.preview" style="-fx-font-weight: bold; -fx-padding: 5;"/>
+                <WebView fx:id="previewWebView" VBox.vgrow="ALWAYS"/>
+            </VBox>
+        </SplitPane>
+    </center>
+
+    <bottom>
+        <!-- 状态栏 -->
+        <HBox spacing="20" style="-fx-padding: 5; -fx-background-color: -theme-bg-tertiary;">
+            <Label fx:id="statusLabel" text="%label.statusReady"/>
+            <Label fx:id="wordCountLabel" text="%label.wordCount"/>
+        </HBox>
+    </bottom>
+</BorderPane>

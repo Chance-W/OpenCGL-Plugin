@@ -1,0 +1,1 @@
+mockcurator=com.opencgl.dubbo.mock.zookeeper.MockZookeeperTransporter

@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 import javax.swing.filechooser.FileSystemView;
 
+import com.opencgl.qr.i18n.I18N;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
@@ -24,7 +25,7 @@ public class FileChooserUtil {
 
     public static List<File> chooseFiles(ExtensionFilter... extensionFilter) {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("请选择文件");
+        fileChooser.setTitle(I18N.get("file.choose_file"));
         fileChooser.setInitialDirectory(HOME_DIRECTORY);
 
         if (extensionFilter != null) {
@@ -39,7 +40,7 @@ public class FileChooserUtil {
 
     public static File chooseFile(ExtensionFilter... extensionFilter) {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("请选择文件");
+        fileChooser.setTitle(I18N.get("file.choose_file"));
         fileChooser.setInitialDirectory(HOME_DIRECTORY);
 
         if (extensionFilter != null) {
@@ -60,6 +61,7 @@ public class FileChooserUtil {
 
     public static File chooseSaveFile(String fileName, ExtensionFilter... extensionFilter) {
         FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle(I18N.get("file.choose_save"));
         fileChooser.setInitialDirectory(HOME_DIRECTORY);
 
         if (fileName != null) {

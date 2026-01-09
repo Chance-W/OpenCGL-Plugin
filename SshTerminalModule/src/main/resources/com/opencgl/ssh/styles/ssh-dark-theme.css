@@ -1,0 +1,194 @@
+/*!* SSH 终端深色主题样式 *!*/
+
+/*!* 颜色定义 *!*/
+/*.root {*/
+/*    -fx-bg-dark: #1e1e1e;*/
+/*    -fx-bg-medium: #252525;*/
+/*    -fx-bg-input: #2d2d2d;*/
+/*    -fx-border-color-dark: #444;*/
+/*    -fx-text-primary: #e0e0e0;*/
+/*    -fx-text-secondary: #aaa;*/
+/*    -fx-text-hint: #666;*/
+/*    -fx-accent: #00d4aa;*/
+/*    -fx-success: #27ae60;*/
+/*    -fx-danger: #e74c3c;*/
+/*}*/
+
+/*!* SplitPane 分隔符 *!*/
+/*.dark-split-pane {*/
+/*    -fx-background-color: #1e1e1e;*/
+/*}*/
+
+/*.dark-split-pane>.split-pane-divider {*/
+/*    -fx-background-color: #333;*/
+/*    -fx-padding: 0 1 0 1;*/
+/*}*/
+
+/*.dark-split-pane>.split-pane-divider:hover {*/
+/*    -fx-background-color: #00d4aa;*/
+/*}*/
+
+/*!* 面板样式 *!*/
+/*.tree-container {*/
+/*    -fx-background-color: #252525;*/
+/*    -fx-border-color: #444;*/
+/*    -fx-border-radius: 4;*/
+/*    -fx-background-radius: 4;*/
+/*}*/
+
+/*!* 标题样式 *!*/
+/*.main-title {*/
+/*    -fx-text-fill: #00d4aa;*/
+/*}*/
+
+/*.section-title {*/
+/*    -fx-text-fill: #00d4aa;*/
+/*}*/
+
+/*.hint-text {*/
+/*    -fx-text-fill: #666;*/
+/*    -fx-font-size: 11px;*/
+/*}*/
+
+/*!* 图标按钮 *!*/
+/*.icon-button {*/
+/*    -fx-background-color: #2d2d2d;*/
+/*    -fx-text-fill: #aaa;*/
+/*    -fx-font-size: 14px;*/
+/*    -fx-font-weight: bold;*/
+/*    -fx-border-color: #444;*/
+/*    -fx-border-width: 1;*/
+/*    -fx-border-radius: 4;*/
+/*    -fx-background-radius: 4;*/
+/*    -fx-cursor: hand;*/
+/*}*/
+
+/*.icon-button:hover {*/
+/*    -fx-background-color: #353535;*/
+/*    -fx-text-fill: #00d4aa;*/
+/*    -fx-border-color: #00d4aa;*/
+/*}*/
+
+/*!* TabPane 深色主题 - 更紧凑 *!*/
+/*.dark-tab-pane {*/
+/*    -fx-background-color: #1e1e1e;*/
+/*}*/
+
+/*.dark-tab-pane .tab-header-area {*/
+/*    -fx-background-color: #252525;*/
+/*    -fx-padding: 0;*/
+/*}*/
+
+/*.dark-tab-pane .tab-header-background {*/
+/*    -fx-background-color: #252525;*/
+/*}*/
+
+/*!* Tab 标签样式 *!*/
+/*.dark-tab-pane .tab {*/
+/*    -fx-background-color: #2d2d2d;*/
+/*    -fx-padding: 4 12 4 12;*/
+/*}*/
+
+/*.dark-tab-pane .tab:selected {*/
+/*    -fx-background-color: #3d3d3d;*/
+/*    -fx-border-color: transparent transparent #00d4aa transparent;*/
+/*    -fx-border-width: 0 0 2 0;*/
+/*}*/
+
+/*.dark-tab-pane .tab:hover {*/
+/*    -fx-background-color: #353535;*/
+/*}*/
+
+/*.dark-tab-pane .tab .tab-label {*/
+/*    -fx-text-fill: #b0b0b0;*/
+/*    -fx-font-size: 12px;*/
+/*    -fx-font-weight: normal;*/
+/*}*/
+
+/*.dark-tab-pane .tab:selected .tab-label {*/
+/*    -fx-text-fill: #e0e0e0;*/
+/*    -fx-font-weight: normal;*/
+/*}*/
+
+/*.dark-tab-pane .tab-close-button {*/
+/*    -fx-background-color: #666;*/
+/*}*/
+
+/*.dark-tab-pane .tab-close-button:hover {*/
+/*    -fx-background-color: #e74c3c;*/
+/*    -fx-background-radius: 3;*/
+/*}*/
+
+/*.dark-tab-pane .tab-content-area {*/
+/*    -fx-background-color: #1e1e1e;*/
+/*    -fx-border-color: transparent;*/
+/*}*/
+
+/*!* 工具栏样式 *!*/
+/*.toolbar {*/
+/*    -fx-background-color: transparent;*/
+/*    -fx-border-color: transparent transparent #333 transparent;*/
+/*    -fx-border-width: 0 0 1 0;*/
+/*}*/
+
+/*.icon-button {*/
+/*    -fx-background-color: #00d4aa;*/
+/*    -fx-text-fill: white;*/
+/*    -fx-font-weight: bold;*/
+/*    -fx-background-radius: 4;*/
+/*    -fx-cursor: hand;*/
+/*}*/
+
+/*.icon-button:hover {*/
+/*    -fx-background-color: #00e6bb;*/
+/*}*/
+
+/*!* 统一滚动条样式 *!*/
+/*.scroll-bar {*/
+/*    -fx-background-color: #1e1e1e;*/
+/*}*/
+
+/*.scroll-bar .thumb {*/
+/*    -fx-background-color: #4d4d4d;*/
+/*    -fx-background-radius: 4;*/
+/*}*/
+
+/*.scroll-bar .thumb:hover {*/
+/*    -fx-background-color: #5d5d5d;*/
+/*}*/
+
+/*.scroll-bar .thumb:pressed {*/
+/*    -fx-background-color: #00d4aa;*/
+/*}*/
+
+/*.scroll-bar .track {*/
+/*    -fx-background-color: #2d2d2d;*/
+/*    -fx-background-radius: 4;*/
+/*}*/
+
+/*.scroll-bar .increment-button,*/
+/*.scroll-bar .decrement-button {*/
+/*    -fx-background-color: transparent;*/
+/*    -fx-padding: 0;*/
+/*}*/
+
+/*.scroll-bar .increment-arrow,*/
+/*.scroll-bar .decrement-arrow {*/
+/*    -fx-background-color: #666;*/
+/*}*/
+
+/*.scroll-bar:vertical .increment-arrow {*/
+/*    -fx-shape: "M 0 0 L 4 4 L 8 0 Z";*/
+/*}*/
+
+/*.scroll-bar:vertical .decrement-arrow {*/
+/*    -fx-shape: "M 0 4 L 4 0 L 8 4 Z";*/
+/*}*/
+
+/*.scroll-bar:horizontal .increment-arrow {*/
+/*    -fx-shape: "M 0 0 L 4 4 L 0 8 Z";*/
+/*}*/
+
+/*.scroll-bar:horizontal .decrement-arrow {*/
+/*    -fx-shape: "M 4 0 L 0 4 L 4 8 Z";*/
+/*}*/

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.fxmisc.richtext.CodeArea?>
+
+<SplitPane dividerPositions="0.25" fx:id="mainSplitPane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+    <!-- Left: connection tree -->
+    <VBox spacing="5" minWidth="200">
+        <padding><Insets top="10" right="5" bottom="10" left="10"/></padding>
+        <Label fx:id="dbConnLabel" text="%label.db_connections" style="-fx-font-weight: bold;"/>
+        <HBox spacing="6" alignment="CENTER_LEFT">
+            <Button fx:id="addConnectionButton" text="%menu.new_conn" styleClass="primary-button" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS"/>
+            <Button fx:id="addGroupButton" text="%menu.new_group" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS"/>
+        </HBox>
+        <VBox fx:id="treeContainer" VBox.vgrow="ALWAYS"/>
+    </VBox>
+
+    <!-- Right: content (StackPane for view switch) -->
+    <StackPane fx:id="contentArea">
+        <!-- View 1: SQL Editor (default) -->
+        <VBox fx:id="sqlEditorView" spacing="5" visible="true">
+            <padding><Insets top="10" right="10" bottom="10" left="5"/></padding>
+
+            <HBox spacing="5" alignment="CENTER_LEFT">
+                <Label fx:id="sqlEditorLabel" text="%label.sql_editor" style="-fx-font-weight: bold;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="executeButton" text="%label.execute_f5" styleClass="primary-button"/>
+                <Button fx:id="formatButton" text="%label.format"/>
+                <Button fx:id="clearSqlButton" text="%label.clear"/>
+            </HBox>
+
+            <CodeArea fx:id="sqlEditor" prefHeight="200" VBox.vgrow="SOMETIMES"/>
+
+            <HBox spacing="5" alignment="CENTER_LEFT">
+                <Label fx:id="resultLabel" text="%label.query_result" style="-fx-font-weight: bold;"/>
+                <Label fx:id="statusLabel" text="%label.ready" style="-fx-text-fill: gray;"/>
+            </HBox>
+
+            <TabPane fx:id="resultTabs" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE">
+                <tabs><Tab text="结果 1"><content><TableView fx:id="resultTable"/></content></Tab></tabs>
+            </TabPane>
+
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+                <Button fx:id="exportCsvButton" text="%label.export_csv"/>
+                <Button fx:id="exportJsonButton" text="%label.export_json"/>
+            </HBox>
+        </VBox>
+
+        <!-- View 2: Connection config panel -->
+        <VBox fx:id="configPanel" spacing="15" visible="false" style="-fx-background-color: -fx-background;">
+            <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+
+            <Label fx:id="connConfigLabel" text="%label.conn_config" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+
+            <Accordion expandedPane="$basicInfoPane">
+                <panes>
+                    <TitledPane fx:id="basicInfoPane" text="%label.basic_settings" animated="true">
+                        <content>
+                            <GridPane hgap="10" vgap="10">
+                                <columnConstraints>
+                                    <ColumnConstraints minWidth="80"/>
+                                    <ColumnConstraints hgrow="ALWAYS"/>
+                                </columnConstraints>
+
+                                <Label text="%label.name_col" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                <TextField fx:id="confNameField" promptText="%prompt.conn_name" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                                <Label text="%label.type_col" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                <ComboBox fx:id="confTypeCombo" prefWidth="150" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                                <Label text="%label.host_col" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                <TextField fx:id="confHostField" text="localhost" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                                <Label text="%label.port_col" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                                <TextField fx:id="confPortField" text="3306" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                                <Label text="%label.database_col" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                                <TextField fx:id="confDatabaseField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                                <Label text="%label.username_col" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                                <TextField fx:id="confUsernameField" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+                                <Label text="%label.password_col" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                                <PasswordField fx:id="confPasswordField" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+                            </GridPane>
+                        </content>
+                    </TitledPane>
+
+                    <TitledPane fx:id="advancedPane" text="%label.advanced_settings" animated="true" expanded="false">
+                        <content>
+                            <VBox spacing="10">
+                                <Label text="%label.advanced_params_hint" style="-fx-text-fill: gray;"/>
+                                <CheckBox text="%label.use_ssl" disable="true"/>
+                                <CheckBox text="%label.use_ssh" disable="true"/>
+                            </VBox>
+                        </content>
+                    </TitledPane>
+                </panes>
+            </Accordion>
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button fx:id="confTestButton" text="%label.test_conn"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="confSaveButton" text="%label.save" styleClass="primary-button" prefWidth="100"/>
+                <Button fx:id="confCancelButton" text="%label.cancel"/>
+            </HBox>
+        </VBox>
+    </StackPane>
+</SplitPane>

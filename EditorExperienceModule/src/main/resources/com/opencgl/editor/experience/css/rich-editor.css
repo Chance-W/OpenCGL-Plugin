@@ -1,0 +1,34 @@
+.keyword {
+    -fx-fill: purple;
+    -fx-font-weight: bold;
+}
+
+.semicolon {
+    -fx-fill: black;
+}
+
+.paren {
+    -fx-fill: blue;
+}
+
+.bracket {
+    -fx-fill: darkgreen;
+}
+
+.brace {
+    -fx-fill: teal;
+}
+
+.string {
+    -fx-fill: red;
+}
+
+.comment {
+    -fx-fill: green;
+}
+
+.error {
+    -fx-underline: true;
+    -fx-fill: red;
+    -fx-background-fill: #ffcccc;
+}

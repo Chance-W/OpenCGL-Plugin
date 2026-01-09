@@ -4,6 +4,7 @@
 <?import org.fxmisc.flowless.VirtualizedScrollPane?>
 <?import com.opencgl.base.controls.CustomTextArea?>
 <?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXComboBox?>
 <?import io.github.palexdev.materialfx.controls.MFXFilterComboBox?>
 <?import io.github.palexdev.materialfx.controls.MFXTextField?>
 <?import io.github.palexdev.mfxresources.fonts.MFXFontIcon?>
@@ -33,72 +34,95 @@
     <BorderPane fx:id="contentBorderPane" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
                 AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
         <top>
-            <VBox fx:id="operateTopVbox" BorderPane.alignment="CENTER" style="-fx-background-color: #f8f9fa; -fx-border-color: #e9ecef; -fx-border-width: 0 0 1 0;">
+            <VBox fx:id="operateTopVbox" BorderPane.alignment="CENTER" style="-fx-background-color: -theme-bg-secondary; -fx-border-color: -theme-border; -fx-border-width: 0 0 1 0;">
                 <!-- 工具栏 -->
-                <HBox alignment="CENTER_LEFT" spacing="8.0" style="-fx-background-color: #f8f9fa; -fx-padding: 8 12;">
+                <HBox alignment="CENTER_LEFT" spacing="8.0" style="-fx-background-color: -theme-bg-secondary; -fx-padding: 8 12;">
                     <MFXButton fx:id="refreshButton" buttonType="RAISED"
                                onMouseClicked="#refreshLabelAction"
                                prefHeight="32.0"
                                prefWidth="32.0"
-                               style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 4;"
+                               style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-inverse; -fx-background-radius: 4;"
                                text="">
                         <graphic>
-                            <MFXFontIcon description="fas-arrows-rotate" size="14.0" style="-fx-fill: white;"/>
+                            <MFXFontIcon description="fas-arrows-rotate" size="14.0" style="-fx-fill: -theme-text-inverse;"/>
                         </graphic>
                         <tooltip>
-                            <Tooltip text="刷新请求列表"/>
+                            <Tooltip text="%tooltip.refresh"/>
                         </tooltip>
                     </MFXButton>
                     <MFXButton fx:id="copyButton" buttonType="RAISED" onMouseClicked="#copyLabelAction"
                                prefHeight="32.0"
                                prefWidth="32.0"
-                               style="-fx-background-color: #17a2b8; -fx-text-fill: white; -fx-background-radius: 4;"
+                               style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse; -fx-background-radius: 4;"
                                text="">
                         <graphic>
-                            <MFXFontIcon description="fas-copy" size="14.0" style="-fx-fill: white;"/>
+                            <MFXFontIcon description="fas-copy" size="14.0" style="-fx-fill: -theme-text-inverse;"/>
                         </graphic>
                         <tooltip>
-                            <Tooltip text="复制请求"/>
+                            <Tooltip text="%tooltip.copy"/>
                         </tooltip>
                     </MFXButton>
                     <MFXButton fx:id="saveButton" buttonType="RAISED" onMouseClicked="#saveLabelAction"
                                prefHeight="32.0"
                                prefWidth="32.0"
-                               style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 4;"
+                               style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse; -fx-background-radius: 4;"
                                text="">
                         <graphic>
-                            <MFXFontIcon description="fas-floppy-disk" size="14.0" style="-fx-fill: white;"/>
+                            <MFXFontIcon description="fas-floppy-disk" size="14.0" style="-fx-fill: -theme-text-inverse;"/>
                         </graphic>
                         <tooltip>
-                            <Tooltip text="保存请求"/>
+                            <Tooltip text="%tooltip.save"/>
+                        </tooltip>
+                    </MFXButton>
+                    <MFXButton fx:id="curlButton" buttonType="RAISED" onMouseClicked="#exportToCurlAction"
+                               prefHeight="32.0"
+                               prefWidth="32.0"
+                               style="-fx-background-color: -theme-accent; -fx-text-fill: -theme-text-inverse; -fx-background-radius: 4;"
+                               text="">
+                        <graphic>
+                            <MFXFontIcon description="fas-terminal" size="14.0" style="-fx-fill: -theme-text-inverse;"/>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="%tooltip.export_curl"/>
                         </tooltip>
                     </MFXButton>
                     
                     <!-- 分隔线 -->
-                    <Separator orientation="VERTICAL" prefHeight="24.0" style="-fx-background-color: #dee2e6;"/>
+                    <Separator orientation="VERTICAL" prefHeight="24.0" style="-fx-background-color: -theme-border;"/>
                     
                     <!-- 环境选择器 -->
                     <MFXFilterComboBox fx:id="environmentComboBox"
-                                       floatingText="Environment"
+                                       floatingText="%floatingText.environment"
                                        prefWidth="120.0"
-                                       style="-fx-background-color: white; -fx-border-color: #ced4da; -fx-border-radius: 4;">
+                                       style="-fx-background-color: -theme-bg-tertiary; -fx-border-color: -theme-border; -fx-border-radius: 4;">
                         <items>
                             <FXCollections fx:factory="observableArrayList">
-                                <String fx:value="No Environment"/>
-                                <String fx:value="Development"/>
-                                <String fx:value="Staging"/>
-                                <String fx:value="Production"/>
+                                <String fx:value="%item.no_environment"/>
+                                <String fx:value="%item.development"/>
+                                <String fx:value="%item.staging"/>
+                                <String fx:value="%item.production"/>
                             </FXCollections>
                         </items>
                     </MFXFilterComboBox>
+                    
+                    <!-- Hook 脚本选择器 -->
+                    <MFXComboBox fx:id="hookScriptCombo"
+                                 prefWidth="120.0"
+                                 prefHeight="30.0"
+                                 floatMode="DISABLED"
+                                 promptText="%promptText.hook_script">
+                        <tooltip>
+                            <Tooltip text="%tooltip.hook_script"/>
+                        </tooltip>
+                    </MFXComboBox>
                 </HBox>
                 
                 <!-- 请求行 -->
-                <HBox alignment="CENTER_LEFT" spacing="8.0" style="-fx-background-color: #f8f9fa; -fx-padding: 0 12 8 12;">
+                <HBox alignment="CENTER_LEFT" spacing="8.0" style="-fx-background-color: -theme-bg-secondary; -fx-padding: 0 12 8 12;">
                     <MFXFilterComboBox fx:id="chooseMetComboBox"
-                                       floatingText="Method"
+                                       floatingText="%floatingText.method"
                                        prefWidth="120.0"
-                                       style="-fx-background-color: white; -fx-border-color: #ced4da; -fx-border-radius: 4;">
+                                       style="-fx-background-color: -theme-bg-tertiary; -fx-border-color: -theme-border; -fx-border-radius: 4;">
                         <items>
                             <FXCollections fx:factory="observableArrayList">
                                 <String fx:value="GET"/>
@@ -116,22 +140,22 @@
                     
                     <MFXTextField fx:id="urlTextField"
                                   floatMode="BORDER" 
-                                  floatingText="Enter request URL"
+                                  floatingText="%floatingText.url"
                                   prefHeight="36" 
                                   prefWidth="800"
-                                  style="-fx-background-color: white; -fx-border-color: #ced4da; -fx-border-radius: 4; -fx-font-size: 14;">
+                                  style="-fx-background-color: -theme-bg-tertiary; -fx-border-color: -theme-border; -fx-border-radius: 4; -fx-font-size: 14;">
                     </MFXTextField>
                     
                     <MFXButton fx:id="sendButton" buttonType="RAISED" onMouseClicked="#sendLabelAction"
                                prefHeight="36.0"
                                prefWidth="80.0"
-                               style="-fx-background-color: #ff6b35; -fx-text-fill: white; -fx-background-radius: 4; -fx-font-weight: bold;"
-                               text="Send">
+                               style="-fx-background-color: -theme-accent; -fx-text-fill: -theme-text-inverse; -fx-background-radius: 4; -fx-font-weight: bold;"
+                               text="%button.send">
                         <graphic>
-                            <MFXFontIcon description="fas-paper-plane" size="14.0" style="-fx-fill: white;"/>
+                            <MFXFontIcon description="fas-paper-plane" size="14.0" style="-fx-fill: -theme-text-inverse;"/>
                         </graphic>
                         <tooltip>
-                            <Tooltip text="发送请求 (Ctrl+Enter)"/>
+                            <Tooltip text="%tooltip.send"/>
                         </tooltip>
                     </MFXButton>
                 </HBox>
@@ -147,39 +171,39 @@
                                  AnchorPane.rightAnchor="0"
                                  AnchorPane.topAnchor="0"
                                  tabClosingPolicy="UNAVAILABLE">
-                            <Tab text="Headers">
+                            <Tab text="%tab.headers">
                                 <AnchorPane>
                                     <BorderPane AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
                                                 AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
                                         <top>
                                             <HBox alignment="CENTER_LEFT" spacing="8" style="-fx-padding: 8;">
-                                                <Label text="Headers" style="-fx-font-weight: bold; -fx-text-fill: #495057;"/>
+                                                <Label text="%label.headers" style="-fx-font-weight: bold; -fx-text-fill: -theme-text-primary;"/>
                                                 <MFXButton buttonType="RAISED" fx:id="headersPresetButton" 
-                                                           style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 4;"
-                                                           text="Presets" prefHeight="28.0" prefWidth="60.0">
+                                                           style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-inverse; -fx-background-radius: 4;"
+                                                           text="%button.presets" prefHeight="28.0" prefWidth="60.0">
                                                     <tooltip>
-                                                        <Tooltip text="常用头部预设"/>
+                                                        <Tooltip text="%tooltip.presets"/>
                                                     </tooltip>
                                                 </MFXButton>
                                                 <MFXButton buttonType="RAISED" fx:id="headersAddButton" 
-                                                           style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 4;"
-                                                           text="+" prefHeight="28.0" prefWidth="28.0">
+                                                           style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse; -fx-background-radius: 4;"
+                                                           text="%button.add_header" prefHeight="28.0" prefWidth="28.0">
                                                     <tooltip>
-                                                        <Tooltip text="添加头部"/>
+                                                        <Tooltip text="%tooltip.add_header"/>
                                                     </tooltip>
                                                 </MFXButton>
                                                 <MFXButton buttonType="RAISED" fx:id="headersDelButton" 
-                                                           style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 4;"
-                                                           text="-" prefHeight="28.0" prefWidth="28.0">
+                                                           style="-fx-background-color: -theme-danger; -fx-text-fill: -theme-text-inverse; -fx-background-radius: 4;"
+                                                           text="%button.del_header" prefHeight="28.0" prefWidth="28.0">
                                                     <tooltip>
-                                                        <Tooltip text="删除选中头部"/>
+                                                        <Tooltip text="%tooltip.del_header"/>
                                                     </tooltip>
                                                 </MFXButton>
                                                 <MFXButton buttonType="RAISED" fx:id="headersClearButton" 
-                                                           style="-fx-background-color: #ffc107; -fx-text-fill: white; -fx-background-radius: 4;"
-                                                           text="Clear" prefHeight="28.0" prefWidth="50.0">
+                                                           style="-fx-background-color: -theme-warning; -fx-text-fill: -theme-text-inverse; -fx-background-radius: 4;"
+                                                           text="%button.clear" prefHeight="28.0" prefWidth="50.0">
                                                     <tooltip>
-                                                        <Tooltip text="清空所有头部"/>
+                                                        <Tooltip text="%tooltip.clear_headers"/>
                                                     </tooltip>
                                                 </MFXButton>
                                             </HBox>
@@ -192,11 +216,11 @@
                                                            AnchorPane.topAnchor="0">
                                                     <columns>
                                                         <TreeTableColumn fx:id="headersKey"
-                                                                     text="KEY" minWidth="140"/>
+                                                                     text="%col.key" minWidth="140"/>
                                                         <TreeTableColumn fx:id="headersValue"
-                                                                     text="VALUE" minWidth="140"/>
+                                                                     text="%col.value" minWidth="140"/>
                                                         <TreeTableColumn fx:id="headersDescription"
-                                                                     text="DESCRIPTION"
+                                                                     text="%col.description"
                                                                      minWidth="140"/>
                                                     </columns>
                                                 </TreeTableView>
@@ -205,7 +229,7 @@
                                     </BorderPane>
                                 </AnchorPane>
                             </Tab>
-                            <Tab text="Cookie">
+                            <Tab text="%tab.cookie">
                                 <AnchorPane>
                                     <BorderPane AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
                                                 AnchorPane.rightAnchor="0"
@@ -224,18 +248,18 @@
                                                        AnchorPane.topAnchor="0">
                                                 <columns>
                                                     <TreeTableColumn fx:id="cookiesKey"
-                                                                     text="KEY" minWidth="140"/>
+                                                                     text="%col.key" minWidth="140"/>
                                                     <TreeTableColumn fx:id="cookiesValue"
-                                                                     text="VALUE" minWidth="140"/>
+                                                                     text="%col.value" minWidth="140"/>
                                                     <TreeTableColumn fx:id="cookiesDescription"
-                                                                     text="DESCRIPTION" minWidth="140"/>
+                                                                     text="%col.description" minWidth="140"/>
                                                 </columns>
                                             </TreeTableView>
                                         </center>
                                     </BorderPane>
                                 </AnchorPane>
                             </Tab>
-                            <Tab text="Body">
+                            <Tab text="%tab.body">
                                 <AnchorPane>
                                     <BorderPane AnchorPane.bottomAnchor="0"
                                                 AnchorPane.leftAnchor="0"
@@ -245,21 +269,21 @@
                                             <VBox spacing="8" style="-fx-padding: 12;">
                                                 <!-- Body 类型选择 -->
                                                 <HBox alignment="CENTER_LEFT" spacing="12">
-                                                    <Label text="Body Type:" style="-fx-font-weight: bold; -fx-text-fill: #495057;"/>
-                                                    <RadioButton fx:id="noneRadioButton" text="None" toggleGroup="$bodyTypeToggleGroup" selected="true"/>
-                                                    <RadioButton fx:id="rawRadioButton" text="raw" toggleGroup="$bodyTypeToggleGroup"/>
-                                                    <RadioButton fx:id="formDataRadioButton" text="form-data" toggleGroup="$bodyTypeToggleGroup"/>
-                                                    <RadioButton fx:id="xwwwFormUrlencodedRadioButton" text="x-www-form-urlencoded" toggleGroup="$bodyTypeToggleGroup"/>
-                                                    <RadioButton fx:id="binaryRadioButton" text="binary" toggleGroup="$bodyTypeToggleGroup"/>
+                                                    <Label text="%label.body_type" style="-fx-font-weight: bold; -fx-text-fill: -theme-text-primary;"/>
+                                                    <RadioButton fx:id="noneRadioButton" text="%radio.none" toggleGroup="$bodyTypeToggleGroup" selected="true"/>
+                                                    <RadioButton fx:id="rawRadioButton" text="%radio.raw" toggleGroup="$bodyTypeToggleGroup"/>
+                                                    <RadioButton fx:id="formDataRadioButton" text="%radio.form_data" toggleGroup="$bodyTypeToggleGroup"/>
+                                                    <RadioButton fx:id="xwwwFormUrlencodedRadioButton" text="%radio.x_www_form_urlencoded" toggleGroup="$bodyTypeToggleGroup"/>
+                                                    <RadioButton fx:id="binaryRadioButton" text="%radio.binary" toggleGroup="$bodyTypeToggleGroup"/>
                                                 </HBox>
                                                 
                                                 <!-- 内容类型选择 -->
                                                 <HBox alignment="CENTER_LEFT" spacing="12" visible="false" fx:id="contentTypeHBox">
-                                                    <Label text="Content Type:" style="-fx-font-weight: bold; -fx-text-fill: #495057;"/>
+                                                    <Label text="%label.content_type" style="-fx-font-weight: bold; -fx-text-fill: -theme-text-primary;"/>
                                                     <MFXFilterComboBox fx:id="chooseMediaTypeComboBox"
-                                                                       floatingText="Select content type"
+                                                                       floatingText="%floatingText.content_type"
                                                                        prefWidth="200.0"
-                                                                       style="-fx-background-color: white; -fx-border-color: #ced4da; -fx-border-radius: 4;">
+                                                                       style="-fx-background-color: -theme-bg-tertiary; -fx-border-color: -theme-border; -fx-border-radius: 4;">
                                                         <items>
                                                             <FXCollections fx:factory="observableArrayList">
                                                                 <String fx:value="application/json"/>
@@ -278,20 +302,20 @@
                                                     <!-- 格式化按钮 -->
                                                     <MFXButton fx:id="formatButton" buttonType="RAISED" 
                                                                prefHeight="28.0" prefWidth="60.0"
-                                                               style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 4;"
-                                                               text="Format">
+                                                               style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-inverse; -fx-background-radius: 4;"
+                                                               text="%button.format">
                                                         <tooltip>
-                                                            <Tooltip text="格式化 JSON/XML"/>
+                                                            <Tooltip text="%tooltip.format"/>
                                                         </tooltip>
                                                     </MFXButton>
                                                     
                                                     <!-- 清空按钮 -->
                                                     <MFXButton fx:id="clearBodyButton" buttonType="RAISED" 
                                                                prefHeight="28.0" prefWidth="60.0"
-                                                               style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 4;"
-                                                               text="Clear">
+                                                               style="-fx-background-color: -theme-danger; -fx-text-fill: -theme-text-inverse; -fx-background-radius: 4;"
+                                                               text="%button.clear_body">
                                                         <tooltip>
-                                                            <Tooltip text="清空内容"/>
+                                                            <Tooltip text="%tooltip.clear_body"/>
                                                         </tooltip>
                                                     </MFXButton>
                                                 </HBox>
@@ -299,17 +323,38 @@
                                         </top>
                                 
                                         <center>
-                                            <AnchorPane>
-                                                <VirtualizedScrollPane AnchorPane.bottomAnchor="0"
-                                                                       AnchorPane.leftAnchor="0"
-                                                                       AnchorPane.rightAnchor="0"
-                                                                       AnchorPane.topAnchor="0">
-                                                    <content>
-                                                        <CustomTextArea fx:id="inputTextArea" 
-                                                                        style="-fx-font-family: 'Consolas', 'Monaco', monospace; -fx-font-size: 13;"/>
-                                                    </content>
-                                                </VirtualizedScrollPane>
-                                            </AnchorPane>
+                                            <StackPane fx:id="bodyContentPane" AnchorPane.bottomAnchor="0"
+                                                       AnchorPane.leftAnchor="0"
+                                                       AnchorPane.rightAnchor="0"
+                                                       AnchorPane.topAnchor="0">
+                                                <!-- Raw 文本编辑器 -->
+                                                <AnchorPane fx:id="rawBodyPane">
+                                                    <VirtualizedScrollPane AnchorPane.bottomAnchor="0"
+                                                                           AnchorPane.leftAnchor="0"
+                                                                           AnchorPane.rightAnchor="0"
+                                                                           AnchorPane.topAnchor="0">
+                                                        <content>
+                                                            <CustomTextArea fx:id="inputTextArea" 
+                                                                            style="-fx-font-family: 'Consolas', 'Monaco', monospace; -fx-font-size: 13;"/>
+                                                        </content>
+                                                    </VirtualizedScrollPane>
+                                                </AnchorPane>
+                                                
+                                                <!-- Form-data 编辑器容器 -->
+                                                <AnchorPane fx:id="formDataPane" visible="false" managed="false">
+                                                </AnchorPane>
+                                                
+                                                <!-- x-www-form-urlencoded 编辑器容器 -->
+                                                <AnchorPane fx:id="urlEncodedPane" visible="false" managed="false">
+                                                </AnchorPane>
+                                                
+                                                <!-- None 提示 -->
+                                                <VBox fx:id="noneBodyPane" alignment="CENTER" spacing="8" 
+                                                      visible="true" style="-fx-background-color: -theme-bg-secondary;">
+                                                    <Label text="%label.no_body" style="-fx-text-fill: -theme-text-secondary; -fx-font-size: 14px;"/>
+                                                    <Label text="%label.select_body_type" style="-fx-text-fill: -theme-text-secondary; -fx-font-size: 12px;"/>
+                                                </VBox>
+                                            </StackPane>
                                         </center>
                                     </BorderPane>
                                 </AnchorPane>
@@ -319,26 +364,26 @@
                     <AnchorPane minHeight="0.0" minWidth="0.0">
                         <BorderPane AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
                             <top>
-                                <VBox spacing="8" style="-fx-padding: 12; -fx-background-color: #f8f9fa; -fx-border-color: #e9ecef; -fx-border-width: 0 0 1 0;">
+                                <VBox spacing="8" style="-fx-padding: 12; -fx-background-color: -theme-bg-secondary; -fx-border-color: -theme-border; -fx-border-width: 0 0 1 0;">
                                     <!-- 响应状态信息 -->
                                     <HBox alignment="CENTER_LEFT" spacing="20">
                                         <HBox alignment="CENTER_LEFT" spacing="8">
-                                            <Label text="Status:" style="-fx-font-weight: bold; -fx-text-fill: #495057;"/>
-                                            <Label fx:id="statusCodeLabel" text="-" style="-fx-font-weight: bold; -fx-text-fill: #28a745;"/>
+                                            <Label text="%label.status" style="-fx-font-weight: bold; -fx-text-fill: -theme-text-primary;"/>
+                                            <Label fx:id="statusCodeLabel" text="-" style="-fx-font-weight: bold; -fx-text-fill: -theme-success;"/>
                                         </HBox>
                                         <HBox alignment="CENTER_LEFT" spacing="8">
-                                            <Label text="Time:" style="-fx-font-weight: bold; -fx-text-fill: #495057;"/>
-                                            <Label fx:id="responseTimeLabel" text="-" style="-fx-text-fill: #6c757d;"/>
+                                            <Label text="%label.time" style="-fx-font-weight: bold; -fx-text-fill: -theme-text-primary;"/>
+                                            <Label fx:id="responseTimeLabel" text="-" style="-fx-text-fill: -theme-text-secondary;"/>
                                         </HBox>
                                         <HBox alignment="CENTER_LEFT" spacing="8">
-                                            <Label text="Size:" style="-fx-font-weight: bold; -fx-text-fill: #495057;"/>
-                                            <Label fx:id="responseSizeLabel" text="-" style="-fx-text-fill: #6c757d;"/>
+                                            <Label text="%label.size" style="-fx-font-weight: bold; -fx-text-fill: -theme-text-primary;"/>
+                                            <Label fx:id="responseSizeLabel" text="-" style="-fx-text-fill: -theme-text-secondary;"/>
                                         </HBox>
                                     </HBox>
                                     
                                     <!-- 响应标签页 -->
                                     <TabPane fx:id="responseTabPane" tabClosingPolicy="UNAVAILABLE" style="-fx-tab-min-width: 80;">
-                                        <Tab text="Body">
+                                        <Tab text="%tab.response_body">
                                             <AnchorPane>
                                                 <VirtualizedScrollPane AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
                                                     <content>
@@ -348,26 +393,26 @@
                                                 </VirtualizedScrollPane>
                                             </AnchorPane>
                                         </Tab>
-                                        <Tab text="Headers">
+                                        <Tab text="%tab.response_headers">
                                             <AnchorPane>
                                                 <TreeTableView fx:id="responseHeaders" editable="false" 
                                                                AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
                                                     <columns>
-                                                        <TreeTableColumn fx:id="responseHeadersKey" text="Header Name" minWidth="200"/>
-                                                        <TreeTableColumn fx:id="responseHeadersValue" text="Value" minWidth="300"/>
+                                                        <TreeTableColumn fx:id="responseHeadersKey" text="%col.header_name" minWidth="200"/>
+                                                        <TreeTableColumn fx:id="responseHeadersValue" text="%col.value" minWidth="300"/>
                                                     </columns>
                                                 </TreeTableView>
                                             </AnchorPane>
                                         </Tab>
-                                        <Tab text="Cookies">
+                                        <Tab text="%tab.response_cookies">
                                             <AnchorPane>
                                                 <TreeTableView fx:id="responseCookies" editable="false"
                                                                AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
                                                     <columns>
-                                                        <TreeTableColumn fx:id="responseCookiesKey" text="Name" minWidth="150"/>
-                                                        <TreeTableColumn fx:id="responseCookiesValue" text="Value" minWidth="200"/>
-                                                        <TreeTableColumn fx:id="responseCookiesDomain" text="Domain" minWidth="150"/>
-                                                        <TreeTableColumn fx:id="responseCookiesPath" text="Path" minWidth="100"/>
+                                                        <TreeTableColumn fx:id="responseCookiesKey" text="%col.cookies_name" minWidth="150"/>
+                                                        <TreeTableColumn fx:id="responseCookiesValue" text="%col.value" minWidth="200"/>
+                                                        <TreeTableColumn fx:id="responseCookiesDomain" text="%col.domain" minWidth="150"/>
+                                                        <TreeTableColumn fx:id="responseCookiesPath" text="%col.path" minWidth="100"/>
                                                     </columns>
                                                 </TreeTableView>
                                             </AnchorPane>

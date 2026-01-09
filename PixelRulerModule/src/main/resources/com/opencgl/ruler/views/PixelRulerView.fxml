@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.shape.Rectangle?>
+
+<BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+    <top>
+        <VBox spacing="10">
+            <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+            
+            <!-- 功能控制 -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <CheckBox fx:id="pickerCheckBox" text="%btn.pickerMode"/>
+                <Button fx:id="startButton" text="%btn.start" styleClass="primary-button"/>
+                <Button fx:id="stopButton" text="%btn.stop" disable="true"/>
+                <Separator orientation="VERTICAL"/>
+                <Label text="%hint.moveCopy" style="-fx-text-fill: #666; -fx-font-size: 11px;"/>
+            </HBox>
+            
+            <Separator/>
+            
+            <!-- 当前信息 -->
+            <GridPane hgap="10" vgap="5">
+                <Label text="%label.mousePos" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <Label fx:id="positionLabel" text="(0, 0)" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                
+                <Label text="%label.colorHex" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                <HBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <Label fx:id="hexLabel" text="#000000"/>
+                    <Rectangle fx:id="colorPreview" width="30" height="20" stroke="BLACK" strokeWidth="1"/>
+                </HBox>
+                
+                <Label text="%label.colorRgb" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                <Label fx:id="rgbLabel" text="RGB(0, 0, 0)" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+            </GridPane>
+            
+            <Separator/>
+            
+            <!-- 放大镜 -->
+            <VBox spacing="5">
+                <Label text="%label.magnifier" style="-fx-font-weight: bold;"/>
+                <Canvas fx:id="magnifierCanvas" width="200" height="200"/>
+            </VBox>
+        </VBox>
+    </top>
+
+    <center>
+        <!-- 颜色历史 -->
+        <VBox spacing="5">
+            <padding><Insets top="0" right="10" bottom="10" left="10"/></padding>
+            
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="%label.colorHistory" style="-fx-font-weight: bold;"/>
+                <Button fx:id="clearHistoryButton" text="%btn.clearHistory"/>
+            </HBox>
+            
+            <ListView fx:id="historyList" VBox.vgrow="ALWAYS" prefHeight="200"/>
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox spacing="10" alignment="CENTER" style="-fx-padding: 10;">
+            <Button fx:id="copyHexButton" text="%btn.copyHex"/>
+            <Button fx:id="copyRgbButton" text="%btn.copyRgb"/>
+            <Label fx:id="statusLabel" text="%status.ready" style="-fx-text-fill: -theme-text-secondary;"/>
+        </HBox>
+    </bottom>
+</BorderPane>

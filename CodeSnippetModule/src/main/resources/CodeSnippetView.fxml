@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXComboBox?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.opencgl.snippet.controller.CodeSnippetController">
+    <BorderPane fx:id="contentBorderPane" style="-fx-background-color: -theme-bg-primary">
+        <top>
+            <VBox spacing="5" style="-fx-background-color: -theme-bg-primary; -fx-background-radius: 0 0 12 12;">
+                <padding>
+                    <Insets top="15" right="20" bottom="15" left="20"/>
+                </padding>
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <Label text="%title.manager" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <MFXButton fx:id="newButton" text="%btn.new" 
+                               style="-fx-background-color: #27ae60; -fx-text-fill: white;"/>
+                    <MFXButton fx:id="saveButton" text="%btn.save" 
+                               style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+                    <MFXButton fx:id="deleteButton" text="%btn.delete" 
+                               style="-fx-background-color: #e74c3c; -fx-text-fill: white;"/>
+                    <MFXButton fx:id="copyButton" text="%btn.copy" 
+                               style="-fx-background-color: #9b59b6; -fx-text-fill: white;"/>
+                    <Separator orientation="VERTICAL"/>
+                    <MFXButton fx:id="importButton" text="%btn.import"/>
+                    <MFXButton fx:id="exportButton" text="%btn.export"/>
+                    <Label fx:id="statusLabel" text="%status.ready" style="-fx-text-fill: #7f8c8d;"/>
+                </HBox>
+            </VBox>
+        </top>
+        <center>
+            <SplitPane dividerPositions="0.25, 0.75" style="-fx-padding: 15;">
+                
+                <!-- 左侧：语言分类和列表 -->
+                <VBox spacing="10" style="-fx-background-color: -theme-bg-primary; -fx-background-radius: 8; -fx-padding: 10;">
+                    <MFXTextField fx:id="searchField" promptText="%prompt.search" prefWidth="200"/>
+                    <Label text="%label.categoryTree" style="-fx-font-weight: bold;"/>
+                    <TreeView fx:id="languageTree" VBox.vgrow="ALWAYS"/>
+                    <Label text="%label.snippetList" style="-fx-font-weight: bold;"/>
+                    <ListView fx:id="snippetList" VBox.vgrow="ALWAYS"/>
+                </VBox>
+                
+                <!-- 中间：编辑区 -->
+                <VBox spacing="15" style="-fx-background-color: -theme-bg-primary; -fx-background-radius: 8; -fx-padding: 20;">
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="%label.title" prefWidth="60"/>
+                        <MFXTextField fx:id="titleField" HBox.hgrow="ALWAYS" promptText="%prompt.title"/>
+                        <CheckBox fx:id="favoriteCheckBox" text="%label.favorite"/>
+                    </HBox>
+                    
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="%label.language" prefWidth="60"/>
+                        <MFXComboBox fx:id="languageComboBox" prefWidth="150"/>
+                        <Label text="%label.tags" style="-fx-padding: 0 0 0 20;"/>
+                        <MFXTextField fx:id="tagsField" promptText="%prompt.tags" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                    
+                    <VBox spacing="5">
+                        <Label text="%label.description"/>
+                        <TextArea fx:id="descriptionArea" prefHeight="60" 
+                                  promptText="%prompt.description"
+                                  wrapText="true"/>
+                    </VBox>
+                    
+                    <VBox spacing="5" VBox.vgrow="ALWAYS">
+                        <Label text="%label.code" style="-fx-font-weight: bold;"/>
+                        <VBox fx:id="codeAreaContainer" VBox.vgrow="ALWAYS"
+                              style="-fx-background-color: -theme-bg-primary; -fx-background-radius: 4;">
+                            <!-- CodeArea will be added programmatically -->
+                        </VBox>
+                    </VBox>
+                </VBox>
+                
+            </SplitPane>
+        </center>
+    </BorderPane>
+</StackPane>

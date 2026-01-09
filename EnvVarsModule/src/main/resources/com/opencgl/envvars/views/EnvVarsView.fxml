@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.opencgl.envvars.controller.EnvVarsController"
+      spacing="10" style="-fx-padding: 15;">
+    <TitledPane text="%tab.env" expanded="true">
+        <VBox spacing="8">
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <TextField fx:id="envFilter" promptText="%prompt.filter" prefWidth="200"/>
+                <Button fx:id="btnCopyEnv" text="%button.copy" onAction="#onCopyEnv"/>
+            </HBox>
+            <TableView fx:id="envTable" prefHeight="200" VBox.vgrow="SOMETIMES">
+                <columns>
+                    <TableColumn fx:id="envColKey" text="%label.key" prefWidth="180"/>
+                    <TableColumn fx:id="envColValue" text="%label.value" prefWidth="300"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </TitledPane>
+    <TitledPane text="%tab.props" expanded="true">
+        <VBox spacing="8">
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <TextField fx:id="propsFilter" promptText="%prompt.filter" prefWidth="200"/>
+                <Button fx:id="btnCopyProps" text="%button.copy" onAction="#onCopyProps"/>
+            </HBox>
+            <TableView fx:id="propsTable" prefHeight="200" VBox.vgrow="SOMETIMES">
+                <columns>
+                    <TableColumn fx:id="propsColKey" text="%label.key" prefWidth="180"/>
+                    <TableColumn fx:id="propsColValue" text="%label.value" prefWidth="300"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </TitledPane>
+</VBox>

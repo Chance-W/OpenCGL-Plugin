@@ -1,7 +1,8 @@
 package com.opencgl.utils.wsdl2soap.util;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.xmlbeans.*;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -15,7 +16,7 @@ import java.util.*;
 
 
 public class WsdlValidator {
-    private final static Logger log = Logger.getLogger(WsdlValidator.class);
+    private final static Logger log = LoggerFactory.getLogger(WsdlValidator.class);
 
     private final WsdlContext wsdlContext;
 

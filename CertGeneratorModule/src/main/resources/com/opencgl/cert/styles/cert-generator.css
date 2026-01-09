@@ -1,0 +1,21 @@
+.section-header {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+}
+
+.helper-text {
+    -fx-font-size: 11px;
+    -fx-text-fill: #666666;
+}
+
+.action-button {
+    -fx-background-color: #2196F3;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16 8 16;
+}
+
+.action-button:hover {
+    -fx-background-color: #1976D2;
+}

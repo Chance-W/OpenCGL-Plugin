@@ -1,0 +1,72 @@
+/**
+ * OpenCGL 海蓝色主题
+ * 深海蓝色主题，清新舒适
+ */
+.root {
+    /* 背景 - 淡海蓝色 */
+    -theme-bg-primary: #e8f4f8;
+    -theme-bg-secondary: #d4e9f0;
+
+    /* 侧边栏 - 深海蓝 */
+    -theme-sidebar-bg: #006994;
+    -theme-sidebar-text: rgba(255, 255, 255, 0.90);
+    -theme-sidebar-icon: rgba(255, 255, 255, 0.90);
+    -theme-sidebar-selected-bg: #b3e5fc;
+    -theme-sidebar-selected-text: #004d73;
+    -theme-sidebar-selected-icon: #004d73;
+
+    /* 文字 */
+    -theme-text-primary: rgba(0, 0, 0, 0.87);
+    -theme-text-secondary: rgba(0, 0, 0, 0.60);
+
+    /* 其他 */
+    -theme-border: #b3d9e8;
+    border: #b3d9e8;
+    -theme-accent: #0288d1;
+    color: #0288d1;
+    -theme-scrollbar-thumb: #0288d1;
+
+    /* Native JavaFX 适配 */
+    -fx-base: -theme-bg-secondary;
+    background-color: -theme-bg-secondary;
+    -fx-accent: -theme-accent;
+    -fx-control-inner-background: -theme-bg-primary;
+    -fx-control-inner-background-alt: -theme-bg-secondary;
+    -fx-text-base-color: -theme-text-primary;
+    -fx-text-inner-color: -theme-text-primary;
+
+    /* MaterialFX 适配 */
+    -mfx-text-he: -theme-text-primary;
+    -mfx-text-me: -theme-text-secondary;
+    -mfx-text-disabled: rgba(0, 0, 0, 0.38);
+
+    -mfx-base: -theme-bg-secondary;
+    -mfx-control-inner-background: -theme-bg-primary;
+    -mfx-control-inner-background-alt: -theme-bg-secondary;
+
+    /* Hover & Icons */
+    -theme-card-hover-bg: #c0e4f0;
+    -theme-card-hover-text: #000000;
+    -mfx-color: -theme-text-primary;
+    color: -theme-text-primary;
+
+    /* Components */
+    -mfx-button-base: -theme-bg-secondary;
+    background-color: -theme-bg-secondary;
+    -mfx-surface: -theme-bg-secondary;
+
+    /* Code Editor */
+    -code-keyword: #0277bd;
+    -code-string: #00695c;
+    -code-comment: #607d8b;
+    -code-paren: #01579b;
+    -code-brace: #00796b;
+    -code-bracket: #4a148c;
+    -code-semicolon: #d84315;
+    -code-text: #263238;
+}
+
+.toggle-button {
+    -mfx-color: black;
+    -fx-background-color: black;
+}

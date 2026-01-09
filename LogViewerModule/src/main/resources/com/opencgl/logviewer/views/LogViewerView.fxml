@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="com.opencgl.logviewer.controller.LogViewerController">
+    <top>
+        <VBox spacing="10">
+            <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button fx:id="openButton" text="%btn.open"/>
+                <Button fx:id="refreshButton" text="%btn.refresh"/>
+                <Label text="%label.level"/>
+                <ComboBox fx:id="levelCombo" maxWidth="120"/>
+                <Label text="%label.keyword"/>
+                <TextField fx:id="keywordField" promptText="%prompt.keyword" HBox.hgrow="SOMETIMES" maxWidth="200"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="statusLabel" text="%label.statusReady" style="-fx-text-fill: -theme-text-secondary;"/>
+            </HBox>
+        </VBox>
+    </top>
+    <center>
+        <VBox spacing="5" BorderPane.alignment="CENTER">
+            <padding><Insets top="0" right="10" bottom="10" left="10"/></padding>
+            <TextArea fx:id="contentArea" editable="false" wrapText="false"
+                      style="-fx-font-family: 'Consolas', monospace; -fx-font-size: 12px;" VBox.vgrow="ALWAYS"/>
+        </VBox>
+    </center>
+</BorderPane>

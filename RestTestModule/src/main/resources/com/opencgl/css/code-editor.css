@@ -1,0 +1,140 @@
+/* Code Editor 语法高亮样式 */
+
+.code-editor {
+    -fx-background-color: #1e1e1e;
+    -fx-text-fill: #d4d4d4;
+}
+
+.code-editor .text {
+    -fx-fill: #d4d4d4;
+}
+
+/* 行号 */
+.code-editor .lineno {
+    -fx-fill: #858585;
+    -fx-font-size: 12px;
+    -fx-background-color: #252526;
+    -fx-padding: 0 8 0 8;
+}
+
+/* 光标行高亮 */
+.code-editor .caret {
+    -fx-stroke: #aeafad;
+}
+
+/* 选中文本 */
+.code-editor .selection {
+    -fx-fill: #264f78;
+}
+
+/* JSON/通用 语法高亮 */
+
+/* 注释 - 绿色斜体 */
+.comment {
+    -fx-fill: #6a9955;
+    -fx-font-style: italic;
+}
+
+/* 字符串 - 橙色 */
+.string {
+    -fx-fill: #ce9178;
+}
+
+/* 数字 - 浅绿色 */
+.number {
+    -fx-fill: #b5cea8;
+}
+
+/* 关键字 (true/false/null) - 蓝色 */
+.keyword {
+    -fx-fill: #569cd6;
+}
+
+/* 大括号 - 黄色 */
+.brace {
+    -fx-fill: #ffd700;
+}
+
+/* 方括号 - 紫色 */
+.bracket {
+    -fx-fill: #da70d6;
+}
+
+/* 冒号 */
+.colon {
+    -fx-fill: #d4d4d4;
+}
+
+/* 逗号 */
+.comma {
+    -fx-fill: #d4d4d4;
+}
+
+/* XML 特有样式 */
+
+/* 标签 - 蓝色 */
+.tag {
+    -fx-fill: #569cd6;
+}
+
+/* XML 声明 */
+.prolog {
+    -fx-fill: #808080;
+}
+
+/* CDATA */
+.cdata {
+    -fx-fill: #9cdcfe;
+}
+
+/* 实体 */
+.entity {
+    -fx-fill: #d7ba7d;
+}
+
+/* 属性名 */
+.attribute {
+    -fx-fill: #9cdcfe;
+}
+
+/* 滚动条样式 */
+.code-editor .scroll-bar {
+    -fx-background-color: #1e1e1e;
+}
+
+.code-editor .scroll-bar .thumb {
+    -fx-background-color: #424242;
+    -fx-background-radius: 4;
+}
+
+.code-editor .scroll-bar .thumb:hover {
+    -fx-background-color: #4f4f4f;
+}
+
+.code-editor .scroll-bar .track {
+    -fx-background-color: #1e1e1e;
+}
+
+.code-editor .scroll-bar .increment-button,
+.code-editor .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+}
+
+/* 匹配的括号 */
+.bracket-match {
+    -fx-background-color: #3a3d41;
+    -fx-border-color: #888;
+    -fx-border-width: 1;
+}
+
+/* 错误下划线 */
+.error {
+    -fx-underline: true;
+    -fx-fill: #f48771;
+}
+
+/* 警告下划线 */
+.warning {
+    -fx-underline: true;
+    -fx-fill: #cca700;
+}

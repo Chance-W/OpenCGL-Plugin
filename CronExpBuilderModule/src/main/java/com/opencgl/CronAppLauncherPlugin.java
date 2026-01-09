@@ -7,6 +7,6 @@ import javafx.application.Application;
  */
 public class CronAppLauncherPlugin {
     public static void main(String[] args) {
-        Application.launch(MainPlugin.class, args);
+        Application.launch(CronStartAppLauncherPlugin.class, args);
     }
 }

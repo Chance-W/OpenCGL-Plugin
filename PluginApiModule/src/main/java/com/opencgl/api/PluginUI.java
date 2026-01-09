@@ -1,0 +1,103 @@
+package com.opencgl.api;
+
+import java.net.URL;
+
+public interface PluginUI {
+
+    enum UIType {JAVAFX, SWING, WEB}
+
+    /**
+     * Stable plugin identifier used for updates and user-overrides. Existing
+     * plugins retain their implementation class name until they declare one.
+     */
+    default String pluginId() {
+        return this.getClass().getName();
+    }
+
+    /** Plugin API generation required by this plugin. */
+    default String apiVersion() {
+        return "1";
+    }
+
+    /** Inclusive minimum OpenCGL version; blank means no lower bound. */
+    default String minimumHostVersion() {
+        return "";
+    }
+
+    /** Inclusive maximum OpenCGL version; blank means no upper bound. */
+    default String maximumHostVersion() {
+        return "";
+    }
+
+
+    String directoryName();
+
+    /**
+     * 插件版本号
+     */
+    default String version() {
+        String ver = this.getClass().getPackage().getImplementationVersion();
+        return ver != null ? ver : "1.0.0";
+    }
+
+    /**
+     * 插件分类
+     */
+    default String category() {
+        return "其他";
+    }
+
+    /**
+     * 插件描述
+     */
+    default String description() {
+        return "";
+    }
+
+    /**
+     * 显示名称（用于 Tab / 菜单）
+     */
+    String name();
+
+    /**
+     * 图标资源路径（相对插件 jar 内部或 classpath），可选
+     */
+    URL iconPath();
+
+    /**
+     * 类型（JAVAFX / SWING / WEB）
+     */
+    UIType type();
+
+    /**
+     * 按需创建 UI 对象（仅当用户打开 Tab 时调用）
+     * - JAVAFX -> javafx.scene.Node
+     * - SWING  -> javax.swing.JComponent
+     * - WEB    -> String (html content) or java.net.URL or String url
+     */
+    Object createView();
+
+    /**
+     * 关闭/卸载时清理资源
+     */
+    default void dispose() {
+    }
+
+//    default String icon() {
+//        System.out.println("4445555"+ iconPath());
+//        if (iconPath().isBlank()) {
+//            return null;
+//        }
+//        try {
+//            System.out.println("123123"+ iconPath());
+//            return Optional.ofNullable(this.getClass().getClassLoader().getResource(iconPath()))
+//                .map(String::valueOf)
+//                .orElse(null);
+//        }
+//        catch (Exception e) {
+//            System.out.println(e.getMessage());
+//            return null;
+//        }
+//    }
+
+}

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>com.opencgl</groupId>
+        <artifactId>com.opencgl.plugin</artifactId>
+        <version>1.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>TemplatePlugin4</artifactId>
+    <version>1.0.0</version>
+    <description>此为使用 Maven Shade Plugin 解决 SPI 和类冲突的标准隔离演示模版</description>
+
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <!-- 引入一个极易与底层或者其他插件冲突的重型组件，例如 Zookeeper -->
+        <!-- Zookeeper 内部使用了 SPI 机制以及大量 Netty 依赖 -->
+        <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+            <version>3.8.3</version>
+            <!-- 排除自带的 slf4j 避免日志冲突 -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        
+        <!-- 追加一个 SLF4J 依赖作为版本冲突隔离的演示 (主应用也有不同版本的slf4j) -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.16</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!--
+                ========================================================================
+                【核心看点】使用 Maven Shade Plugin 对冲突依赖进行“包名重定位 (Relocation)”
+                ========================================================================
+                为什么用它？
+                因为即使 OpenCGL 有双亲委派隔离，像 Dubbo/Zookeeper 这样的框架一旦跟宿主
+                版本冲突，或者它们内部使用了 Thread Context ClassLoader (TCCL) 来寻找 SPI 扩展，
+                极易引发诸如 ClassCastException 等致命崩溃。
+
+                Shade 可以把这些容易起火的第三方包名，强行重组改为你插件独有的包名域。
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+
+                            <relocations>
+                                <!-- 重定位 Zookeeper 包 -->
+                                <relocation>
+                                    <pattern>org.apache.zookeeper</pattern>
+                                    <!-- 修改为你独占的包名，比如加上 shaded 后缀 -->
+                                    <shadedPattern>com.opencgl.template4.shaded.apache.zookeeper</shadedPattern>
+                                </relocation>
+                                <!-- zookeeper 底层用了 zookeeper-jute，一并修改 -->
+                                <relocation>
+                                    <pattern>org.apache.jute</pattern>
+                                    <shadedPattern>com.opencgl.template4.shaded.apache.jute</shadedPattern>
+                                </relocation>
+                                <!-- 重定位极其容易引发全局血案的 Netty (ZK 核心依赖) -->
+                                <relocation>
+                                    <pattern>io.netty</pattern>
+                                    <shadedPattern>com.opencgl.template4.shaded.io.netty</shadedPattern>
+                                </relocation>
+                                <!-- 重定位 SLF4J 演示依赖冲突 -->
+                                <relocation>
+                                    <pattern>org.slf4j</pattern>
+                                    <shadedPattern>com.opencgl.template4.shaded.org.slf4j</shadedPattern>
+                                </relocation>
+                            </relocations>
+
+                            <transformers>
+                                <!--
+                                     【极其重要的一行】
+                                     对于利用了 Java SPI (ServiceLoader) 机制的库 (Zookeeper/Dubbo)，
+                                     必须添加此 Transformer。
+                                     它会自动合并和改写 META-INF/services 下那些针对 SPI 接口名字文本。
+                                     如果不加这个，Shade 只改了包名不改里面的字符串，SPI 就会找不到导致应用宕机。
+                                -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <!-- 在 Shade 执行完毕之后，再次触发拷贝，确保把打好 Shade 的最终版 Jar 放进 bin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>copy-shaded-jar-to-bin</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <copy file="${project.build.directory}/${project.build.finalName}.jar"
+                                      tofile="../bin/${project.build.finalName}.jar"
+                                      overwrite="true"
+                                      failonerror="false"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

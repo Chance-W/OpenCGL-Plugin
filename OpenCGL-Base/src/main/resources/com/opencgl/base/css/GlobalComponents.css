@@ -1,0 +1,2414 @@
+/*
+ * OpenCGL 全局组件样式库 (Global Component Styles)
+ *
+ * 本文件包含所有 JavaFX 标准组件和 MaterialFX 组件的统一样式。
+ * 所有颜色值均使用语义化变量 (定义在 ThemeColors-*.css 中)。
+ *
+ * 目录:
+ * 1. 基础重置 (Reset & Base)
+ * 2. 核心输入控件 (Core Inputs)
+ * 3. 容器与布局 (Containers)
+ * 4. 数据展示 (Data Views)
+ * 5. 菜单与弹窗 (Menus & Popups)
+ * 6. MaterialFX 组件 (MFX Extras)
+ * 7. 图表 (Charts)
+ */
+
+/*******************************************************************************
+ * 1. 基础重置 (Reset & Base)
+ ******************************************************************************/
+.root {
+    /* 默认字体设置，确保清晰度 */
+    -fx-font-family: "Open Sans", "Microsoft YaHei", sans-serif;
+    -fx-font-smoothing-type: lcd;
+
+    /* --- MFX Reference Variable Mappings --- */
+    -mfx-blue: -theme-info;
+    -mfx-charcoal: #445055;
+    -mfx-green: -theme-success;
+    -mfx-onyx: #353935;
+    -mfx-orange: -theme-warning;
+    -mfx-purple: -theme-accent;
+    -mfx-red: -theme-danger;
+    -mfx-yellow: #FFEA00;
+
+    /* High Emphasis */
+    -mfx-text-he: -theme-text-primary;
+    /* Medium Emphasis*/
+    -mfx-text-me: -theme-text-secondary;
+    /* Disabled */
+    -mfx-text-disabled: -theme-text-disabled;
+
+    /* ScrollBar Vars */
+    -track-color: -theme-bg-secondary;
+    -thumb-color: -theme-scrollbar-thumb;
+    -thumb-hover-color: derive(-theme-scrollbar-thumb, -10%);
+}
+
+/* 基础文本样式 */
+.text {
+    -fx-fill: -theme-text-primary;
+}
+
+.label {
+    -fx-text-fill: -theme-text-primary;
+}
+
+/*******************************************************************************
+ * 2. 核心输入控件 (Core Inputs)
+ ******************************************************************************/
+
+/* --- 按钮 (Button - JavaFX 原生) --- */
+.button:not(.mfx-button) {
+    -fx-background-color: -theme-bg-tertiary;
+    -fx-text-fill: -theme-text-primary;
+    -fx-background-radius: 4px;
+    -fx-padding: 5px 12px;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-effect: null;
+    /* 移除默认阴影 */
+}
+
+.button:not(.mfx-button):hover {
+    -fx-background-color: -theme-hover-bg;
+}
+
+.button:not(.mfx-button):pressed {
+    -fx-background-color: -theme-sidebar-selected-bg;
+}
+
+.button:not(.mfx-button):focused {
+    -fx-border-color: -theme-focus-ring;
+    -fx-border-width: 2px;
+    -fx-border-insets: -2px;
+    -fx-border-radius: 6px;
+}
+
+.button:disabled {
+    -fx-opacity: 0.6;
+}
+
+.button.accent {
+    /* 强调色按钮样式 (Primary) */
+    -fx-background-color: -theme-accent;
+    -fx-text-fill: -theme-text-inverse;
+}
+
+.button.accent:hover {
+    -fx-background-color: -theme-accent-hover;
+}
+
+.button.accent:pressed {
+    -fx-background-color: -theme-accent-pressed;
+}
+
+/* --- MaterialFX 按钮 (MFXButton) --- */
+.mfx-button {
+    -fx-font-family: "Open Sans Regular";
+    -fx-text-fill: -mfx-text-he;
+}
+
+.mfx-button:armed,
+.mfx-button:hover,
+.mfx-button:focused,
+.mfx-button {
+    -fx-background-radius: 3px;
+    -fx-background-insets: 0px;
+}
+
+.mfx-button,
+.mfx-button:armed,
+.mfx-button:focused {
+    -fx-background-color: -theme-bg-tertiary;
+}
+
+.mfx-button:hover {
+    -fx-background-color: -theme-hover-bg;
+}
+
+/* 标准按钮 - 主要 (Primary) */
+.primary-button {
+    -fx-background-color: -theme-accent;
+    -fx-text-fill: -theme-text-inverse;
+}
+
+.primary-button:hover {
+    -fx-background-color: -theme-accent-hover;
+}
+
+.primary-button .mfx-font-icon,
+.primary-button .ikonli-font-icon {
+    -mfx-color: -theme-text-inverse;
+    -fx-icon-color: -theme-text-inverse;
+    -fx-fill: -theme-text-inverse;
+}
+
+/* 标准按钮 - 次要 (Secondary) */
+.secondary-button {
+    -fx-background-color: -theme-bg-tertiary;
+    -fx-text-fill: -theme-text-primary;
+    -fx-border-color: -theme-border;
+    -fx-border-radius: 5;
+}
+
+.secondary-button:hover {
+    -fx-background-color: -theme-hover-bg;
+}
+
+.secondary-button .mfx-font-icon,
+.secondary-button .ikonli-font-icon {
+    -mfx-color: -theme-text-primary;
+    -fx-icon-color: -theme-text-primary;
+    -fx-fill: -theme-text-primary;
+}
+
+/* 图标按钮 (工具栏常用) */
+.icon-button {
+    -fx-background-color: transparent;
+    -fx-padding: 3;
+    -fx-cursor: hand;
+    -fx-min-width: 28;
+    -fx-min-height: 28;
+}
+
+.icon-button .mfx-font-icon,
+.icon-button .ikonli-font-icon {
+    -mfx-color: -theme-text-primary;
+    -fx-icon-color: -theme-text-primary;
+    -fx-fill: -theme-text-primary;
+}
+
+.icon-button:hover .mfx-font-icon,
+.icon-button:hover .ikonli-font-icon {
+    -mfx-color: -theme-accent;
+    -fx-icon-color: -theme-accent;
+    -fx-fill: -theme-accent;
+}
+
+/* --- 文本框 / 密码框 (TextField / PasswordField - JavaFX 原生) --- */
+.text-field,
+.password-field {
+    -fx-background-color: -theme-bg-tertiary;
+    -fx-text-fill: -theme-text-primary;
+    -fx-prompt-text-fill: -theme-text-secondary;
+    -fx-highlight-fill: -theme-accent;
+    -fx-highlight-text-fill: -theme-text-inverse;
+    -fx-border-color: -theme-border;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-padding: 5;
+}
+
+.text-field:focused,
+.password-field:focused {
+    -fx-border-color: -theme-focus-ring;
+    -fx-background-color: -theme-bg-tertiary;
+}
+
+.text-field:disabled,
+.password-field:disabled {
+    -fx-opacity: 0.6;
+}
+
+/* --- MFX文本框 / MFX密码框 (MaterialFX Reference) --- */
+/* 插件/全局输入框统一用 tertiary，与主背景(primary/secondary)区分，深色模式下可辨认 */
+.mfx-text-field,
+.mfx-password-field {
+    -mfx-main: -mfx-purple;
+    -fx-background-color: -theme-bg-tertiary;
+    -fx-background-radius: 5;
+    -fx-border-color: -theme-border;
+    -fx-border-radius: 5;
+    -fx-padding: 5;
+    -fx-font-family: "Open Sans Regular";
+}
+
+.mfx-text-field:readonly,
+.mfx-text-field:readonly .text-field {
+    -fx-cursor: default;
+}
+
+.mfx-text-field .text-field {}
+
+.mfx-text-field .text-field .text {
+    -fx-font-smoothing-type: lcd;
+}
+
+/* 文本框聚焦状态样式（保持 tertiary 背景，与主背景区分） */
+.mfx-text-field:focus-within,
+.mfx-password-field:focus-within {
+    -fx-background-color: -theme-bg-tertiary;
+    -fx-background-insets: 2;
+    -fx-border-color: -theme-focus-ring;
+    -fx-border-width: 2;
+    -fx-border-insets: -1;
+}
+
+/* 浮动标签样式 (Floating Text) */
+.mfx-text-field .floating-text {
+    -fx-font-family: "Open Sans Regular";
+    -fx-text-fill: -mfx-text-he;
+}
+
+.mfx-text-field:floating .floating-text {
+    -fx-background-color: -theme-bg-tertiary;
+}
+
+.mfx-text-field:focus-within .floating-text {
+    -fx-text-fill: -mfx-main;
+}
+
+.mfx-text-field .measure-unit {
+    -fx-font-family: "Open Sans Regular";
+    -fx-text-fill: -mfx-text-he;
+}
+
+/* 内部原生 TextField 样式覆盖 */
+.mfx-text-field .text-field {
+    -fx-border-color: transparent;
+    -fx-text-fill: -theme-text-primary;
+    -fx-prompt-text-fill: -theme-text-secondary;
+    -fx-text-box-border: transparent;
+    -fx-background-color: transparent;
+    -fx-backrgound-insets: 0;
+    -fx-padding: 0;
+}
+
+.mfx-text-field .text-field:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+/* 禁用状态样式 */
+.mfx-text-field:disabled {
+    -fx-border-color: rgba(0, 0, 0, 0.1);
+}
+
+.mfx-text-field:disabled .floating-text {
+    -fx-text-fill: -mfx-text-disabled;
+}
+
+.mfx-text-field:disabled .text-field {
+    -fx-text-inner-color: -mfx-text-disabled;
+}
+
+/* 密码框眼睛图标样式 (Eye Icon) */
+.mfx-password-field .eye-icon {
+    -mfx-color: -theme-text-secondary;
+}
+
+.mfx-password-field .eye-icon:hover {
+    -mfx-color: -theme-text-primary;
+}
+
+/* tree-search-field 定义在 Section 4 数据展示区域 */
+
+/* --- TextArea (JavaFX) --- */
+/* 与 MFX 输入框一致，使用 tertiary 与主背景区分 */
+.text-area {
+    -fx-control-inner-background: -theme-bg-tertiary;
+    -fx-background-color: -theme-bg-tertiary;
+    -fx-text-fill: -theme-text-primary;
+    -fx-border-color: -theme-border;
+}
+
+.text-area .content {
+    -fx-background-color: -theme-bg-tertiary;
+}
+
+.text-area:focused .content {
+    -fx-background-color: derive(-theme-bg-tertiary, 5%);
+}
+
+.dialog-text-area .content {
+    -fx-border-color:transparent;
+}
+
+/* --- 复选框 (CheckBox - JavaFX 原生) --- */
+.check-box:not(.mfx-checkbox) {
+    -fx-text-fill: -theme-text-primary;
+    -fx-label-padding: 0 0 0 8px;
+}
+
+.check-box:not(.mfx-checkbox) .box {
+    -fx-background-color: -theme-bg-tertiary;
+    -fx-border-color: -theme-border;
+    -fx-border-radius: 3px;
+    -fx-background-radius: 3px;
+}
+
+.check-box:not(.mfx-checkbox):selected .box {
+    -fx-background-color: -theme-accent;
+    -fx-border-color: -theme-accent;
+}
+
+.check-box:not(.mfx-checkbox) .mark {
+    -fx-background-color: -theme-text-inverse;
+    -fx-shape: "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z";
+    -fx-scale-shape: true;
+}
+
+/* --- MFX复选框 (MaterialFX Reference) --- */
+.mfx-checkbox {
+    -mfx-main: -theme-accent;
+    -mfx-secondary: -theme-border;
+    -fx-font-family: "Open Sans Regular";
+    -fx-text-fill: -theme-text-primary;
+}
+
+.mfx-checkbox .box {
+    -fx-background-color: transparent;
+    -fx-background-radius: 2;
+    -fx-border-color: -mfx-secondary;
+    -fx-border-radius: 2;
+    -fx-border-width: 1.5;
+    -fx-padding: 2;
+}
+
+.mfx-checkbox .box .mark {
+    visibility: hidden;
+    -mfx-color: -theme-text-inverse;
+    -mfx-description: "fas-check";
+    -mfx-size: 12;
+}
+
+.mfx-checkbox .ripple-container {
+    -fx-padding: 4;
+}
+
+.mfx-checkbox .ripple-container .mfx-ripple-generator {
+    -mfx-animation-speed: 1.5;
+    -mfx-ripple-color: derive(-mfx-main, 110%);
+    -mfx-ripple-radius: 16;
+}
+
+.mfx-checkbox:selected .box,
+.mfx-checkbox:indeterminate .box {
+    -fx-background-color: -mfx-main;
+    -fx-border-color: -mfx-main;
+}
+
+.mfx-checkbox:selected .box .mark {
+    visibility: visible;
+}
+
+.mfx-checkbox:selected:disabled .box,
+.mfx-checkbox:indeterminate:disabled .box {
+    -fx-background-color: -mfx-secondary;
+    -fx-border-color: -mfx-secondary;
+}
+
+.mfx-checkbox:indeterminate .box .mark {
+    visibility: visible;
+    -mfx-description: "fas-minus";
+}
+
+/* --- 单选按钮 (RadioButton - JavaFX 原生) --- */
+.radio-button:not(.mfx-radio-button) {
+    -fx-text-fill: -theme-text-primary;
+}
+
+.radio-button:not(.mfx-radio-button) .radio {
+    -fx-background-color: -theme-bg-tertiary;
+    -fx-border-color: -theme-border;
+    -fx-border-radius: 50%;
+    -fx-background-radius: 50%;
+}
+
+.radio-button:not(.mfx-radio-button):selected .radio {
+    -fx-border-color: -theme-accent;
+}
+
+.radio-button:not(.mfx-radio-button) .dot {
+    -fx-background-color: -theme-accent;
+    -fx-background-insets: 0;
+}
+
+/* --- MFX单选按钮 (MaterialFX Reference) --- */
+.mfx-radio-button {
+    -mfx-main: -mfx-purple;
+    -mfx-secondary: #424242;
+    -fx-font-family: "Open Sans Regular";
+    -fx-text-fill: -mfx-text-he;
+    -fx-cursor: HAND;
+}
+
+.mfx-radio-button .radio {
+    -fx-stroke-width: 2.0;
+    -fx-fill: transparent;
+    -fx-stroke: -mfx-secondary;
+}
+
+.mfx-radio-button .dot {
+    -fx-fill: -mfx-main;
+}
+
+.mfx-radio-button .mfx-ripple-generator {
+    -mfx-animation-speed: 2;
+    -mfx-ripple-color: derive(-mfx-main, 110%);
+    -mfx-ripple-radius: 8;
+}
+
+.mfx-radio-button:selected .radio {
+    -fx-stroke: -mfx-main;
+}
+
+.mfx-radio-button:disabled:selected .radio {
+    -fx-stroke: -mfx-secondary;
+}
+
+.mfx-radio-button:disabled:selected .dot {
+    -fx-fill: -mfx-secondary;
+}
+
+/* --- 下拉框 (ComboBox / ChoiceBox - JavaFX 原生) --- */
+
+/* 非 MFX 下拉框基础样式
+   注意：modena.css 使用 -fx-color 计算四层背景(outer-border,inner-border,body)
+   必须同时覆盖 -fx-color 和 -fx-background-color，否则蓝色会通过 -fx-color 渗透 */
+.combo-box-base:not(.mfx-combo-box),
+.choice-box:not(.mfx-combo-box) {
+    -fx-color: -theme-bg-tertiary;
+    -fx-background-color: -theme-bg-tertiary;
+    -fx-border-color: -theme-border;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+}
+
+/* 悬停、聚焦、展开等所有交互状态 */
+.combo-box-base:not(.mfx-combo-box):hover,
+.choice-box:not(.mfx-combo-box):hover {
+    -fx-color: -theme-hover-bg;
+    -fx-background-color: -theme-hover-bg;
+}
+
+.combo-box-base:not(.mfx-combo-box):focused,
+.combo-box-base:not(.mfx-combo-box):showing,
+.combo-box-base:not(.mfx-combo-box):focused:hover,
+.choice-box:not(.mfx-combo-box):focused,
+.choice-box:not(.mfx-combo-box):showing,
+.choice-box:not(.mfx-combo-box):focused:hover {
+    -fx-color: -theme-bg-tertiary;
+    -fx-background-color: -theme-bg-tertiary;
+    -fx-border-color: -theme-focus-ring;
+}
+
+/* 箭头按钮透明 */
+.combo-box-base .arrow-button,
+.choice-box .arrow-button {
+    -fx-background-color: transparent;
+}
+
+/* 箭头颜色 */
+.combo-box-base:not(.mfx-combo-box) .arrow,
+.choice-box:not(.mfx-combo-box) .arrow {
+    -fx-background-color: -theme-text-secondary;
+}
+
+/* ComboBox 按钮单元格基础透明（详细状态覆盖在 Section 4 通用 list-cell 规则之后） */
+.combo-box-base:not(.mfx-combo-box) .list-cell,
+.choice-box:not(.mfx-combo-box) .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: -theme-text-primary;
+}
+
+
+/* 弹窗中的 ListCell 保持正常样式 */
+.combo-box-popup:not(.mfx-combo-box) .list-view {
+    -fx-background-color: -theme-bg-secondary;
+    -fx-effect: -theme-shadow-md;
+}
+
+.combo-box-popup:not(.mfx-combo-box) .list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: -theme-text-primary;
+}
+
+.combo-box-popup:not(.mfx-combo-box) .list-view .list-cell:filled:hover {
+    -fx-background-color: -theme-hover-bg;
+}
+
+.combo-box-popup:not(.mfx-combo-box) .list-view .list-cell:filled:selected {
+    -fx-background-color: -theme-selected-bg;
+    -fx-text-fill: -theme-selected-text;
+    /* 选中时文字颜色 */
+}
+
+/* --- MFX下拉框 (MaterialFX Reference) --- */
+.mfx-combo-box {
+    -mfx-track-color: -theme-bg-secondary;
+    -mfx-thumb-color: -theme-scrollbar-thumb;
+    -mfx-thumb-hover-color: derive(-theme-scrollbar-thumb, -10%);
+    -mfx-gap: 0;
+    -fx-padding: 3 5 3 5;
+    -fx-background-color: -theme-bg-tertiary;
+    -fx-border-color: -theme-border;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+}
+
+.mfx-combo-box .caret .mfx-ripple-generator {
+    -mfx-ripple-color: rgba(98, 0, 238, 0.1);
+    -mfx-ripple-radius: 14;
+}
+
+/* 默认箭头颜色 (未聚焦) */
+.mfx-combo-box .caret .mfx-font-icon,
+.mfx-filter-combo-box .caret .mfx-font-icon {
+    -mfx-color: -theme-text-secondary;
+}
+
+/* 聚焦时箭头颜色 */
+.mfx-combo-box:focus-within .caret .mfx-font-icon,
+.mfx-filter-combo-box:focus-within .caret .mfx-font-icon {
+    -mfx-color: -theme-accent;
+}
+
+.mfx-combo-box:focus-within,
+.mfx-filter-combo-box:focus-within {
+    -fx-border-color: -theme-focus-ring;
+    -fx-border-width: 2;
+    -fx-border-insets: -1;
+}
+
+.mfx-combo-box .combo-popup .virtual-flow {
+    -fx-background-radius: 5;
+    -fx-border-color: -theme-border;
+    /* User: #ebebeb */
+    -fx-border-radius: 5;
+    -fx-background-color: -theme-bg-tertiary;
+    /* 修复弹窗背景色 */
+}
+
+.mfx-combo-box:disabled .caret .mfx-font-icon {
+    -mfx-color: -theme-text-disabled;
+}
+
+.mfx-combo-box-cell {
+    -mfx-main: -mfx-purple;
+    -mfx-hover: rgba(98, 0, 238, 0.1);
+    -mfx-selected: rgba(98, 0, 238, 0.2);
+    -fx-background-color: transparent;
+    -fx-background-radius: 5;
+    -fx-padding: 5;
+}
+
+.mfx-combo-box-cell:hover {
+    -fx-background-color: -theme-hover-bg;
+}
+
+.mfx-combo-box-cell:selected {
+    -fx-background-color: -theme-selected-bg;
+}
+
+.mfx-combo-box-cell .data-label {
+    -fx-font-family: "Open Sans Regular";
+    -fx-text-fill: -mfx-text-he;
+}
+
+/* --- MFX切换按钮 (MaterialFX Reference) --- */
+.mfx-toggle-button {
+    -mfx-main: -mfx-purple;
+    -mfx-secondary: -theme-border;
+    /* User: rgb(150,150,150) */
+    -fx-font-family: "Open Sans Regular";
+    -fx-text-fill: -mfx-text-he;
+}
+
+.mfx-toggle-button .label-container {
+    -fx-alignment: CENTER_LEFT;
+}
+
+.mfx-toggle-button .toggle-line {
+    -fx-stroke: -mfx-secondary;
+    -fx-stroke-width: 1.5;
+    -fx-fill: transparent;
+}
+
+.mfx-toggle-button:selected .toggle-line {
+    -fx-stroke: -mfx-main;
+    -fx-stroke-width: 1.5;
+}
+
+/* 切换按钮圆点 (Circle) */
+.mfx-toggle-button .toggle-circle {
+    -fx-fill: -theme-bg-primary;
+    /* User: white */
+    -fx-stroke: -mfx-secondary;
+    -fx-stroke-width: 1.5;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 4, 0.0, 0, 1);
+}
+
+.mfx-toggle-button .toggle-circle .mfx-ripple-generator {
+    -mfx-ripple-radius: 12;
+    -mfx-ripple-color: derive(-mfx-main, 110%);
+    -mfx-animation-speed: 2.0;
+}
+
+.mfx-toggle-button:selected .toggle-circle {
+    -fx-fill: -mfx-main;
+    -fx-stroke: -mfx-main;
+}
+
+/* --- 滑块 (Slider - JavaFX 原生) --- */
+.slider {
+    -fx-base: -mfx-purple;
+}
+
+.slider .track {
+    -fx-background-color: -theme-border;
+}
+
+.slider .thumb {
+    -fx-background-color: -theme-accent;
+}
+
+/* --- MFX滑块 (MaterialFX Reference) --- */
+.mfx-slider {
+    -mfx-main: -mfx-purple;
+    /* 主色 */
+    -mfx-secondary: -theme-border;
+    /* 轨道颜色 */
+    -mfx-popup-color: -mfx-purple;
+    /* 弹出气泡颜色 */
+    -fx-font-family: "Open Sans Regular";
+}
+
+.mfx-slider .track {
+    -fx-stroke: -mfx-secondary;
+    -fx-background-color: transparent;
+    -fx-fill: transparent;
+}
+
+.mfx-slider .fill {
+    -fx-stroke: -mfx-main;
+}
+
+.mfx-slider .thumb {
+    -fx-background-color: -mfx-main;
+    -fx-radius: 6;
+    /* 滑块半径 */
+}
+
+.mfx-slider .thumb .mfx-ripple-generator {
+    -mfx-ripple-radius: 12;
+    -mfx-ripple-color: derive(-mfx-main, 110%);
+}
+
+.mfx-slider .popup {
+    -fx-background-color: -mfx-popup-color;
+    -fx-background-radius: 10;
+    -fx-font-family: "Open Sans Bold";
+    -fx-font-size: 11;
+    -fx-text-fill: white;
+    -fx-pref-width: 26;
+    -fx-pref-height: 28;
+    -fx-padding: 0;
+    -fx-alignment: TOP_CENTER;
+}
+
+/* 刻度线样式 (Ticks) */
+.mfx-slider:ticks .tick {
+    -fx-fill: -mfx-secondary;
+}
+
+.mfx-slider:ticks .tick:major {
+    -fx-fill: -mfx-secondary;
+}
+
+.mfx-slider:ticks .tick:filled {
+    -fx-stroke: -mfx-main;
+}
+
+/* 刻度文字样式 */
+.mfx-slider:ticks .axis {
+    -fx-tick-label-fill: -mfx-text-he;
+    -fx-tick-length: 10;
+    -fx-minor-tick-length: 5;
+}
+
+.mfx-slider .thumb-container:hover .thumb-radius {
+    -mfx-color: -mfx-main-color-hover;
+}
+
+.mfx-slider .thumb-container:pressed .thumb-radius {
+    -mfx-color: -mfx-main-color-pressed;
+}
+
+.mfx-slider .thumb-container .mfx-ripple-generator {
+    -mfx-ripple-color: -mfx-main-color;
+}
+
+.mfx-slider .tick-even,
+.mfx-slider .tick-odd {
+    -mfx-color: derive(-mfx-main-color, 30%);
+}
+
+.mfx-slider .axis-minor-tick-mark {
+    -fx-stroke: -mfx-main-color-hover;
+}
+
+#popupContent {
+    -fx-background-color: #6E6E6E;
+    -fx-background-radius: 6;
+}
+
+#popupText {
+    -fx-font-family: "Open Sans SemiBold";
+    -fx-font-size: 13;
+    -fx-text-fill: white;
+}
+
+#popupCaret {
+    -mfx-color: #6E6E6E;
+}
+
+.mfx-slider:disabled .bar,
+.mfx-slider:disabled .tick-even,
+.mfx-slider:disabled .tick-odd,
+.mfx-slider:disabled .thumb-container .thumb {
+    -mfx-color: -mfx-disabled-color;
+    -fx-fill: -mfx-disabled-color;
+}
+
+.mfx-slider:disabled .track {
+    -fx-fill: derive(-mfx-disabled-color, 75%);
+}
+
+.mfx-slider:disabled .axis-minor-tick-mark {
+    -fx-stroke: derive(-mfx-disabled-color, 60%);
+}
+
+
+/*******************************************************************************
+ * 3. 容器与布局 (Containers & Layouts)
+ ******************************************************************************/
+
+/* --- WebView 安全展示容器 --- */
+.webview-container {
+    -fx-background-color: -theme-bg-primary;
+    -fx-border-color: -theme-border;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    /* 强行内收 2px，防止内部直角 Web 引擎切割外部圆角 */
+    -fx-padding: 2;
+}
+
+.web-view:focused {
+    /* 屏蔽 JavaFX 默认的蓝色焦点边缘 */
+    -fx-background-color: transparent;
+}
+
+/* --- 普通插件统一外骨骼容器 --- */
+.plugin-root-pane {
+    -fx-background-color: -theme-bg-primary;
+    /* 为所有插件自动分配周围与主界面的呼吸缝隙 */
+    -fx-padding: 3px;
+}
+
+/* 提供给插件内各区块面板统一的可选规范 */
+.plugin-root-pane .panel-section {
+    -fx-background-color: -theme-bg-secondary;
+    -fx-border-color: -theme-border;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 10;
+}
+
+/* --- 滚动面板 (ScrollPane - JavaFX 原生) --- */
+.scroll-pane:not(.mfx-scroll-pane) {
+    -fx-background-color: transparent !important;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.scroll-pane:not(.mfx-scroll-pane)>.viewport {
+    -fx-background-color: transparent !important;
+}
+
+.scroll-pane:not(.mfx-scroll-pane)>.corner {
+    -fx-background-color: -theme-bg-secondary;
+}
+
+/* --- MFX滚动面板 (MaterialFX Reference) --- */
+.mfx-scroll-pane {
+    -fx-background-color: transparent;
+    -track-color: -theme-bg-secondary;
+    -thumb-color: -theme-scrollbar-thumb;
+    -thumb-hover-color: derive(-theme-scrollbar-thumb, -10%);
+}
+
+/* 移除 JavaFX 默认焦点样式 */
+.mfx-scroll-pane:focused {
+    -fx-background-color: transparent;
+}
+
+.mfx-scroll-pane>.corner {
+    -fx-background-color: transparent;
+}
+
+.mfx-scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+/* 隐藏不需要的滚动条组件 */
+.mfx-scroll-pane .scroll-bar,
+.mfx-scroll-pane .scroll-bar .decrement-arrow,
+.mfx-scroll-pane .scroll-bar .increment-arrow {
+    -fx-pref-width: 0;
+    -fx-pref-height: 0;
+}
+
+.mfx-scroll-pane .scroll-bar:horizontal .increment-button,
+.mfx-scroll-pane .scroll-bar:horizontal .decrement-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0.0em;
+    -fx-padding: 0.0 0.0 10.0 0.0;
+}
+
+.mfx-scroll-pane .scroll-bar:vertical .increment-button,
+.mfx-scroll-pane .scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0.0em;
+    -fx-padding: 0.0 10.0 0.0 0.0;
+}
+
+.mfx-scroll-pane .scroll-bar .increment-arrow,
+.mfx-scroll-pane .scroll-bar .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0.15em 0.0;
+}
+
+.mfx-scroll-pane .scroll-bar:horizontal .increment-arrow,
+.mfx-scroll-pane .scroll-bar:horizontal .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0.0 0.05em;
+}
+
+.mfx-scroll-pane .scroll-bar:vertical .increment-arrow,
+.mfx-scroll-pane .scroll-bar:vertical .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0.0 0.05em;
+}
+
+/* 自定义滚动条样式 */
+
+.mfx-scroll-pane .scroll-bar:horizontal .track {
+    -fx-background-color: -track-color;
+    -fx-border-color: transparent;
+    -fx-background-radius: 2.0em;
+    -fx-border-radius: 2.0em;
+    -fx-background-insets: 3;
+}
+
+.mfx-scroll-pane .scroll-bar:vertical .track {
+    -fx-background-color: -track-color;
+    -fx-border-color: transparent;
+    -fx-background-radius: 2.0em;
+    -fx-border-radius: 2.0em;
+    -fx-background-insets: 3;
+}
+
+.mfx-scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 12;
+    -fx-pref-height: 12;
+    -fx-padding: 5 0.5 5 0.5;
+}
+
+.mfx-scroll-pane .scroll-bar:horizontal {
+    -fx-background-color: transparent;
+    -fx-pref-width: 12;
+    -fx-pref-height: 12;
+    -fx-padding: 0.5 5 0.5 5;
+}
+
+.mfx-scroll-pane .scroll-bar:horizontal .thumb,
+.mfx-scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: -thumb-color;
+    -fx-background-insets: 2.0, 0.0, 0.0;
+    -fx-background-radius: 2.0em;
+}
+
+.mfx-scroll-pane .scroll-bar:horizontal .thumb:hover,
+.mfx-scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: -thumb-hover-color;
+    -fx-background-insets: 1.5, 0.0, 0.0;
+    -fx-background-radius: 2.0em;
+}
+
+/* --- 分割面板 (SplitPane - JavaFX 原生) --- */
+.split-pane {
+    -fx-background-color: -theme-bg-secondary;
+    -fx-padding: 0;
+}
+
+.split-pane>.split-pane-divider {
+    -fx-background-color: -theme-bg-secondary;
+    -fx-border-color: transparent -theme-border transparent -theme-border;
+    /* 垂直分割线 */
+    -fx-border-width: 0 1px 0 0;
+    /* 模拟 1px 分割线 */
+    -fx-padding: 0 2px;
+    /* 可抓取区域 */
+}
+
+/* 水平分割面板分割线 */
+.split-pane:vertical>.split-pane-divider {
+    -fx-border-color: -theme-border transparent -theme-border transparent;
+    -fx-border-width: 1px 0 0 0;
+    -fx-padding: 2px 0;
+}
+
+/* --- 选项卡面板 (TabPane - JavaFX 原生) --- */
+.tab-pane {
+    -fx-background-color: -theme-bg-primary;
+}
+
+.tab-pane>.tab-header-area {
+    -fx-padding: 0 10px 0 0;
+    -fx-background-color: -theme-bg-secondary;
+}
+
+.tab-pane>.tab-header-area>.headers-region>.tab {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-padding: 2px 5px;
+    -fx-border-color: transparent;
+    -fx-border-width: 0 0 2px 0;
+}
+
+.tab-pane>.tab-header-area>.headers-region>.tab:selected {
+    -fx-border-color: -theme-accent;
+    -fx-background-color: -theme-bg-primary;
+    /* 无缝外观 */
+}
+
+.tab-pane>.tab-header-area>.headers-region>.tab>.tab-container>.tab-label {
+    -fx-text-fill: -theme-text-secondary;
+    -fx-font-weight: normal;
+}
+
+.tab-pane>.tab-header-area>.headers-region>.tab:selected>.tab-container>.tab-label {
+    -fx-text-fill: -theme-accent;
+    -fx-font-weight: bold;
+}
+
+.tab-pane>.tab-header-area>.headers-region>.tab:hover {
+    -fx-background-color: -theme-hover-bg;
+}
+
+.tab-pane>.tab-header-area>.tab-header-background {
+    -fx-background-color: -theme-bg-secondary;
+}
+
+.tab-pane>.tab-content-area {
+    -fx-background-color: -theme-bg-primary;
+    -fx-padding: 2px;
+    -fx-background-insets: 0;
+}
+
+/* 移除 Tab 选中时的焦点方框 */
+.tab-pane>.tab-header-area>.headers-region>.tab:selected .focus-indicator {
+    -fx-border-width: 0;
+    -fx-border-color: transparent;
+}
+
+.tab-pane>.tab-header-area>.headers-region>.tab:focused .focus-indicator {
+    -fx-border-width: 0;
+    -fx-border-color: transparent;
+}
+
+/* --- 标题窗格与手风琴 (TitledPane & Accordion - JavaFX 原生) --- */
+.titled-pane {
+    -fx-text-fill: -theme-text-primary;
+}
+
+.titled-pane>.title {
+    -fx-background-color: -theme-bg-secondary;
+    -fx-padding: 10px;
+    -fx-border-color: -theme-border;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.titled-pane:focused>.title {
+    -fx-color: -theme-bg-secondary;
+    /* 防止默认焦点颜色变化 */
+    -fx-border-color: -theme-focus-ring;
+}
+
+.titled-pane>.title>.arrow-button .arrow {
+    -fx-background-color: -theme-text-secondary;
+}
+
+.titled-pane:expanded>.title {
+    -fx-border-color: -theme-border;
+}
+
+.titled-pane>.content {
+    -fx-background-color: -theme-bg-primary;
+    -fx-border-color: -theme-border;
+    -fx-border-width: 0 1px 1px 1px;
+}
+
+.accordion>.titled-pane:first-titled-pane>.title {
+    -fx-background-radius: 4px 4px 0 0;
+}
+
+/* --- 工具栏 (ToolBar - JavaFX 原生) --- */
+.tool-bar {
+    -fx-background-color: -theme-bg-secondary;
+    -fx-padding: 5px;
+    -fx-spacing: 5px;
+    -fx-border-color: -theme-border;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.tool-bar .button {
+    -fx-background-color: transparent;
+    -fx-padding: 4px 8px;
+}
+
+.tool-bar .button:hover {
+    -fx-background-color: -theme-hover-bg;
+}
+
+/*******************************************************************************
+ * 4. 数据展示 (Data Views)
+ ******************************************************************************/
+
+/* --- 通用视图样式 (Common View Styles) --- */
+.list-view:not(.mfx-list-view),
+.tree-view:not(.mfx-tree-view),
+.table-view:not(.mfx-table-view),
+.tree-table-view:not(.mfx-tree-table-view) {
+    -fx-background-color: -theme-bg-primary;
+    -fx-background-insets: 0;
+    -fx-border-color: -theme-border;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    /* 可选的圆角边框 */
+}
+
+.list-cell,
+.tree-cell,
+.table-cell,
+.tree-table-cell {
+    -fx-text-fill: -theme-text-primary !important;
+    -fx-background-color: transparent;
+    -fx-padding: 5px 10px;
+}
+
+/* 选中与悬停状态 (Selection & Hover) */
+.list-cell:filled:selected,
+.tree-cell:filled:selected,
+.table-row-cell:filled:selected,
+.tree-table-row-cell:filled:selected {
+    -fx-background-color: -theme-selected-bg;
+    -fx-text-fill: -theme-selected-text !important;
+}
+
+.list-cell:filled:hover,
+.tree-cell:filled:hover,
+.table-row-cell:filled:hover,
+.tree-table-row-cell:filled:hover {
+    -fx-background-color: -theme-hover-bg;
+}
+
+.list-cell:filled:selected:hover,
+.tree-cell:filled:selected:hover,
+.table-row-cell:filled:selected:hover,
+.tree-table-row-cell:filled:selected:hover {
+    -fx-background-color: derive(-theme-selected-bg, -10%);
+}
+
+/* --- ComboBox/ChoiceBox 按钮单元格覆盖 ---
+   必须放在通用 list-cell:selected 规则之后，利用源码顺序 "后来居上" 覆盖。
+   JavaFX CSS 不支持 !important，所以只能靠特殊性+顺序控制优先级。 */
+.combo-box-base:not(.mfx-combo-box) .list-cell,
+.combo-box-base:not(.mfx-combo-box) .list-cell:filled,
+.combo-box-base:not(.mfx-combo-box) .list-cell:filled:selected,
+.combo-box-base:not(.mfx-combo-box) .list-cell:filled:hover,
+.combo-box-base:not(.mfx-combo-box) .list-cell:filled:focused,
+.combo-box-base:not(.mfx-combo-box) .list-cell:filled:selected:focused,
+.combo-box-base:not(.mfx-combo-box) .list-cell:filled:selected:hover,
+.choice-box:not(.mfx-combo-box) .list-cell,
+.choice-box:not(.mfx-combo-box) .list-cell:filled,
+.choice-box:not(.mfx-combo-box) .list-cell:filled:selected,
+.choice-box:not(.mfx-combo-box) .list-cell:filled:hover,
+.choice-box:not(.mfx-combo-box) .list-cell:filled:focused,
+.choice-box:not(.mfx-combo-box) .list-cell:filled:selected:focused,
+.choice-box:not(.mfx-combo-box) .list-cell:filled:selected:hover {
+    -fx-background-color: transparent;
+    -fx-text-fill: -theme-text-primary;
+}
+
+/* --- ListView 专用样式 --- */
+.list-view:not(.mfx-list-view) .list-cell:filled {
+    -fx-background-color: -theme-bg-secondary;
+}
+.list-view:not(.mfx-list-view) .list-cell:filled:hover {
+    -fx-background-color: -theme-hover-bg;
+}
+.list-view:not(.mfx-list-view) .list-cell:filled:selected {
+    -fx-background-color: -theme-selected-bg;
+    -fx-text-fill: -theme-selected-text !important;
+}
+.list-view:not(.mfx-list-view) .list-cell:filled:selected:hover {
+    -fx-background-color: derive(-theme-selected-bg, -10%);
+}
+.list-view:focused > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected,
+.tree-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-cell:filled:selected,
+.table-view:focused > .virtual-flow > .clipped-container > .sheet > .table-row-cell:filled:selected,
+.tree-table-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-table-row-cell:filled:selected {
+    -fx-background-color: -theme-accent;
+    -fx-text-fill: -theme-text-inverse !important;
+}
+
+/* --- TreeView 专用样式 --- */
+.tree-view .tree-cell:filled:selected {
+    /* 即使 TreeView 失去焦点，也保留当前强调色的明确视觉锚点。 */
+    -fx-border-color: transparent transparent transparent -theme-accent;
+    -fx-border-width: 0 0 0 3px;
+    -fx-border-insets: 0;
+}
+
+.tree-cell>.tree-disclosure-node>.arrow {
+    -fx-background-color: -theme-text-secondary;
+}
+
+.tree-cell:selected>.tree-disclosure-node>.arrow {
+    -fx-background-color: -theme-selected-text;
+}
+
+/* --- TreeView 搜索栏 (Search Field) --- */
+.tree-search-field {
+    -fx-text-fill: -theme-text-primary;
+    -fx-prompt-text-fill: -theme-text-secondary;
+    -fx-background-color: -theme-bg-tertiary;
+    -fx-border-color: -theme-border;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-padding: 5;
+}
+
+.tree-search-field:focused {
+    -fx-border-color: -theme-focus-ring;
+    -fx-border-width: 2;
+    -fx-border-insets: -1;
+}
+
+/* --- TableView / TreeTableView 专用样式 --- */
+.table-view .column-header-background,
+.tree-table-view .column-header-background {
+    -fx-background-color: -theme-bg-secondary;
+    -fx-border-color: -theme-border;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.table-view .column-header,
+.tree-table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-border-color: -theme-border;
+    -fx-border-width: 0 1px 0 0;
+    -fx-padding: 8px 5px;
+}
+
+.table-view .column-header .label,
+.tree-table-view .column-header .label {
+    -fx-text-fill: -theme-text-secondary;
+    -fx-font-weight: bold;
+}
+
+.table-view .column-header .arrow,
+.tree-table-view .column-header .arrow {
+    -fx-background-color: -theme-accent;
+}
+
+/* 交替行样式：全局兜底（低特指度，供非主题 table 使用） */
+.table-row-cell:odd,
+.tree-table-row-cell:odd {
+    -fx-background-color: derive(-theme-bg-primary, -2%);
+}
+
+/* TableView 填充行可见性：点击"添加行"后，新行在未悬停/未选中时也能看出来。
+   用 -theme-bg-tertiary（比 -theme-bg-primary 对比更强）作为默认行背景；
+   所有交互态用同等特指度前缀覆盖，确保优先级高于全局 table-row-cell 规则。 */
+.table-view:not(.mfx-table-view) .table-row-cell:filled,
+.tree-table-view:not(.mfx-tree-table-view) .table-row-cell:filled {
+    -fx-background-color: -theme-bg-tertiary;
+}
+.table-view:not(.mfx-table-view) .table-row-cell:filled:odd,
+.tree-table-view:not(.mfx-tree-table-view) .table-row-cell:filled:odd {
+    -fx-background-color: derive(-theme-bg-tertiary, -4%);
+}
+.table-view:not(.mfx-table-view) .table-row-cell:filled:hover,
+.tree-table-view:not(.mfx-tree-table-view) .table-row-cell:filled:hover {
+    -fx-background-color: -theme-hover-bg;
+}
+.table-view:not(.mfx-table-view) .table-row-cell:filled:selected,
+.tree-table-view:not(.mfx-tree-table-view) .table-row-cell:filled:selected {
+    -fx-background-color: -theme-selected-bg;
+    -fx-text-fill: -theme-selected-text;
+}
+.table-view:not(.mfx-table-view) .table-row-cell:filled:selected:hover,
+.tree-table-view:not(.mfx-tree-table-view) .table-row-cell:filled:selected:hover {
+    -fx-background-color: derive(-theme-selected-bg, -10%);
+}
+
+/* 角落区域 (右上角空白处) */
+.table-view .column-header-background .filler,
+.tree-table-view .column-header-background .filler {
+    -fx-background-color: transparent;
+}
+
+
+/* --- MaterialFX ListView / TableView 调整 --- */
+/* --- MFXListView (MaterialFX Reference) --- */
+.mfx-list-view {
+    -mfx-track-color: -theme-bg-secondary;
+    -mfx-thumb-color: -theme-scrollbar-thumb;
+    -mfx-thumb-hover-color: derive(-theme-scrollbar-thumb, -10%);
+    -fx-background-color: -theme-bg-primary;
+    -fx-border-color: -theme-border;
+}
+
+.mfx-list-view .virtual-flow .scroll-bar .track {
+    -fx-background-color: -mfx-track-color;
+}
+
+.mfx-list-view .virtual-flow .scroll-bar .thumb {
+    -fx-background-color: -mfx-thumb-color;
+}
+
+.mfx-list-view .virtual-flow .scroll-bar .thumb:pressed,
+.mfx-list-view .virtual-flow .scroll-bar .thumb:hover {
+    -fx-background-color: -mfx-thumb-hover-color;
+}
+
+.mfx-list-cell {
+    -fx-background-color: -theme-bg-primary;
+    /* User: white */
+    -fx-border-color: -theme-bg-primary;
+    /* User: white */
+    -fx-padding: 5;
+}
+
+.mfx-list-cell:hover {
+    -fx-background-color: -theme-hover-bg;
+    /* User: #F5F5F5 */
+    -fx-border-color: -theme-hover-bg;
+}
+
+.mfx-list-cell:selected {
+    -fx-background-color: -theme-selected-bg;
+    /* User: #E1E1E1 */
+    -fx-border-color: -theme-selected-bg;
+}
+
+.mfx-list-cell:empty {
+    -fx-background-color: -theme-bg-primary;
+    /* User: white */
+    -fx-border-color: -theme-bg-primary;
+}
+
+.mfx-list-cell .data-label {
+    -fx-font-family: "Open Sans Regular";
+    -fx-text-fill: -mfx-text-he;
+}
+
+.mfx-list-cell .mfx-ripple-generator {
+    -mfx-ripple-color: #C8C8C8;
+}
+
+/* --- MFXTableView (MaterialFX Reference) --- */
+.mfx-table-view {
+    -fx-background-color: -theme-bg-primary;
+    /* User: white */
+    -fx-background-radius: 5;
+    -fx-border-color: -theme-border;
+    /* User: lightgray */
+    -fx-border-radius: 5;
+    -fx-padding: 0 0 2 0;
+}
+
+.mfx-table-view .columns-container {
+    -fx-border-color: transparent transparent -theme-border transparent;
+}
+
+.mfx-table-view .default-footer {
+    -fx-border-color: -theme-border transparent transparent transparent;
+    -fx-padding: 10;
+}
+
+.mfx-table-view .default-footer .mfx-icon-wrapper .mfx-ripple-generator {
+    -mfx-ripple-radius: 18;
+}
+
+/********************
+ 表格列 (Table Columns)
+ ********************/
+.mfx-table-column {
+    -fx-border-color: transparent -theme-bg-primary transparent transparent;
+    /* User: white */
+    -fx-padding: 10 15 10 15;
+}
+
+.mfx-table-column:hover,
+.mfx-table-column:dragged {
+    -fx-border-color: transparent -theme-border transparent transparent;
+    /* User: lightgray */
+}
+
+/********************
+ 表格行 (Table Rows)
+ ********************/
+.mfx-table-row {
+    -fx-background-color: transparent;
+}
+
+.mfx-table-row:hover {
+    -fx-background-color: -theme-hover-bg;
+    /* User: #F5F5F5 */
+}
+
+.mfx-table-row:selected {
+    -fx-background-color: -theme-selected-bg;
+    /* User: #E1E1E1 */
+}
+
+.mfx-table-row .mfx-ripple-generator {
+    -mfx-ripple-radius: 30;
+    -mfx-ripple-color: #C8C8C8;
+}
+
+/********************
+ 表格行单元格 (Table Row Cells)
+ ********************/
+.mfx-table-row-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 5 15 5 15;
+}
+
+.mfx-table-row-cell,
+.mfx-table-row-cell:focused {
+    -fx-border-color: transparent;
+}
+
+/********************
+ 虚拟流 (Virtual Flow)
+ ********************/
+.mfx-table-view .virtual-flow {
+    -fx-background-color: transparent;
+    -track-color: -theme-bg-secondary;
+    -thumb-color: -theme-scrollbar-thumb;
+    -thumb-hover-color: derive(-theme-scrollbar-thumb, -10%);
+}
+
+
+/*******************************************************************************
+ * 5. 菜单与弹窗 (Menus & Popups)
+ ******************************************************************************/
+
+/* --- 菜单栏 (MenuBar) --- */
+.menu-bar {
+    -fx-background-color: -theme-bg-secondary;
+    -fx-border-color: -theme-border;
+    -fx-border-width: 0 0 1px 0;
+    -fx-padding: 0;
+}
+
+.menu-bar .menu-button:hover,
+.menu-bar .menu-button:focused,
+.menu-bar .menu-button:showing {
+    -fx-background-color: -theme-hover-bg;
+}
+
+.menu-bar .label {
+    -fx-text-fill: -theme-text-primary;
+    -fx-font-family: "Open Sans SemiBold";
+}
+
+/* --- 上下文菜单 (ContextMenu / MenuButton Popup) --- */
+.context-menu {
+    -fx-background-color: -theme-bg-secondary;
+    -fx-border-color: -theme-border;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-effect: -theme-shadow-md;
+    -fx-padding: 4px 0;
+}
+
+/* MFX 上下文菜单分隔符 */
+.mfx-context-menu .line-separator {
+    -fx-stroke: -theme-divider;
+    /* User: #e1e1e1 */
+    -fx-stroke-width: 0.5;
+}
+
+/* MFX 上下文菜单滚动区域 */
+.mfx-context-menu .mfx-scroll-pane {
+    -fx-background-color: -theme-bg-secondary;
+    /* User: white */
+    -fx-background-radius: 5;
+    -fx-background-insets: 1;
+    -fx-border-color: -theme-border;
+    /* User: lightgray */
+    -fx-border-radius: 5;
+    -fx-padding: 5;
+    -fx-max-height: 300;
+}
+
+.mfx-context-menu .mfx-scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+/* MFX 菜单项 */
+.mfx-menu-item {
+    -fx-background-color: transparent;
+    -fx-background-radius: 5;
+    -fx-min-height: 24;
+    -fx-padding: 0 2 0 2;
+    -fx-font-family: "Open Sans Regular";
+    -fx-text-fill: -theme-text-primary;
+}
+
+.mfx-menu-item:hover {
+    -fx-background-color: -theme-hover-bg;
+    /* User: #ededed */
+}
+
+.mfx-menu-item .label {
+    -fx-padding: 7 0 7 -7;
+    -fx-font-family: "Open Sans Regular";
+    -fx-text-fill: -mfx-text-he;
+}
+
+.mfx-menu-item .label .text {
+    -fx-font-smoothing-type: lcd;
+}
+
+.mfx-menu-item .accelerator {
+    -fx-padding: 0 5 0 15;
+}
+
+.mfx-menu-item:disabled .mfx-font-icon {
+    -mfx-color: -theme-text-disabled;
+    /* User: #bcbcbc */
+}
+
+/* JavaFX 原生菜单项 */
+.menu-item {
+    -fx-background-color: transparent;
+    -fx-padding: 5 15 5 15;
+}
+
+.menu-item:hover,
+.menu-item:focused {
+    -fx-background-color: -theme-hover-bg;
+}
+
+.menu-item .label {
+    -fx-text-fill: -theme-text-primary;
+    -fx-font-family: "Open Sans Regular";
+}
+
+/* --- 分隔符菜单项 (SeparatorMenuItem) --- */
+.separator-menu-item {
+    -fx-padding: 2px 0;
+}
+
+.separator-menu-item .line {
+    -fx-border-color: -theme-divider;
+    -fx-border-width: 1px 0 0 0;
+}
+
+/* --- 工具提示 (Tooltip) --- */
+.tooltip {
+    -fx-background-color: -theme-bg-secondary;
+    -fx-text-fill: -theme-text-primary;
+    -fx-font-family: "Open Sans Regular";
+    -fx-font-size: 12px;
+    -fx-padding: 6px 10px;
+    -fx-background-radius: 4px;
+    -fx-border-color: -theme-border;
+    -fx-border-width: 1px;
+    -fx-effect: -theme-shadow-sm;
+}
+
+/* --- 对话框面板 (DialogPane) --- */
+.dialog-pane {
+    -fx-background-color: -theme-bg-modal;
+}
+
+.dialog-pane>.header-panel {
+    -fx-background-color: -theme-bg-secondary;
+    -fx-border-color: -theme-border;
+    -fx-border-width: 0 0 1px 0;
+    -fx-padding: 15px;
+}
+
+.dialog-pane>.header-panel>.label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -theme-text-primary;
+}
+
+.dialog-pane>.content {
+    -fx-padding: 20px;
+    -fx-background-color: transparent;
+}
+
+.dialog-pane>.content>.label {
+    -fx-text-fill: -theme-text-primary;
+}
+
+.dialog-pane>.button-bar>.container {
+    -fx-background-color: transparent;
+    -fx-padding: 10px;
+}
+
+/* --- MFX通知 (MFXNotification MaterialFX Reference) --- */
+.mfx-notification-center {
+    -fx-background-color: transparent;
+}
+
+/*************************
+ 通知容器 (Notifications Container)
+ *************************/
+.mfx-notification-center .popup .notifications-container {
+    -fx-background-color: -theme-bg-secondary;
+    /* User: white */
+    -fx-background-radius: 5;
+    -fx-border-color: -theme-border;
+    /* User: lightgray */
+    -fx-border-radius: 5;
+    -fx-border-width: 0.7;
+    -fx-padding: 5 0 5 0;
+}
+
+/*************************
+ 通知图标 (Notifications Icon)
+ *************************/
+.mfx-notification-center .notifications-icon {
+    -fx-background-color: -theme-bg-secondary;
+    /* User: white */
+    -fx-background-radius: 100%;
+    -fx-border-color: -theme-border;
+    /* User: lightgray */
+    -fx-border-radius: 100%;
+}
+
+.mfx-notification-center .counter {
+    -fx-background-color: -mfx-purple;
+    -fx-background-radius: 100%;
+}
+
+.mfx-notification-center .counter .text {
+    -fx-fill: white;
+    -fx-font-family: "Open Sans Bold";
+    -fx-font-smoothing-type: gray;
+}
+
+/*************************
+ 头部 (Header)
+ *************************/
+.mfx-notification-center .popup .notifications-container .header {
+    -fx-border-color: transparent transparent -theme-border transparent;
+    /* User: lightgray */
+    -fx-border-width: 0.7;
+    -fx-padding: 5 0 5 0;
+}
+
+.mfx-notification-center .popup .notifications-container .header .mfx-text-field {
+    -mfx-float-mode: disabled;
+    -fx-border-color: transparent;
+    -fx-font-family: "Open Sans SemiBold";
+    -fx-font-size: 14;
+    -fx-text-fill: -mfx-onyx;
+}
+
+.mfx-notification-center .popup .notifications-container .header .mfx-toggle-button {
+    -mfx-toggle-color: -mfx-purple;
+    -mfx-untoggle-line-color: derive(-mfx-onyx, 30%);
+    -fx-font-family: "Open Sans SemiBold";
+    -fx-font-size: 12;
+    -fx-text-fill: -mfx-onyx;
+    -fx-font-smoothing-type: gray;
+}
+
+/*************************
+ 虚拟流 (Virtual Flow)
+ *************************/
+.mfx-notification-center .popup .notifications-container .virtual-flow {
+    -fx-background-color: transparent;
+    -track-color: -theme-bg-secondary;
+    -thumb-color: -theme-scrollbar-thumb;
+    -thumb-hover-color: derive(-theme-scrollbar-thumb, -10%);
+}
+
+.mfx-notification-center .popup .notifications-container .virtual-flow .mfx-notification-cell #check {
+    -mfx-checked-color: -mfx-purple;
+    -mfx-unchecked-color: -mfx-onyx;
+}
+
+.mfx-notification-center .popup .notifications-container .virtual-flow .mfx-notification-cell #check .ripple-container .mfx-ripple-generator {
+    -mfx-ripple-color: derive(-mfx-purple, 125%);
+}
+
+.mfx-notification-center .popup .notifications-container .virtual-flow .mfx-notification-cell .mfx-text-field {
+    -mfx-float-mode: disabled;
+    -fx-border-color: transparent;
+}
+
+/*************************
+ 操作 (Actions)
+ *************************/
+.mfx-notification-center .actions {
+    -fx-border-color: -theme-border transparent transparent transparent;
+    /* User: lightgray */
+    -fx-border-width: 0.7;
+    -fx-padding: 10;
+}
+
+.mfx-notification-center .actions .mfx-font-icon {
+    -mfx-color: -mfx-onyx;
+}
+
+.mfx-notification-center .notifications-container .actions .mfx-icon-wrapper .mfx-ripple-generator {
+    -mfx-ripple-radius: 24;
+    -mfx-ripple-color: derive(-mfx-purple, 150%);
+}
+
+/*************************
+ 上下文菜单 (Context Menu)
+ *************************/
+.mfx-notification-center .mfx-context-menu .mfx-scroll-pane {
+    -fx-min-width: 200;
+}
+
+.mfx-notification-center .mfx-context-menu .separator {
+    -fx-padding: 5 0 5 0;
+    -fx-font-family: "Open Sans SemiBold";
+    -fx-text-fill: -mfx-text-he;
+}
+
+.mfx-notification-center .mfx-context-menu .mfx-menu-item .mfx-icon-wrapper {
+    -mfx-size: 0;
+}
+
+.mfx-notification-center .mfx-context-menu .mfx-menu-item:hover {
+    -fx-background-color: derive(-mfx-purple, 150%);
+}
+
+/* 旧版 MFX 通知 (保留兼容性，如需要) */
+.mfx-notification {
+    -fx-background-color: -theme-bg-secondary;
+    -fx-border-color: -theme-accent;
+    -fx-border-width: 0 0 0 4px;
+    -fx-effect: -theme-shadow-md;
+}
+
+.mfx-notification .header-label {
+    -fx-text-fill: -theme-text-primary;
+    -fx-font-weight: bold;
+}
+
+.mfx-notification .content-label {
+    -fx-text-fill: -theme-text-secondary;
+}
+
+/*******************************************************************************
+ * 6. 图表系统 (Charts)
+ ******************************************************************************/
+
+.chart {
+    -fx-padding: 10px;
+}
+
+.chart-title {
+    -fx-text-fill: -theme-text-primary;
+    -fx-font-size: 1.2em;
+}
+
+.chart-content {
+    -fx-padding: 10px;
+}
+
+.chart-legend {
+    -fx-background-color: transparent;
+    -fx-padding: 10px;
+}
+
+.chart-legend-item {
+    -fx-text-fill: -theme-text-secondary;
+}
+
+.chart-legend-item-symbol {
+    -fx-background-radius: 50%;
+}
+
+/* --- 坐标轴 (Axis) --- */
+.axis {
+    -fx-tick-label-fill: -theme-text-secondary;
+}
+
+.axis:top {
+    -fx-border-color: -theme-border transparent transparent transparent;
+}
+
+.axis:right {
+    -fx-border-color: transparent transparent transparent -theme-border;
+}
+
+/* --- 坐标轴样式 (Axis Styles) --- */
+.axis:bottom {
+    -fx-border-color: transparent transparent -theme-border transparent;
+}
+
+.axis:left {
+    -fx-border-color: transparent -theme-border transparent transparent;
+}
+
+.axis-label {
+    -fx-text-fill: -theme-text-primary;
+}
+
+.axis-tick-mark {
+    -fx-stroke: -theme-border;
+}
+
+.axis-minor-tick-mark {
+    -fx-stroke: -theme-border;
+}
+
+/* --- 图表绘图背景 (Chart Plot Background) --- */
+.chart-plot-background {
+    -fx-background-color: -theme-bg-tertiary;
+}
+
+.chart-vertical-grid-lines,
+.chart-horizontal-grid-lines {
+    -fx-stroke: -theme-divider;
+    -fx-stroke-dash-array: 2 6;
+}
+
+/* --- 饼图 (PieChart) --- */
+.pie-chart .chart-pie-label {
+    -fx-fill: -theme-text-primary;
+}
+
+.pie-chart .chart-pie-label-line {
+    -fx-stroke: -theme-text-secondary;
+}
+
+
+/*******************************************************************************
+ * 7. Web 与其他组件 (Web & Misc)
+ ******************************************************************************/
+
+/* --- WebView --- */
+.web-view {
+    -fx-font-smoothing-type: gray;
+}
+
+/* --- 分隔符 (Separator) --- */
+.separator .line {
+    -fx-border-color: -theme-divider;
+    -fx-border-width: 1px 0 0 0;
+}
+
+.separator:vertical .line {
+    -fx-border-color: -theme-divider;
+    -fx-border-width: 0 1px 0 0;
+}
+
+/* --- 进度条 (ProgressBar - JavaFX 原生) --- */
+.progress-bar {
+    -fx-indeterminate-bar-length: 60;
+    -fx-indeterminate-bar-escape: true;
+    -fx-indeterminate-bar-flip: true;
+    -fx-indeterminate-bar-animation-time: 2.0;
+}
+
+.progress-bar .track {
+    -fx-background-color: -theme-border;
+    -fx-background-radius: 4;
+}
+
+.progress-bar .bar {
+    -fx-background-color: -mfx-purple;
+    -fx-background-radius: 4;
+    -fx-padding: 3;
+}
+
+/* --- MFX进度条 (MFXProgressBar MaterialFX Reference) --- */
+.mfx-progress-bar {
+    -mfx-main: -mfx-purple;
+    /* 主色调 */
+    -mfx-secondary: -theme-border;
+    /* 轨道颜色 */
+    -fx-background-color: transparent;
+}
+
+.mfx-progress-bar .track {
+    -fx-fill: -mfx-secondary;
+    -fx-stroke: transparent;
+}
+
+.mfx-progress-bar .bar {
+    -fx-fill: -mfx-main;
+    -fx-stroke: transparent;
+}
+
+/* --- MFX进度加载器 (MFXProgressSpinner MaterialFX Reference) --- */
+.mfx-progress-spinner {
+    -mfx-color: -mfx-purple;
+    -fx-background-color: transparent;
+}
+
+.mfx-progress-spinner .progress {
+    -fx-stroke: -mfx-color;
+    -fx-stroke-width: 3;
+}
+
+/* --- 旧版/原生进度条包装器 (Legacy/Native Progress Wrappers) --- */
+.progress-bar:not(.mfx-progress-bar) .track {
+    -fx-background-color: -theme-bg-tertiary;
+    -fx-background-radius: 4px;
+}
+
+.progress-bar:not(.mfx-progress-bar) .bar {
+    -fx-background-color: -theme-accent;
+    -fx-background-radius: 4px;
+    -fx-padding: 3px;
+}
+
+.progress-indicator:not(.mfx-progress-indicator) .indicator {
+    -fx-background-color: -theme-text-secondary;
+}
+
+.progress-indicator:not(.mfx-progress-indicator) .progress {
+    -fx-stroke: -theme-accent;
+}
+
+/* --- 滚动条 (ScrollBar - JavaFX / MaterialFX style) --- */
+.scroll-bar:horizontal,
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:vertical {
+    -fx-pref-width: 10;
+}
+
+.scroll-bar:horizontal {
+    -fx-pref-height: 10;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: -theme-scrollbar-thumb;
+    -fx-background-insets: 2;
+    -fx-background-radius: 4;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: derive(-theme-scrollbar-thumb, -10%);
+}
+
+.scroll-bar .thumb:pressed {
+    -fx-background-color: derive(-theme-scrollbar-thumb, -20%);
+}
+
+.scroll-bar .track {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0;
+}
+
+/* --- 虚拟化滚动面板 (VirtualizedScrollPane) --- */
+.mfx-virtual-scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.mfx-virtual-scroll-pane .scroll-bar .thumb {
+    -fx-background-color: -theme-scrollbar-thumb;
+}
+
+.mfx-virtual-scroll-pane .scroll-bar .thumb:hover {
+    -fx-background-color: derive(-theme-scrollbar-thumb, -10%);
+}
+
+.mfx-virtual-scroll-pane .scroll-bar .thumb:pressed {
+    -fx-background-color: derive(-theme-scrollbar-thumb, -20%);
+}
+
+/* 重复的 Tooltip/Separator/MenuBar/MenuItem/ContextMenu 已合并到 Section 5 */
+
+/* --- 超链接 (Hyperlink) --- */
+.hyperlink {
+    -fx-text-fill: -theme-text-link;
+    -fx-underline: false;
+}
+
+.hyperlink:hover {
+    -fx-underline: true;
+}
+
+.hyperlink:visited {
+    -fx-text-fill: -theme-text-link;
+}
+
+/* --- MFX步进器 (MFXStepper MaterialFX) --- */
+.mfx-stepper {
+    -fx-background-color: -theme-bg-primary;
+}
+
+.mfx-stepper .mfx-stepper-toggle .mfx-ripple-generator {
+    -mfx-ripple-color: -theme-accent;
+}
+
+/* --- MFX日期选择器 (MFXDatePicker MaterialFX Reference) --- */
+.mfx-date-picker {
+    -mfx-main: -mfx-purple;
+    /* Theme accent */
+    -mfx-secondary: -mfx-text-me;
+    -fx-background-color: -theme-bg-tertiary;
+    -fx-background-radius: 5;
+    -fx-border-color: -theme-border;
+    -fx-border-radius: 5;
+    -fx-padding: 5;
+}
+
+.mfx-date-picker .date-picker-popup {
+    -fx-background-color: -theme-bg-secondary;
+    -fx-border-color: -theme-border;
+    -fx-effect: -theme-shadow-md;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+    -fx-padding: 10;
+}
+
+.mfx-date-picker .date-picker-popup .content {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.mfx-date-picker .left-arrow,
+.mfx-date-picker .right-arrow {
+    -mfx-color: -theme-text-secondary;
+    -fx-background-color: -theme-text-secondary;
+    -fx-padding: 0.5em;
+}
+
+.mfx-date-picker .left-arrow:hover,
+.mfx-date-picker .right-arrow:hover {
+    -mfx-color: -theme-text-primary;
+    -fx-background-color: -theme-text-primary;
+}
+
+.mfx-date-picker .week-day-name {
+    -fx-text-fill: -theme-text-secondary;
+    -fx-font-family: "Open Sans SemiBold";
+}
+
+.mfx-date-picker .day-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: -theme-text-primary;
+    -fx-font-family: "Open Sans Regular";
+    -fx-background-radius: 50%;
+}
+
+.mfx-date-picker .day-cell:hover {
+    -fx-background-color: -theme-hover-bg;
+    -fx-cursor: hand;
+}
+
+.mfx-date-picker .day-cell:selected {
+    -fx-background-color: -theme-accent;
+    -fx-text-fill: -theme-text-inverse;
+}
+
+.mfx-date-picker .day-cell.today {
+    -fx-border-color: -theme-accent;
+    -fx-border-radius: 50%;
+}
+
+.mfx-date-picker:focus-within {
+    -fx-border-color: -theme-accent;
+    -fx-border-width: 1.5;
+}
+
+.mfx-date-picker .icon {
+    -mfx-color: -theme-text-secondary;
+}
+
+/* --- MFX筛选面板 (MFXFilterPane if used) --- */
+.mfx-filter-pane {
+    -fx-background-color: -theme-bg-secondary;
+    -fx-border-color: -theme-border;
+}
+
+/* --- 自定义滚动条 (Modern Custom ScrollBar) --- */
+.scroll-bar:horizontal .thumb,
+.scroll-bar:vertical .thumb {
+    -fx-background-color: -theme-scrollbar-thumb;
+    -fx-background-radius: 4px;
+}
+
+.scroll-bar:horizontal .track,
+.scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+    -fx-border-radius: 4px;
+}
+
+.scroll-bar:horizontal .track-background,
+.scroll-bar:vertical .track-background {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:horizontal .increment-button,
+.scroll-bar:horizontal .decrement-button,
+.scroll-bar:vertical .increment-button,
+.scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.scroll-bar:horizontal .increment-arrow,
+.scroll-bar:horizontal .decrement-arrow,
+.scroll-bar:vertical .increment-arrow,
+.scroll-bar:vertical .decrement-arrow {
+    -fx-shape: null;
+    -fx-padding: 0;
+}
+
+
+
+/* --- MFX筛选组合框 (MFXFilterComboBox MaterialFX Reference) --- */
+.mfx-filter-combo-box {
+    -mfx-caret-visible: true;
+}
+
+.mfx-filter-combo-box:popup {
+    -mfx-caret-visible: false;
+    -mfx-editable: false;
+}
+
+.mfx-filter-combo-box .combo-popup .virtual-flow {
+    -fx-background-color: -theme-bg-secondary;
+    -fx-background-radius: 0;
+    -fx-max-height: 200;
+}
+
+.mfx-filter-combo-box .combo-popup .search-container {
+    -fx-background-color: -theme-bg-secondary;
+    -fx-background-radius: 5;
+    -fx-border-color: -theme-border;
+    -fx-border-radius: 5;
+    -fx-padding: 10 5 5 5;
+}
+
+.mfx-filter-combo-box .combo-popup .search-field {
+    -mfx-gap: 0;
+    -mfx-float-mode: disabled;
+    -fx-padding: 5;
+    -fx-display-caret: false;
+    -fx-text-fill: -theme-text-primary;
+}
+
+.mfx-filter-combo-box .combo-popup .search-container .search-field .mfx-text-field {
+    -fx-text-fill: -theme-text-primary;
+    -fx-prompt-text-fill: -theme-text-secondary;
+}
+
+.mfx-filter-combo-box .combo-popup .search-field,
+.mfx-filter-combo-box .combo-popup .search-field:focus-within {
+    -fx-border-width: 1;
+    -fx-background-insets: 0;
+    -fx-border-color: -theme-border;
+}
+
+/*******************************************************************************
+ * JFoenix Components Adaptation (Theme Integration)
+ ******************************************************************************/
+
+/* 
+ * Hide JFoenix specific animated bottom lines for text/combo inputs.
+ * Since they extend normal JavaFX controls, they already inherit OpenCGL's 
+ * standard borders. Hiding these lines makes them look identical to other components. 
+ */
+.jfx-text-field>.input-line,
+.jfx-text-field>.input-focused-line,
+.jfx-password-field>.input-line,
+.jfx-password-field>.input-focused-line,
+.jfx-text-area>.input-line,
+.jfx-text-area>.input-focused-line,
+.jfx-combo-box>.input-line,
+.jfx-combo-box>.input-focused-line {
+    -fx-background-color: transparent;
+}
+
+/* Text Input Family (JFXTextField, JFXPasswordField, JFXTextArea, JFXComboBox) */
+.jfx-text-field,
+.jfx-password-field,
+.jfx-text-area,
+.jfx-combo-box {
+    -fx-border-color: -theme-bg-primary;
+    -jfx-focus-color: transparent;
+    -jfx-unfocus-color: transparent;
+    -fx-prompt-text-fill: -theme-text-secondary;
+    -fx-text-fill: -theme-text;
+}
+
+.jfx-text-field:error,
+.jfx-password-field:error,
+.jfx-text-area:error,
+.jfx-combo-box:error {
+    -jfx-focus-color: -theme-hover-bg;
+    -jfx-unfocus-color: -theme-hover-bg;
+}
+
+/* JFX List Cells (used in JFXComboBox dropdowns and JFXListViews) */
+.jfx-list-cell {
+    -fx-text-fill: -theme-text;
+    -fx-background-color: transparent;
+    -fx-padding: 4 8 4 8;
+}
+
+.jfx-list-cell:hover {
+    -fx-background-color: -theme-hover-bg;
+}
+
+.jfx-list-cell:selected {
+    -fx-background-color: -theme-selected-bg;
+    -fx-text-fill: -theme-focus;
+}
+
+.jfx-list-cell .jfx-rippler {
+    -jfx-rippler-fill: -theme-focus;
+}
+
+/* Button & Toggle Family */
+.jfx-button {
+    -fx-text-fill: -theme-text;
+    -jfx-button-type: FLAT;
+}
+
+.jfx-button:hover,
+.jfx-button:focused {
+    -fx-background-color: -theme-hover-bg;
+}
+
+.jfx-radio-button {
+    -jfx-selected-color: -theme-focus;
+    -jfx-unselected-color: -theme-text-secondary;
+    -fx-text-fill: -theme-text;
+}
+
+.jfx-check-box {
+    -jfx-checked-color: -theme-focus;
+    -jfx-unchecked-color: -theme-text-secondary;
+    -fx-text-fill: -theme-text;
+}
+
+.jfx-toggle-button {
+    -jfx-toggle-color: -theme-focus;
+    -jfx-untoggle-color: -theme-text-secondary;
+    -jfx-toggle-line-color: -theme-border;
+    -jfx-untoggle-line-color: -theme-border-alt;
+    -fx-text-fill: -theme-text;
+}
+
+/* Date Picker Family */
+.jfx-date-picker {
+    -jfx-default-color: -theme-focus;
+}
+
+.jfx-color-picker {
+    -fx-background-color: transparent;
+    -fx-border-color: -theme-border;
+}
+
+/* Layouts & Containers Family */
+
+/* Explicitly override JFoenix hardcoded WHITE backgrounds for Alerts and Dialogs */
+.jfx-alert-overlay>.depth-container>.jfx-alert-content-container,
+.jfx-alert-overlay>.jfx-alert-content-container,
+.jfx-dialog-overlay,
+.jfx-dialog>.jfx-dialog-content-container {
+    -fx-background-color: -theme-bg;
+}
+
+.jfx-dialog-layout {
+    -fx-background-color: -theme-bg;
+    -fx-text-fill: -theme-text;
+}
+
+.jfx-dialog-layout>.heading>.label {
+    -fx-text-fill: -theme-focus;
+}
+
+.jfx-dialog-layout>.body {
+    -fx-text-fill: -theme-text-secondary;
+}
+
+/* Progress & Sliders */
+.jfx-progress-bar>.track,
+.jfx-progress-bar>.bar {
+    -fx-background-color: -theme-focus;
+}
+
+.jfx-spinner {
+    -jfx-radius: 12;
+}
+
+.jfx-spinner>.arc {
+    -fx-stroke: -theme-focus;
+}
+
+.jfx-slider>.track {
+    -fx-background-color: -theme-border;
+}
+
+.jfx-slider>.thumb {
+    -fx-background-color: -theme-focus;
+}
+
+.jfx-slider>.colored-track {
+    -fx-background-color: -theme-focus;
+}
+
+/* Tabs */
+.jfx-tab-pane .tab-header-background {
+    -fx-background-color: -theme-bg;
+}
+
+.jfx-tab-pane .tab-selected-line {
+    -fx-stroke: -theme-focus;
+}
+
+.jfx-tab-pane .headers-region .tab .tab-container .tab-label {
+    -fx-text-fill: -theme-text-secondary;
+}
+
+.jfx-tab-pane .headers-region .tab:selected .tab-container .tab-label {
+    -fx-text-fill: -theme-focus;
+}
+
+
+.code-area {
+    -fx-background-color: -theme-bg-primary;
+    background-color: -theme-bg-primary;
+    -rtfx-background-color: -theme-bg-primary;
+    background-color: -theme-bg-primary;
+    -fx-border-color: -theme-border;
+}
+
+.code-area .content {
+    -fx-background-color: -theme-bg-primary;
+    background-color: -theme-bg-primary;
+    -rtfx-background-color: -theme-bg-primary;
+}
+
+/* 默认文字颜色 */
+.code-area .text {
+    -fx-fill: -theme-text-primary;
+    fill: -theme-text-primary;
+}
+
+/* 光标颜色 */
+.code-area .caret {
+    -fx-stroke: -theme-text-primary;
+    stroke: -theme-text-primary;
+}
+
+/* 语法高亮颜色 - 引用主题变量 */
+.code-area .keyword {
+    -fx-fill: -code-keyword;
+    fill: -code-keyword;
+}
+
+.code-area .paren {
+    -fx-fill: -code-paren;
+    fill: -code-paren;
+}
+
+.code-area .brace {
+    -fx-fill: -code-brace;
+    fill: -code-brace;
+}
+
+.code-area .bracket {
+    -fx-fill: -code-bracket;
+    fill: -code-bracket;
+}
+
+.code-area .semicolon {
+    -fx-fill: -code-semicolon;
+    fill: -code-semicolon;
+}
+
+.code-area .string {
+    -fx-fill: -code-string;
+    fill: -code-string;
+}
+
+.code-area .comment {
+    -fx-fill: -code-comment;
+    fill: -code-comment;
+}
+
+.code-area .text-input .prompt-text {
+    -fx-fill: -theme-text-secondary;
+    -fx-text-fill: -theme-text-secondary;
+}
+
+/* 滚动条主题适配 */
+.code-area .scroll-bar {
+    -fx-background-color: -theme-bg-primary;
+    background-color: -theme-bg-primary;
+}
+
+.code-area .scroll-bar .track {
+    -fx-background-color: -theme-bg-primary;
+    background-color: -theme-bg-primary;
+}
+
+.code-area .scroll-bar .thumb {
+    -fx-background-color: -theme-scrollbar-thumb;
+    background-color: -theme-scrollbar-thumb;
+    -fx-background-radius: 5;
+}
+
+.code-area .scroll-bar .thumb:hover {
+    -fx-background-color: derive(-theme-scrollbar-thumb, -20%);
+    background-color: derive(-theme-scrollbar-thumb, -20%);
+}
+
+.code-area .scroll-bar .increment-button,
+.code-area .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    background-color: transparent;
+}
+
+
+/*******************************************************************************
+ * End of GlobalComponents.css
+ ******************************************************************************/
+
+/* EOF */

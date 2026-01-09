@@ -114,6 +114,17 @@ public class SqliteUtil {
         executeSql(sql, params);
     }
 
+    public static void query(String sql) throws Exception {
+        apply((connection -> {
+            try {
+                PreparedStatement ps = connection.prepareStatement(sql);
+            }
+            catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }));
+    }
+
     private static synchronized void executeSql(String sql, Object[] params) {
         apply((connection -> {
             try (PreparedStatement ps = prepareStatementAndParams(sql, params, connection)) {

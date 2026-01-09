@@ -1,0 +1,271 @@
+/* RestTestModule 美化样式 */
+
+/* 整体主题色 */
+.rest-module {
+    -fx-background-color: #f8f9fa;
+}
+
+/* 工具栏样式 */
+.rest-toolbar {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 12 16;
+}
+
+.rest-toolbar .mfx-button {
+    -fx-background-radius: 6;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 4, 0, 0, 1);
+}
+
+.rest-toolbar .mfx-button:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 6, 0, 0, 2);
+}
+
+/* URL 输入框样式 */
+.url-field {
+    -fx-background-color: white;
+    -fx-border-color: #ced4da;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 8 12;
+    -fx-font-size: 14px;
+}
+
+.url-field:focused {
+    -fx-border-color: #1a73e8;
+    -fx-effect: dropshadow(gaussian, rgba(26, 115, 232, 0.2), 4, 0, 0, 0);
+}
+
+/* 发送按钮特殊样式 */
+.send-button {
+    -fx-background-color: linear-gradient(to bottom, #1a73e8, #1557b0);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 10 24;
+    -fx-background-radius: 6;
+    -fx-effect: dropshadow(gaussian, rgba(26, 115, 232, 0.3), 4, 0, 0, 2);
+}
+
+.send-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #1557b0, #104d96);
+}
+
+.send-button:pressed {
+    -fx-background-color: #104d96;
+}
+
+/* Tab 样式 */
+.rest-tab-pane .tab-header-area {
+    -fx-background-color: #f1f3f4;
+    -fx-padding: 4 0 0 0;
+}
+
+.rest-tab-pane .tab {
+    -fx-background-color: transparent;
+    -fx-background-radius: 6 6 0 0;
+    -fx-padding: 8 16;
+}
+
+.rest-tab-pane .tab:selected {
+    -fx-background-color: white;
+    -fx-border-color: #e0e0e0 #e0e0e0 transparent #e0e0e0;
+    -fx-border-width: 1;
+    -fx-border-radius: 6 6 0 0;
+}
+
+.rest-tab-pane .tab:selected .tab-label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #1a73e8;
+}
+
+.rest-tab-pane .tab-content-area {
+    -fx-background-color: white;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 0 1 1 1;
+}
+
+/* 表格头部 */
+.table-header {
+    -fx-background-color: #f8f9fa;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 10 12;
+}
+
+.table-header .label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #5f6368;
+    -fx-font-size: 11px;
+    -fx-text-transform: uppercase;
+}
+
+/* 表格行 */
+.table-row {
+    -fx-background-color: white;
+    -fx-border-color: #f1f3f4;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 8 12;
+}
+
+.table-row:hover {
+    -fx-background-color: #f8f9fa;
+}
+
+/* 输入框统一样式 */
+.form-input {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 6 8;
+    -fx-font-size: 13px;
+}
+
+.form-input:focused {
+    -fx-background-color: #fff;
+    -fx-border-color: #1a73e8;
+    -fx-border-width: 0 0 2 0;
+}
+
+/* 删除按钮 */
+.delete-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #bdc3c7;
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+    -fx-padding: 2 6;
+}
+
+.delete-button:hover {
+    -fx-background-color: #fce8e6;
+    -fx-text-fill: #d93025;
+    -fx-background-radius: 4;
+}
+
+/* 复选框样式 */
+.key-value-checkbox {
+    -fx-cursor: hand;
+}
+
+.key-value-checkbox:selected>.box {
+    -fx-background-color: #1a73e8;
+    -fx-border-color: #1a73e8;
+}
+
+/* Body 类型选择器 */
+.body-type-radio {
+    -fx-padding: 4 8;
+}
+
+.body-type-radio:selected .radio {
+    -fx-background-color: #1a73e8;
+}
+
+/* 响应状态标签 */
+.status-success {
+    -fx-background-color: #e6f4ea;
+    -fx-text-fill: #1e8e3e;
+    -fx-padding: 4 12;
+    -fx-background-radius: 4;
+    -fx-font-weight: bold;
+}
+
+.status-error {
+    -fx-background-color: #fce8e6;
+    -fx-text-fill: #d93025;
+    -fx-padding: 4 12;
+    -fx-background-radius: 4;
+    -fx-font-weight: bold;
+}
+
+.status-redirect {
+    -fx-background-color: #fef7e0;
+    -fx-text-fill: #f9ab00;
+    -fx-padding: 4 12;
+    -fx-background-radius: 4;
+    -fx-font-weight: bold;
+}
+
+/* 方法标签颜色 */
+.method-get {
+    -fx-background-color: #e6f4ea;
+    -fx-text-fill: #1e8e3e;
+    -fx-padding: 2 8;
+    -fx-background-radius: 4;
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+}
+
+.method-post {
+    -fx-background-color: #fef7e0;
+    -fx-text-fill: #f9ab00;
+    -fx-padding: 2 8;
+    -fx-background-radius: 4;
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+}
+
+.method-put {
+    -fx-background-color: #e8f0fe;
+    -fx-text-fill: #1a73e8;
+    -fx-padding: 2 8;
+    -fx-background-radius: 4;
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+}
+
+.method-delete {
+    -fx-background-color: #fce8e6;
+    -fx-text-fill: #d93025;
+    -fx-padding: 2 8;
+    -fx-background-radius: 4;
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+}
+
+.method-patch {
+    -fx-background-color: #f3e8fd;
+    -fx-text-fill: #9334e6;
+    -fx-padding: 2 8;
+    -fx-background-radius: 4;
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+}
+
+/* 空状态提示 */
+.empty-state {
+    -fx-alignment: center;
+    -fx-padding: 40;
+}
+
+.empty-state .title {
+    -fx-font-size: 16px;
+    -fx-text-fill: #5f6368;
+}
+
+.empty-state .subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: #9aa0a6;
+}
+
+/* 滚动条美化 */
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #bdc3c7;
+    -fx-background-radius: 4;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #95a5a6;
+}
+
+.scroll-bar .track {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+}

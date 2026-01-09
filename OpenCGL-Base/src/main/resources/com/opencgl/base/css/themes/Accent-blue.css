@@ -1,0 +1,12 @@
+.root {
+    -oc-accent: #2563EB;
+    -oc-accent-hover: #1D4ED8;
+    -oc-accent-pressed: #1E40AF;
+    -oc-selection: #D6E4FF;
+    -theme-accent: #2563EB;
+    -theme-accent-hover: #1D4ED8;
+    -theme-accent-pressed: #1E40AF;
+    /* 兼容仍读取旧主题变量的 TreeView/ListView 选中态。 */
+    -theme-selected-bg: #D6E4FF;
+    -theme-sidebar-selected-bg: #D6E4FF;
+}

@@ -59,188 +59,21 @@ public class DubboConfigFileParseUtil {
         return FXCollections.observableList(fileList);
     }
 
-    public static void initializeFile(String filePath) {
-        File file = new File(filePath);
-        if (!file.exists()) {
-            logger.info("文件不存在则认为是初次创建,直接结束进程");
-            return;
-        }
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String tempString;
-            int line = 1;
-            // 一次读入一行，直到读入null为文件结束
-            while ((tempString = reader.readLine()) != null) {
-                // 显示行号
-                if (tempString.startsWith("service")) {
-                    logger.info("delete record {}:{}", line, tempString);
-                    logger.info("删除结果 {}", deleteLine(line, filePath));
-                }
-                line++;
-            }
-        }
-        catch (IOException e) {
-            logger.error("", e);
-        }
-        finally {
-            System.gc();
-        }
-    }
+
 
     /**
      * 删除service[][]操作,防止接口变少未替换配置导致异常
      */
-    public static String deleteLine(int indexLine, String filePath) {
-        int counter = 1;
-        FileWriter writer = null;
-        BufferedReader buffReader = null;
-        StringBuilder tempTxt = new StringBuilder();
-        try {
-            File file = new File(filePath);
-            FileReader freader = new FileReader(file);
-            buffReader = new BufferedReader(freader);
-            while (buffReader.ready()) {
-                if (counter != indexLine) {
-                    tempTxt.append(buffReader.readLine()).append("\n");
-                }
-                else {
-                    buffReader.readLine();
-                }
-                counter++;
-            }
-            buffReader.close();
-            writer = new FileWriter(file);
-            writer.write(tempTxt.toString());
-        }
-        catch (Exception e) {
-            return "fail :" + e.getCause();
-        }
-        finally {
-            try {
-
-                if (writer != null) {
-                    buffReader.close();
-                    writer.flush();
-                    writer.close();
-                }
-            }
-            catch (IOException e) {
-                logger.error("", e);
-            }
-        }
-        return "success!";
-    }
-
-    public static void operClientParmeterFile(String path, String key, String newValue) {
-        String temp;
-        Map<String, String> clientParmeter = new LinkedHashMap<>();
-        try {
-            File file = new File(path);
-            if (!file.exists()) {
-                boolean res = file.createNewFile();
-            }
-            BufferedReader br = new BufferedReader
-                (new InputStreamReader(new FileInputStream(file)));
-            StringBuilder buf = new StringBuilder();
-
-            // 保存该行前面的内容
-            while ((temp = br.readLine()) != null) {
-                String[] parmeter = temp.split("=");
-                if (parmeter.length == 1) {
-                    clientParmeter.put(parmeter[0], "");
-                    logger.info("{}", parmeter[0]);
-                }
-                else {
-                    clientParmeter.put(parmeter[0], parmeter[1]);
-                    logger.info(parmeter[0] + parmeter[1]);
-                }
 
 
-            }
-            clientParmeter.put(key, newValue);
-            //buf=buf.append(key+"="+newValue);
-            for (Map.Entry<String, String> entry : clientParmeter.entrySet()) {
-                logger.info("key:" + entry.getKey() + "," + "value:" + entry.getValue());
-                buf.append(entry.getKey()).append("=").append(entry.getValue());
-                buf.append(System.getProperty("line.separator"));
-            }
-            br.close();
-            PrintWriter pw = new PrintWriter(new FileOutputStream(file));
-            pw.write(buf.toString().toCharArray());
-            pw.flush();
-            pw.close();
-        }
-        catch (IOException e) {
-            logger.error("", e);
-        }
-    }
 
 
-    public static List<String> readMethodAndType(String filePath) throws Exception {
-        List<String> serviceList = new ArrayList<>();
-        File file = new File(filePath);
-        InputStreamReader read = new InputStreamReader(new FileInputStream(file));
-        BufferedReader bufferedReader = new BufferedReader(read);
-        String lineTxt;//读取一行
-        String info;
-        while ((lineTxt = bufferedReader.readLine()) != null) {
-            try {
-                info = lineTxt.split("=")[1];
-            }
-            catch (Exception e) {
-                throw new Exception(e.getMessage());
-            }
 
-            if (lineTxt.contains("service[")) {
-                serviceList.add(info);
-            }
-        }
-        return serviceList;
-    }
 
-    public static DubboInfo readClientParameter(String filePath) {
-        File file = new File(filePath);
-        if (!file.exists()) {
-            logger.info(file + "不存在");
-            return null;
-        }
-        else {
-            Properties prop = new Properties();
-            try {
-                //装载配置文件
-                prop.load(new FileInputStream(file));
-            }
-            catch (IOException e) {
-                logger.error("", e);
-            }
-            //返回获取的值
-            return DubboInfo.builder()
-                .group(prop.getProperty("registryGroup"))
-                .zk(prop.getProperty("registryAddress"))
-                .build();
-        }
 
-    }
 
-    public static String readClientParameter(String filePath, String name) {
-        File file = new File(filePath);
-        if (!file.exists()) {
-            logger.info(file + "不存在");
-            return null;
-        }
-        else {
-            Properties prop = new Properties();
-            try {
-                //装载配置文件
-                prop.load(new FileInputStream(file));
-            }
-            catch (IOException e) {
-                logger.error("", e);
-            }
-            //返回获取的值
-            return prop.getProperty(name);
-        }
 
-    }
+
 
     public static List<String> getInformationFromJar(String[] jarFile) throws IOException {
         List<String> list = new ArrayList<>();

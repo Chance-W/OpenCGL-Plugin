@@ -7,6 +7,6 @@ import javafx.application.Application;
  */
 public class DbBatchOperLauncherPlugin {
     public static void main(String[] args) {
-        Application.launch(NewMainPlugin.class, args);
+        Application.launch(DbBatchOperStartLauncherPlugin.class, args);
     }
 }

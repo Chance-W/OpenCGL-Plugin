@@ -4,15 +4,23 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>OpenCGL-Plugin</groupId>
-    <artifactId>OpenCGL-Plugin</artifactId>
+    <groupId>com.opencgl</groupId>
+    <artifactId>com.opencgl.plugin</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
+    
     <modules>
+        <module>PluginApiModule</module>
+        <module>OpenCGL-Base</module>
         <module>TemplatePlugin</module>
         <module>TemplatePlugin2</module>
         <module>TemplatePlugin3</module>
+        <module>TemplatePlugin4</module>
+        <module>TemplatePlugin5</module>
+        <module>TemplatePlugin6</module>
+        <module>DubboMockModule</module>
         <module>DubboServiceTestPlugin</module>
+        <module>DubboSslTestModule</module>
         <module>JsonXmlFormatModule</module>
         <module>EncryptAndDecryptModule</module>
         <module>BrowserToolModule</module>
@@ -24,19 +32,196 @@
         <module>MmlTestModule</module>
         <module>RestTestModule</module>
         <module>SoapTestModule</module>
+        <module>RsaJavaFXModule</module>
         <module>CronExpBuilderModule</module>
-        <module>FormOrHtmlWriteModule</module>
         <module>QRCodeGenerateModule</module>
-        <module>Word2MarkdownModule</module>
         <module>DbMatchExecuteToolModule</module>
+        <module>AesToolModule</module>
+        <module>RsaToolModule</module>
+        <module>SshTerminalModule</module>
+        <module>SshJediTermModule</module>
+        <module>JavaCodeGeneratorModule</module>
+        <module>ImageSvgModule</module>
+        <module>TimestampToolModule</module>
+        <module>TextEscapeModule</module>
+        <module>DbBatchExecModule</module>
+        <module>RegexToolModule</module>
+        <module>ScriptDebugModule</module>
+        <module>AiQaModule</module>
+        <module>VariableGeneratorModule</module>
+        <module>HashToolModule</module>
+        <module>JWTToolModule</module>
+        <module>KafkaToolModule</module>
+        <module>MqTraceModule</module>
+        <module>MongoDBModule</module>
+        <module>ElasticsearchModule</module>
+        <module>GRPCTestModule</module>
+        <module>NacosModule</module>
+        <module>DockerModule</module>
+        <module>WebSocketModule</module>
+        <module>GraphQLModule</module>
+        <module>YamlToolModule</module>
+        <module>DiffToolModule</module>
+        <module>SimpleStaticServerModule</module>
+        <module>LanMessengerModule</module>
+        <module>PortScannerModule</module>
+        <module>GitLiteModule</module>
+        <module>NginxConfigModule</module>
+        <module>CodeSnippetModule</module>
+        <module>DataExtractorModule</module>
+        <module>FileChecksumModule</module>
+        <module>JavaDecompilerModule</module>
+        <module>HttpDebuggerModule</module>
+        <module>MarkdownEditorModule</module>
+        <module>DocConverterModule</module>
+        <module>DocToMarkdownModule</module>
+        <module>ClipboardHistoryModule</module>
+        <module>BatchRenamerModule</module>
+        <module>PathExtractorModule</module>
+        <module>SqlClientModule</module>
+        <module>PixelRulerModule</module>
+        <module>EditorExperienceModule</module>
+        <module>CertGeneratorModule</module>
+        <module>CurlToRequestModule</module>
+        <module>JsonYamlFormatModule</module>
+        <module>Base64ToolModule</module>
+        <module>UuidGeneratorModule</module>
+        <module>ColorPickerModule</module>
+        <module>CsvViewerModule</module>
+        <module>SqlFormatterModule</module>
+        <module>LogViewerModule</module>
+        <module>PropertiesEditorModule</module>
+        <module>PingScanModule</module>
+        <module>ProcessPortModule</module>
+        <module>EnvVarsModule</module>
+        <module>TcpUdpToolModule</module>
+        <module>WhiteboardModule</module>
+        <module>RagIngestionToolModule</module>
     </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
+        
+        <!-- 版本号统一管理 -->
+        <javafx.version>21-ea+24</javafx.version>
+        <materialfx.version>11.17.0</materialfx.version>
+        <fastjson.version>2.0.32</fastjson.version>
+        <lombok.version>1.18.40</lombok.version>
+        <slf4j.version>1.7.25</slf4j.version>
+        <groovy.version>4.0.15</groovy.version>
+        <graalvm.version>23.0.0</graalvm.version>
     </properties>
 
+    <profiles>
+        <!-- 插件模式(默认): api、base 由主应用提供，其传递依赖一并 provided -->
+        <profile>
+            <id>plugin-mode</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.opencgl</groupId>
+                    <artifactId>com.opencgl.api</artifactId>
+                    <version>1.0.0</version>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.opencgl</groupId>
+                    <artifactId>com.opencgl.base</artifactId>
+                    <version>1.0.0</version>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.projectlombok</groupId>
+                    <artifactId>lombok</artifactId>
+                    <version>${lombok.version}</version>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- 独立运行模式: api、base 参与打包，传递依赖一并打包 -->
+        <profile>
+            <id>stand-alone-mode</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.opencgl</groupId>
+                    <artifactId>com.opencgl.api</artifactId>
+                    <version>1.0.0</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.opencgl</groupId>
+                    <artifactId>com.opencgl.base</artifactId>
+                    <version>1.0.0</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.projectlombok</groupId>
+                    <artifactId>lombok</artifactId>
+                    <version>${lombok.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.14.1</version>
+                <configuration>
+                    <release>${maven.compiler.release}</release>
+                    <encoding>UTF-8</encoding>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.4</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.6.1</version>
+                <executions>
+                    <execution>
+                        <id>require-java-21</id>
+                        <goals><goal>enforce</goal></goals>
+                        <configuration>
+                            <rules>
+                                <requireJavaVersion>
+                                    <version>[21,22)</version>
+                                    <message>OpenCGL must be built with Azul Zulu JDK 21. Check JAVA_HOME and java -version.</message>
+                                </requireJavaVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <!-- 自动将项目版本号注入为 Implementation-Version -->
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

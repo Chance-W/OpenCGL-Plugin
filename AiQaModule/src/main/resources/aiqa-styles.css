@@ -1,0 +1,43 @@
+/* AI Q&A Module Styles */
+
+/* 隐藏 TextArea 的内部滚动条，让它随内容自动增长 */
+.no-scroll-textarea .scroll-pane {
+    -fx-hbar-policy: never;
+    -fx-vbar-policy: never;
+}
+
+.no-scroll-textarea .scroll-pane .scroll-bar {
+    -fx-pref-width: 0;
+    -fx-pref-height: 0;
+    -fx-max-width: 0;
+    -fx-max-height: 0;
+    -fx-opacity: 0;
+}
+
+/* 让 TextArea 内容区域自动撑开 */
+.no-scroll-textarea .content {
+    -fx-padding: 5;
+}
+
+/* 配置面板样式 */
+.config-panel {
+    -fx-background-color: #fafafa;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 0 1 0 0;
+}
+
+.section-title {
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-text-fill: #424242;
+}
+
+/* TitledPane 样式 */
+.titled-pane>.title {
+    -fx-background-color: #fff3e0;
+    -fx-background-radius: 5;
+}
+
+.titled-pane>.content {
+    -fx-background-color: transparent;
+}

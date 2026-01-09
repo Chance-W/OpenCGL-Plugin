@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<StackPane fx:id="rootPane" xmlns="http://javafx.com/javafx/19"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.opencgl.sshjedi.controller.SshJediTermController"
+           styleClass="plugin-root-pane"
+           stylesheets="@/com/opencgl/sshjedi/styles/ssh-dark-theme.css">
+
+    <SplitPane fx:id="mainSplitPane" dividerPositions="0.22" styleClass="dark-split-pane">
+        <!-- 左侧树形面板 -->
+        <VBox fx:id="treePanel" minWidth="180" styleClass="tree-panel, panel-section">
+            <padding>
+                <Insets top="10" left="10" right="5" bottom="10"/>
+            </padding>
+
+<!--            <HBox alignment="CENTER_LEFT" spacing="10">-->
+<!--                <Label fx:id="connectionListLabel" text="%label.connection_list" styleClass="section-title">-->
+<!--                    <font>-->
+<!--                        <Font name="System Bold" size="14"/>-->
+<!--                    </font>-->
+<!--                </Label>-->
+<!--            </HBox>-->
+
+<!--            <Label fx:id="hintClickConnectLabel" text="%hint.click_connect" styleClass="hint-text">-->
+<!--                <padding>-->
+<!--                    <Insets top="1" bottom="1"/>-->
+<!--                </padding>-->
+<!--            </Label>-->
+
+            <!-- 树视图的占位BorderPane -->
+            <BorderPane fx:id="treeBorderPane" VBox.vgrow="ALWAYS" styleClass="tree-container">
+                <padding>
+                    <Insets top="1" left="1" right="1" bottom="2"/>
+                </padding>
+            </BorderPane>
+        </VBox>
+
+        <!-- 右侧TabPane区域 -->
+        <VBox styleClass="content-panel, panel-section">
+            <padding>
+                <Insets top="2" left="1" right="2" bottom="2"/>
+            </padding>
+
+            <!-- 工具栏 -->
+            <HBox alignment="CENTER_LEFT" spacing="8" styleClass="toolbar">
+                <padding>
+                    <Insets bottom="8"/>
+                </padding>
+                <Region HBox.hgrow="ALWAYS"/>
+            </HBox>
+
+            <!-- 多标签终端区域 -->
+            <TabPane fx:id="sessionTabPane" VBox.vgrow="ALWAYS" tabClosingPolicy="ALL_TABS">
+            </TabPane>
+        </VBox>
+    </SplitPane>
+</StackPane>

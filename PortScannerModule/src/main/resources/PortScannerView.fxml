@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
+<?import io.github.palexdev.materialfx.controls.MFXProgressBar?>
+
+<StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.opencgl.portscan.controller.PortScannerController">
+    <BorderPane fx:id="contentBorderPane" style="-fx-background-color: -theme-bg-primary;">
+        <top>
+            <VBox spacing="5" style="-fx-background-color: -theme-bg-secondary; -fx-background-radius: 0 0 12 12;">
+                <padding>
+                    <Insets top="15" right="20" bottom="15" left="20"/>
+                </padding>
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <Label text="%title.tool" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: -theme-text-primary;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="statusLabel" text="%status.ready" style="-fx-text-fill: -theme-text-secondary;"/>
+                </HBox>
+            </VBox>
+        </top>
+        <center>
+            <TabPane fx:id="mainTabPane" style="-fx-padding: 10;">
+                <!-- 端口测试 Tab -->
+                <Tab text="%tab.portTest" closable="false">
+                    <VBox spacing="15" style="-fx-padding: 20; -fx-background-color: -theme-bg-tertiary; -fx-background-radius: 8;">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="%label.host" prefWidth="60"/>
+                            <MFXTextField fx:id="hostField" promptText="%prompt.hostIp" prefWidth="200" text="127.0.0.1"/>
+                            <Label text="%label.port" prefWidth="60"/>
+                            <MFXTextField fx:id="portField" promptText="%prompt.port" prefWidth="100" text="80"/>
+                            <MFXButton fx:id="testButton" text="%btn.testConnection" 
+                                       style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
+                        </HBox>
+                        <Label text="%label.testResult" style="-fx-font-weight: bold; -fx-text-fill: -theme-text-primary;"/>
+                        <TextArea fx:id="resultArea" editable="false" wrapText="true" VBox.vgrow="ALWAYS"
+                                  style="-fx-font-family: monospace; -fx-text-fill: -theme-success;"/>
+                    </VBox>
+                </Tab>
+                
+                <!-- Ping Tab -->
+                <Tab text="%tab.ping" closable="false">
+                    <VBox spacing="15" style="-fx-padding: 20; -fx-background-color: -theme-bg-tertiary; -fx-background-radius: 8;">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="%label.host" prefWidth="60"/>
+                            <MFXTextField fx:id="pingHostField" promptText="%prompt.hostIp" prefWidth="250" text="google.com"/>
+                            <MFXButton fx:id="pingButton" text="%btn.ping" 
+                                       style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;"/>
+                        </HBox>
+                        <Label text="%label.pingResult" style="-fx-font-weight: bold; -fx-text-fill: -theme-text-primary;"/>
+                        <TextArea fx:id="pingResultArea" editable="false" wrapText="true" VBox.vgrow="ALWAYS"
+                                  style="-fx-font-family: monospace; -fx-text-fill: -theme-success;"/>
+                    </VBox>
+                </Tab>
+                
+                <!-- 端口扫描 Tab -->
+                <Tab text="%tab.scan" closable="false">
+                    <VBox spacing="15" style="-fx-padding: 20; -fx-background-color: -theme-bg-tertiary; -fx-background-radius: 8;">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="%label.targetHost" prefWidth="80"/>
+                            <MFXTextField fx:id="scanHostField" promptText="%prompt.ip" prefWidth="150" text="127.0.0.1"/>
+                            <Label text="%label.startPort"/>
+                            <MFXTextField fx:id="startPortField" promptText="1" prefWidth="80" text="1"/>
+                            <Label text="%label.endPort"/>
+                            <MFXTextField fx:id="endPortField" promptText="1024" prefWidth="80" text="1024"/>
+                            <MFXButton fx:id="scanButton" text="%btn.startScan" 
+                                       style="-fx-background-color: -theme-danger; -fx-text-fill: -theme-text-inverse;"/>
+                            <MFXButton fx:id="stopScanButton" text="%btn.stop" disable="true"
+                                       style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                        </HBox>
+                        <MFXProgressBar fx:id="scanProgress" prefWidth="1000" progress="0"/>
+                        <Label text="%label.openPorts" style="-fx-font-weight: bold; -fx-text-fill: -theme-text-primary;"/>
+                        <TableView fx:id="scanResultTable" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn text="%col.port" prefWidth="100"/>
+                                <TableColumn text="%col.status" prefWidth="100"/>
+                                <TableColumn text="%col.latencyMs" prefWidth="100"/>
+                                <TableColumn text="%col.note" prefWidth="200"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+                </Tab>
+                
+                <!-- 本机端口 Tab -->
+                <Tab text="%tab.local" closable="false">
+                    <VBox spacing="15" style="-fx-padding: 20; -fx-background-color: -theme-bg-tertiary; -fx-background-radius: 8;">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <MFXButton fx:id="refreshLocalButton" text="%btn.refresh" 
+                                       style="-fx-background-color: -theme-accent; -fx-text-fill: -theme-text-inverse;"/>
+                            <Label text="%hint.localPorts" style="-fx-text-fill: -theme-text-secondary;"/>
+                        </HBox>
+                        <TableView fx:id="localPortTable" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn text="%col.port" prefWidth="80"/>
+                                <TableColumn text="%col.protocol" prefWidth="60"/>
+                                <TableColumn text="%col.process" prefWidth="150"/>
+                                <TableColumn text="%col.pid" prefWidth="80"/>
+                                <TableColumn text="%col.user" prefWidth="100"/>
+                                <TableColumn text="%col.state" prefWidth="100"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+                </Tab>
+            </TabPane>
+        </center>
+    </BorderPane>
+</StackPane>

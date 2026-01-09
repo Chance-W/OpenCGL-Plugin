@@ -16,8 +16,8 @@
     <BorderPane fx:id="contentBorderPane" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
                 AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
         <top>
-            <VBox fx:id="headerVbox" spacing="1.0" style="-fx-background-color:WHITE" BorderPane.alignment="CENTER">
-                <HBox alignment="CENTER_LEFT" spacing="5.0" style="-fx-background-color:WHITE">
+            <VBox fx:id="headerVbox" spacing="1.0" BorderPane.alignment="CENTER">
+                <HBox alignment="CENTER_LEFT" spacing="5.0">
 
                     <MFXButton fx:id="refreshButton" buttonType="RAISED" onMouseClicked="#refreshLabelAction"
                                prefHeight="30.0" prefWidth="10.0" text="">
@@ -25,7 +25,7 @@
                             <MFXFontIcon description="fas-arrows-rotate" size="15.0"/>
                         </graphic>
                         <tooltip>
-                            <Tooltip text="刷新"/>
+                            <Tooltip text="%tooltip.refresh"/>
                         </tooltip>
                     </MFXButton>
                     <MFXButton fx:id="copyButton" buttonType="RAISED" onMouseClicked="#copyLabelAction"
@@ -34,7 +34,7 @@
                             <MFXFontIcon description="fas-copy" size="15.0"/>
                         </graphic>
                         <tooltip>
-                            <Tooltip text="拷贝"/>
+                            <Tooltip text="%tooltip.copy"/>
                         </tooltip>
                     </MFXButton>
                     <MFXButton fx:id="saveButton" buttonType="RAISED" onMouseClicked="#saveLabelAction"
@@ -43,16 +43,16 @@
                             <MFXFontIcon description="fas-floppy-disk" size="15.0"/>
                         </graphic>
                         <tooltip>
-                            <Tooltip text="保存"/>
+                            <Tooltip text="%tooltip.save"/>
                         </tooltip>
                     </MFXButton>
                     <MFXTextField fx:id="nameServerAddrTextField" prefHeight="30"
-                                  prefWidth="200.0" promptText="NameServerAddr"
-                                  style="-fx-prompt-text-fill:rgba(63,75,77,0.39)"
+                                  prefWidth="200.0" promptText="%prompt.namesrv_addr"
+                                  style="-fx-prompt-text-fill:-theme-text-secondary"
                                   HBox.hgrow="ALWAYS">
                     </MFXTextField>
                     <MFXTextField fx:id="topicTextField" prefHeight="30"
-                                  prefWidth="300" promptText="Topic" style="-fx-prompt-text-fill:rgba(63,75,77,0.39)"
+                                  prefWidth="300" promptText="%prompt.topic" style="-fx-prompt-text-fill:-theme-text-secondary"
                     >
                     </MFXTextField>
                     <MFXButton fx:id="sendButton" buttonType="RAISED" onMouseClicked="#consumerLabelAction"
@@ -61,7 +61,7 @@
                             <MFXFontIcon description="fas-play" size="15.0"/>
                         </graphic>
                         <tooltip>
-                            <Tooltip text="发送"/>
+                            <Tooltip text="%tooltip.start_consume"/>
                         </tooltip>
                     </MFXButton>
                     <MFXButton fx:id="closeButton" buttonType="RAISED" onAction="#stopConsumer" prefHeight="30.0"
@@ -70,7 +70,7 @@
                             <MFXFontIcon description="fas-xmark" size="15.0"/>
                         </graphic>
                         <tooltip>
-                            <Tooltip text="断开"/>
+                            <Tooltip text="%tooltip.stop_consume"/>
                         </tooltip>
                         <HBox.margin>
                             <Insets right="10"/>

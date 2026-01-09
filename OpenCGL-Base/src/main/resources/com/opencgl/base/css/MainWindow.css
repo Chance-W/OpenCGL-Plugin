@@ -1,32 +1,35 @@
-
+/*
+ * 主窗口布局样式 (MainWindow Layout Styles)
+ * 主应用程序窗口的特定布局和结构。
+ * 颜色源自 ThemeColors-*.css 变量。
+ */
 
 @import 'Fonts.css';
-@import 'MFXColors.css';
 
 /**************************************************
- * Root
-**************************************************/
+ * 根容器 (Root)
+ **************************************************/
 .rootPane {
-	-fx-background-color: white;
+	-fx-background-color: -theme-bg-primary;
 	-fx-background-radius: 10;
-	-fx-border-color: #ebebeb;
+	-fx-border-color: -theme-border;
 	-fx-border-radius: 10;
 }
 
 /**************************************************
- * Window Header
-**************************************************/
+ * 窗口标题栏 (Window Header)
+ **************************************************/
 .rootPane .handUp-icon {
-    -mfx-color: -mfx-black;
-    -fx-opacity: 0.5;
+	-mfx-color: -theme-text-primary;
+	-fx-opacity: 0.5;
 }
 
 .rootPane .handUp-icon:hover {
-    -fx-opacity: 1.0;
+	-fx-opacity: 1.0;
 }
 
 .rootPane .close-icon {
-	-mfx-color: -mfx-red;
+	-mfx-color: -theme-danger;
 	-fx-opacity: 0.5;
 }
 
@@ -35,7 +38,7 @@
 }
 
 .rootPane .minimize-icon {
-	-mfx-color: #ffbf37;
+	-mfx-color: -theme-warning;
 	-fx-opacity: 0.5;
 }
 
@@ -44,7 +47,7 @@
 }
 
 .rootPane .maximize-icon {
-	-mfx-color: -mfx-purple;
+	-mfx-color: -theme-accent;
 	-fx-opacity: 0.5;
 }
 
@@ -53,24 +56,19 @@
 }
 
 .rootPane .movePosition-icon {
-    -mfx-color: -mfx-black;
-    -fx-opacity: 0.1;
+	-mfx-color: -theme-text-primary;
+	-fx-opacity: 0.1;
 }
 
 .rootPane .movePosition-icon:hover {
-    -fx-opacity: 1.0;
+	-fx-opacity: 1.0;
 }
 
-/*.rootPane .maximize-icon:always-on-top {
-	-fx-opacity: 1.0;
-}*/
-
 /**************************************************
- * Sidebar
-**************************************************/
+ * 侧边栏 (Sidebar)
+ **************************************************/
 .rootPane .sidebar {
-	/*-fx-background-color: -mfx-purple;*/
-    -fx-background-color: #079B8C;
+	-fx-background-color: -theme-sidebar-bg;
 	-fx-background-insets: -1 -5 -1 -1;
 	-fx-background-radius: 0 20 20 0;
 }
@@ -78,25 +76,25 @@
 .rootPane .sidebar .header {
 	-fx-font-family: 'Visby Round CF Heavy';
 	-fx-font-size: 24;
-	-fx-text-fill: white;
+	-fx-text-fill: -theme-sidebar-text;
 }
 
 .rootPane .sidebar .header .mfx-font-icon {
-	-mfx-color: white;
+	-mfx-color: -theme-sidebar-icon;
 }
 
 .rootPane .sidebar .mfx-scroll-pane {
 	-fx-background-color: transparent;
 
-	-track-color: rgba(255, 255, 255, 0.3);
-	-thumb-color: white;
-	-thumb-hover-color: white;
+	-track-color: rgba(255, 255, 255, 0.1);
+	-thumb-color: -theme-sidebar-text;
+	-thumb-hover-color: -theme-sidebar-text;
 }
 
 .rootPane .sidebar .menu-label {
 	-fx-font-family: 'Visby Round CF Bold';
 	-fx-font-size: 14;
-	-fx-text-fill: white;
+	-fx-text-fill: -theme-sidebar-text;
 }
 
 .rootPane .sidebar .navbar .mfx-rectangle-toggle-node {
@@ -108,7 +106,7 @@
 
 	-fx-font-family: 'Visby Round CF Demi Bold';
 	-fx-font-size: 13;
-	-fx-text-fill: white;
+	-fx-text-fill: -theme-sidebar-text;
 }
 
 .rootPane .sidebar .navbar .mfx-rectangle-toggle-node .mfx-ripple-generator {
@@ -116,20 +114,13 @@
 }
 
 .rootPane .sidebar .navbar .mfx-rectangle-toggle-node .mfx-icon-wrapper .mfx-font-icon {
-	-mfx-color: white;
+	-mfx-color: -theme-sidebar-icon;
 }
 
 .rootPane .sidebar .navbar .mfx-rectangle-toggle-node:selected {
-	-fx-background-color: white;
+	-fx-background-color: -theme-sidebar-selected-bg;
 	-fx-background-radius: 5;
-	-fx-text-fill: #601cbe;
+	-fx-text-fill: -theme-sidebar-selected-text;
 }
 
-.rootPane .sidebar .navbar .mfx-rectangle-toggle-node:selected .selection-rectangle {
-	-fx-stroke: transparent;
-	-fx-fill: #601cbe;
-}
-
-.rootPane .sidebar .navbar .mfx-rectangle-toggle-node:selected .mfx-icon-wrapper .mfx-font-icon {
-	-mfx-color: #601cbe;
-}
+.rootPane .sidebar .navbar

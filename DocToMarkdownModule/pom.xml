@@ -1,0 +1,30 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.opencgl</groupId>
+        <artifactId>com.opencgl.plugin</artifactId>
+        <version>1.0</version>
+    </parent>
+
+    <artifactId>DocToMarkdownModule</artifactId>
+    <version>1.0.0</version>
+    <name>文档转Markdown</name>
+    <description>PDF/DOCX/DOC/HTML 转 Markdown，与 doc-converter 功能一致，支持多语言、主题、进度条</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.opencgl</groupId>
+            <artifactId>com.opencgl.api</artifactId>
+            <version>1.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.opencgl</groupId>
+            <artifactId>com.opencgl.base</artifactId>
+            <version>1.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>

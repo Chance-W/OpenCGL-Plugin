@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>手绘白板</title>
+    <script src="./js/rough.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        :root {
+            --bg: #fafafa;
+            --toolbar-bg: #f0f0f0;
+            --border: #ddd;
+            --text: #1a1a1a;
+            --tool-hover: #e0e0e0;
+            --tool-active: #d5d5ff;
+            --tool-active-border: #5858e8;
+        }
+
+        .dark {
+            --bg: #121212;
+            --toolbar-bg: #282828;
+            --border: #444;
+            --text: #eee;
+            --tool-hover: #353535;
+            --tool-active: #35357a;
+            --tool-active-border: #8888ff;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            overflow: hidden
+        }
+
+        #toolbar {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            padding: 5px 8px;
+            background: var(--toolbar-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+            z-index: 200;
+            user-select: none;
+        }
+
+        .tool-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border: 2px solid transparent;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 18px;
+            background: transparent;
+            color: var(--text);
+            outline: none;
+            transition: background .12s, border-color .12s;
+        }
+
+        .tool-btn:hover {
+            background: var(--tool-hover)
+        }
+
+        .tool-btn.active {
+            background: var(--tool-active);
+            border-color: var(--tool-active-border)
+        }
+
+        .tool-lbl {
+            font-size: 9px;
+            margin-top: 1px;
+            opacity: .7;
+            pointer-events: none
+        }
+
+        .sep {
+            width: 1px;
+            height: 30px;
+            background: var(--border);
+            margin: 0 3px;
+            flex-shrink: 0
+        }
+
+        #hint {
+            position: fixed;
+            bottom: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--toolbar-bg);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 4px 12px;
+            font-size: 11px;
+            opacity: .8;
+            pointer-events: none;
+            z-index: 200;
+        }
+
+        .color-picker-wrap {
+            position: relative;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: background .12s;
+        }
+
+        .color-picker-wrap:hover {
+            background: var(--tool-hover);
+        }
+
+        #colorPicker {
+            width: 24px;
+            height: 24px;
+            padding: 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        /* ===== Prop Panel ===== */
+        #prop-panel {
+            position: absolute;
+            left: 14px;
+            top: 70px;
+            width: 150px;
+            background: var(--toolbar-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            user-select: none;
+        }
+
+        .prop-section {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .prop-title {
+            font-size: 11px;
+            color: var(--text);
+            opacity: 0.8;
+            font-weight: bold;
+        }
+
+        .prop-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .prop-btn {
+            height: 24px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text);
+            font-size: 14px;
+            flex: 1;
+            min-width: 24px;
+            transition: background 0.1s;
+        }
+
+        .prop-btn:hover {
+            background: var(--tool-hover);
+        }
+
+        .prop-btn.active {
+            border-color: #5555cc;
+            background: rgba(85, 85, 204, 0.1);
+        }
+
+        .color-swatch {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        .color-swatch.active {
+            outline: 2px solid #5555cc;
+            outline-offset: 2px;
+        }
+
+        #opacitySlider {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        #colorPicker::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        #colorPicker::-webkit-color-swatch {
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+
+        /* ===== Dropdown Menu ===== */
+        #menu-wrap {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            z-index: 200;
+        }
+
+        #btn-menu {
+            font-size: 20px;
+            padding: 4px 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--toolbar-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #btn-menu:hover {
+            background: var(--tool-hover);
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 40px;
+            left: 0;
+            background: var(--toolbar-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 140px;
+            flex-direction: column;
+            padding: 4px 0;
+            z-index: 201;
+        }
+
+        .dropdown-menu.show {
+            display: flex;
+        }
+
+        .menu-item {
+            padding: 8px 16px;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            border: none;
+            text-align: left;
+            width: 100%;
+        }
+
+        .menu-item:hover {
+            background: var(--tool-hover);
+        }
+
+        .menu-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 4px 0;
+        }
+
+        #canvas-wrap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1
+        }
+
+        canvas {
+            display: block;
+            background: var(--bg)
+        }
+
+        #zoom-ui {
+            position: fixed;
+            bottom: 14px;
+            right: 14px;
+            display: flex;
+            align-items: center;
+            background: var(--toolbar-bg);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 4px 8px;
+            font-size: 12px;
+            z-index: 200;
+            user-select: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            gap: 6px;
+        }
+
+        .zoom-btn {
+            background: transparent;
+            border: none;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 16px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: background .12s;
+        }
+
+        .zoom-btn:hover {
+            background: var(--tool-hover);
+        }
+
+        #zoom-label {
+            min-width: 40px;
+            text-align: center;
+            cursor: pointer;
+            font-variant-numeric: tabular-nums;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="menu-wrap">
+        <button id="btn-menu" onclick="toggleMenu(event)" title="菜单">☰</button>
+        <div id="main-menu" class="dropdown-menu">
+            <button class="menu-item" onclick="doNew()"><span style="width:16px;text-align:center">📄</span> <span
+                    id="lbl-new_m" data-shortcut="Ctrl+N">新建</span></button>
+            <button class="menu-item" onclick="doOpen()"><span style="width:16px;text-align:center">📂</span> <span
+                    id="lbl-open_m" data-shortcut="Ctrl+O">打开</span></button>
+            <button class="menu-item" onclick="doSave()"><span style="width:16px;text-align:center">💾</span> <span
+                    id="lbl-save_m" data-shortcut="Ctrl+S">保存</span></button>
+            <button class="menu-item" onclick="doExport()"><span style="width:16px;text-align:center">🖼️</span> <span
+                    id="lbl-export_m">导出图片</span></button>
+            <div class="menu-divider"></div>
+            <button class="menu-item" onclick="clearAll()"><span style="width:16px;text-align:center">🗑</span> <span
+                    id="lbl-clear_m">清空画布</span></button>
+            <div class="menu-divider"></div>
+            <button class="menu-item" onclick="showHelp()"><span style="width:16px;text-align:center">💡</span> <span
+                    id="lbl-help_m">帮助</span></button>
+        </div>
+    </div>
+
+    <!-- Canvas Context Menu -->
+    <div id="canvas-menu" class="dropdown-menu" style="display:none; position:fixed; z-index:9999;">
+        <button class="menu-item" onclick="onCtxCopy()"><span style="width:16px;text-align:center">📋</span> <span
+                id="lbl-copy_m" data-shortcut="Ctrl+C">复制</span></button>
+        <button class="menu-item" onclick="onCtxPaste()"><span style="width:16px;text-align:center">📥</span> <span
+                id="lbl-paste_m" data-shortcut="Ctrl+V">粘贴</span></button>
+        <div class="menu-divider"></div>
+        <button class="menu-item" onclick="onCtxDelete()"><span style="width:16px;text-align:center">🗑</span> <span
+                id="lbl-delete_m" data-shortcut="Del">删除</span></button>
+        <div class="menu-divider"></div>
+        <button class="menu-item" onclick="onCtxFront()"><span style="width:16px;text-align:center">⬆️</span>
+            <span id="lbl-front_m">置于顶层</span></button>
+        <button class="menu-item" onclick="onCtxBack()"><span style="width:16px;text-align:center">⬇️</span>
+            <span id="lbl-back_m">置于底层</span></button>
+    </div>
+
+    <div id="toolbar" style="margin-left: 50px;">
+        <button class="tool-btn active" id="btn-select" onclick="selectTool('select')">🔲<span class="tool-lbl"
+                id="lbl-select">选择</span></button>
+        <button class="tool-btn" id="btn-pen" onclick="selectTool('pen')">✏️<span class="tool-lbl"
+                id="lbl-pen">画笔</span></button>
+        <div class="sep"></div>
+        <button class="tool-btn" id="btn-rect" onclick="selectTool('rect')">▭<span class="tool-lbl"
+                id="lbl-rect">矩形</span></button>
+        <button class="tool-btn" id="btn-ellipse" onclick="selectTool('ellipse')">◯<span class="tool-lbl"
+                id="lbl-ellipse">椭圆</span></button>
+        <button class="tool-btn" id="btn-line" onclick="selectTool('line')">╱<span class="tool-lbl"
+                id="lbl-line">直线</span></button>
+        <button class="tool-btn" id="btn-arrow" onclick="selectTool('arrow')">➜<span class="tool-lbl"
+                id="lbl-arrow">箭头</span></button>
+        <button class="tool-btn" id="btn-text" onclick="selectTool('text')">T<span class="tool-lbl"
+                id="lbl-text">文字</span></button>
+        <div class="sep"></div>
+        <button class="tool-btn" id="btn-undo" onclick="undo()">↩<span class="tool-lbl" id="lbl-undo">撤销</span></button>
+        <button class="tool-btn" id="btn-redo" onclick="redo()">↪<span class="tool-lbl" id="lbl-redo">重做</span></button>
+    </div>
+
+    <div id="prop-panel">
+        <div class="prop-section">
+            <span class="prop-title" id="lbl-prop-stroke">描边颜色</span>
+            <div class="prop-row">
+                <div class="color-swatch prop-color" data-val="default" style="background:var(--text)"
+                    onclick="applyProp('color', 'default')" title="主题默认"></div>
+                <div class="color-swatch prop-color" data-val="#e03131" style="background:#e03131"
+                    onclick="applyProp('color', '#e03131')"></div>
+                <div class="color-swatch prop-color" data-val="#2f9e44" style="background:#2f9e44"
+                    onclick="applyProp('color', '#2f9e44')"></div>
+                <div class="color-swatch prop-color" data-val="#1971c2" style="background:#1971c2"
+                    onclick="applyProp('color', '#1971c2')"></div>
+                <div class="color-swatch prop-color" data-val="#f08c00" style="background:#f08c00"
+                    onclick="applyProp('color', '#f08c00')"></div>
+            </div>
+        </div>
+        <div class="prop-section">
+            <span class="prop-title" id="lbl-prop-bg">背景颜色</span>
+            <div class="prop-row">
+                <div class="color-swatch prop-fillColor" data-val="transparent"
+                    style="background:transparent;border:1px dashed var(--border)"
+                    onclick="applyProp('fillColor', 'transparent')" title="透明"></div>
+                <div class="color-swatch prop-fillColor" data-val="#ffc9c9" style="background:#ffc9c9"
+                    onclick="applyProp('fillColor', '#ffc9c9')"></div>
+                <div class="color-swatch prop-fillColor" data-val="#b2f2bb" style="background:#b2f2bb"
+                    onclick="applyProp('fillColor', '#b2f2bb')"></div>
+                <div class="color-swatch prop-fillColor" data-val="#a5d8ff" style="background:#a5d8ff"
+                    onclick="applyProp('fillColor', '#a5d8ff')"></div>
+                <div class="color-swatch prop-fillColor" data-val="#ffec99" style="background:#ffec99"
+                    onclick="applyProp('fillColor', '#ffec99')"></div>
+            </div>
+        </div>
+        <div class="prop-section">
+            <span class="prop-title" id="lbl-prop-fill">填充风格</span>
+            <div class="prop-row">
+                <button class="prop-btn prop-fillStyle" data-val="hachure" onclick="applyProp('fillStyle', 'hachure')"
+                    title="网格">▨</button>
+                <button class="prop-btn prop-fillStyle" data-val="solid" onclick="applyProp('fillStyle', 'solid')"
+                    title="实心">⬛</button>
+                <button class="prop-btn prop-fillStyle" data-val="zigzag" onclick="applyProp('fillStyle', 'zigzag')"
+                    title="折线">〰</button>
+            </div>
+        </div>
+        <div class="prop-section">
+            <span class="prop-title" id="lbl-prop-width">描边宽度</span>
+            <div class="prop-row">
+                <button class="prop-btn prop-strokeWidth" data-val="1" onclick="applyProp('strokeWidth', 1)">细</button>
+                <button class="prop-btn prop-strokeWidth" data-val="2" onclick="applyProp('strokeWidth', 2)">中</button>
+                <button class="prop-btn prop-strokeWidth" data-val="4" onclick="applyProp('strokeWidth', 4)">粗</button>
+            </div>
+        </div>
+        <div class="prop-section">
+            <span class="prop-title" id="lbl-prop-style">线条样式</span>
+            <div class="prop-row">
+                <button class="prop-btn prop-strokeStyle" data-val="solid"
+                    onclick="applyProp('strokeStyle', 'solid')">—</button>
+                <button class="prop-btn prop-strokeStyle" data-val="dashed"
+                    onclick="applyProp('strokeStyle', 'dashed')">┈</button>
+            </div>
+        </div>
+        <div class="prop-section">
+            <span class="prop-title" id="lbl-prop-rough">线条粗犷度</span>
+            <div class="prop-row">
+                <button class="prop-btn prop-roughness" data-val="0" onclick="applyProp('roughness', 0)">直线</button>
+                <button class="prop-btn prop-roughness" data-val="1.5" onclick="applyProp('roughness', 1.5)">手绘</button>
+                <button class="prop-btn prop-roughness" data-val="3" onclick="applyProp('roughness', 3)">涂鸦</button>
+            </div>
+        </div>
+        <div class="prop-section">
+            <span class="prop-title" id="lbl-prop-opacity">透明度</span>
+            <input type="range" min="10" max="100" value="100" onchange="applyProp('opacity', this.value)"
+                id="opacitySlider">
+        </div>
+    </div>
+
+    <div id="canvas-wrap">
+        <canvas id="main" onmousedown="onDown(event)" onmousemove="onMove(event)" onmouseup="onUp(event)">
+        </canvas>
+    </div>
+
+    <div id="zoom-ui">
+        <button class="zoom-btn" onclick="zoomOut()" title="缩小">-</button>
+        <span id="zoom-label" onclick="zoomReset()" title="重置缩放比例">100%</span>
+        <button class="zoom-btn" onclick="zoomIn()" title="放大">+</button>
+    </div>
+
+    <div id="hint">点击选中图形，拖动移动，Delete 删除</div>
+
+    <script>
+        // ===== i18n =====
+        var I18N = {
+            zh: {
+                select: "选择", pen: "画笔", rect: "矩形", ellipse: "椭圆", line: "直线",
+                arrow: "箭头", text: "文字", undo: "撤销", redo: "重做", color: "颜色",
+                jitter_on: "抖动: 开", jitter_off: "抖动: 关",
+                new_m: "新建", open_m: "打开", save_m: "保存", export_m: "导出图片", clear_m: "清空画布", help_m: "帮助",
+                copy_m: "复制", paste_m: "粘贴", delete_m: "删除", front_m: "置于顶层", back_m: "置于底层",
+                h_select: "点击选中图形，拖动移动，Delete 删除",
+                h_pen: "按住鼠标自由绘制", h_rect: "拖动绘制矩形", h_ellipse: "拖动绘制椭圆",
+                h_line: "拖动绘制直线", h_arrow: "拖动绘制箭头", h_text: "点击输入文字，Enter 确认"
+            },
+            en: {
+                select: "Select", pen: "Pen", rect: "Rect", ellipse: "Ellipse", line: "Line",
+                arrow: "Arrow", text: "Text", undo: "Undo", redo: "Redo", color: "Color",
+                jitter_on: "Jitter: On", jitter_off: "Jitter: Off",
+                new_m: "New", open_m: "Open", save_m: "Save", export_m: "Export Image", clear_m: "Clear Board", help_m: "Help",
+                copy_m: "Copy", paste_m: "Paste", delete_m: "Delete", front_m: "Bring to Front", back_m: "Send to Back",
+                h_select: "Click to select, drag to move, Delete to remove",
+                h_pen: "Hold to draw freely", h_rect: "Drag to draw rectangle", h_ellipse: "Drag to draw ellipse",
+                h_line: "Drag to draw line", h_arrow: "Drag to draw arrow", h_text: "Click to type, Enter to confirm"
+            }
+        };
+        var lang = "zh";
+        function t(k) { return I18N[lang][k] || I18N["zh"][k] || k; }
+
+        function applyI18n() {
+            var keys = ["select", "pen", "rect", "ellipse", "line", "arrow", "text", "undo", "redo", "color",
+                "new_m", "open_m", "save_m", "export_m", "clear_m", "help_m", "copy_m", "paste_m", "delete_m", "front_m", "back_m"];
+            var isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+            for (var i = 0; i < keys.length; i++) {
+                var el = document.getElementById("lbl-" + keys[i]);
+                if (el) {
+                    var text = t(keys[i]);
+                    var sc = el.getAttribute("data-shortcut");
+                    if (sc) {
+                        if (isMac) sc = sc.replace("Ctrl+", "Cmd+");
+                        text += " (" + sc + ")";
+                    }
+                    el.textContent = text;
+                }
+            }
+            document.getElementById("hint").textContent = t("h_" + currentTool);
+        }
+
+        // ===== Theme =====
+        var darkMode = false;
+        function applyTheme(dark) {
+            darkMode = dark;
+            document.body.classList.toggle("dark", dark);
+            redraw();
+        }
+        window.setTheme = function (themeStr) {
+            applyTheme(themeStr === 'dark');
+        };
+
+        // ===== State =====
+        var shapes = [], undoStack = [], redoStack = [];
+        var currentTool = "select";
+        var isDrawing = false, startX = 0, startY = 0;
+        var preview = null, selected = []; // selected 现改为数组，支持多选
+        var dragging = false, dragOffX = 0, dragOffY = 0;
+        var marquee = null; // 框选区域 {x,y,w,h}
+        var penPoints = [];
+        var stateSnapshotOnDown = null; // 用于判断拖拽是否修改了状态
+        var textInput = null;
+        var enableJitter = true; // Still used internally if roughness goes to 0 via panel option
+        var isRotating = false;
+        var rotatingShapeIdx = -1;
+        var lastPropVis = null;
+        var clipboardShapes = null;
+
+        var defaultProps = {
+            color: "default",
+            fillColor: "transparent",
+            fillStyle: "hachure",
+            strokeWidth: 2,
+            strokeStyle: "solid",
+            roughness: 1.5,
+            opacity: 100
+        };
+
+        var toolProps = {
+            select: Object.assign({}, defaultProps),
+            pen: Object.assign({}, defaultProps),
+            rect: Object.assign({}, defaultProps),
+            ellipse: Object.assign({}, defaultProps),
+            line: Object.assign({}, defaultProps),
+            arrow: Object.assign({}, defaultProps),
+            text: Object.assign({}, defaultProps)
+        };
+
+        function applyProp(propName, value) {
+            // apply to selected shapes
+            if (selected.length > 0) {
+                saveSnapshot(JSON.stringify(shapes));
+                for (var i = 0; i < selected.length; i++) {
+                    shapes[selected[i]][propName] = value;
+                }
+            } else if (currentTool !== 'select') {
+                toolProps[currentTool][propName] = value;
+            }
+            syncPropPanelUI();
+            redraw();
+        }
+
+        function loadPropsFromShape(s) {
+            syncPropPanelUI();
+        }
+
+        function syncPropPanelUI() {
+            var propsToSync = null;
+            if (selected.length === 1) {
+                var s = shapes[selected[0]];
+                propsToSync = {
+                    'color': s.color || 'default',
+                    'fillColor': s.fillColor || 'transparent',
+                    'fillStyle': s.fillStyle || 'hachure',
+                    'strokeWidth': s.strokeWidth || 2,
+                    'strokeStyle': s.strokeStyle || 'solid',
+                    'roughness': (s.roughness !== undefined) ? s.roughness : 1.5,
+                    'opacity': (s.opacity !== undefined) ? s.opacity : 100
+                };
+            } else if (currentTool !== 'select') {
+                propsToSync = toolProps[currentTool];
+            } else {
+                return;
+            }
+
+            if (propsToSync) {
+                var slider = document.getElementById("opacitySlider");
+                if (slider) slider.value = propsToSync.opacity;
+                for (var p in propsToSync) {
+                    var els = document.querySelectorAll(".prop-" + p);
+                    for (var i = 0; i < els.length; i++) {
+                        if (els[i].getAttribute("data-val") == String(propsToSync[p])) {
+                            els[i].classList.add("active");
+                        } else {
+                            els[i].classList.remove("active");
+                        }
+                    }
+                }
+            }
+        }
+
+        // ===== View Transform =====
+        var scale = 1.0;
+        var offsetX = 0;
+        var offsetY = 0;
+        var isPanning = false;
+        var panStartX = 0, panStartY = 0;
+
+        // ===== Canvas setup =====
+        var canvas = document.getElementById("main");
+        var ctx = canvas.getContext("2d");
+        var rc = null;
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            rc = rough.canvas(canvas);
+            redraw();
+        }
+        window.onresize = resize;
+        resize();
+
+        function selectTool(tool) {
+            if (tool === currentTool && tool !== "undo" && tool !== "redo" && tool !== "clear") return;
+            commitTextInput();
+            currentTool = tool;
+            selected = [];
+            var allBtns = ["select", "pen", "rect", "ellipse", "line", "arrow", "text"];
+            for (var i = 0; i < allBtns.length; i++) {
+                var b = document.getElementById("btn-" + allBtns[i]);
+                if (b) b.className = "tool-btn" + (allBtns[i] === tool ? " active" : "");
+            }
+            canvas.style.cursor = tool === "select" ? "default" : (tool === "text" ? "text" : "crosshair");
+            document.getElementById("hint").textContent = t("h_" + tool);
+
+            syncPropPanelUI();
+            redraw();
+        }
+
+        // ===== Rough options =====
+        function roughOpts(s, override) {
+            var c = s.color || currentColor;
+            if (c === 'default') c = darkMode ? "#e0e0e0" : "#222222";
+
+            var fill = s.fillColor || currentFillColor;
+            var fillSt = s.fillStyle || currentFillStyle;
+            var sw = s.strokeWidth || currentStrokeWidth;
+            var ro = (s.roughness !== undefined) ? s.roughness : currentRoughness;
+            var ss = s.strokeStyle || currentStrokeStyle;
+
+            var rOpts = {
+                roughness: ro,
+                stroke: c,
+                strokeWidth: sw / scale,
+                bowing: 1,
+            };
+            if (fill !== "transparent") {
+                rOpts.fill = fill;
+                rOpts.fillStyle = fillSt;
+                rOpts.fillWeight = 1;
+            }
+            if (ss === "dashed") {
+                rOpts.strokeLineDash = [5, 5];
+            }
+            return Object.assign(rOpts, override || {});
+        }
+
+        function updateZoomLabel() {
+            var lbl = document.getElementById("zoom-label");
+            if (lbl) {
+                lbl.innerText = Math.round(scale * 100) + "%";
+            }
+        }
+
+        function updatePropPanelVis() {
+            var p = document.getElementById("prop-panel");
+            if (!p) return;
+            var show = (currentTool !== 'select' || selected.length > 0);
+            if (show && selected.length === 1 && currentTool === 'select') {
+                loadPropsFromShape(shapes[selected[0]]);
+            }
+            var d = show ? "flex" : "none";
+            if (lastPropVis !== d) {
+                p.style.display = d;
+                lastPropVis = d;
+            }
+        }
+
+        function redraw() {
+            updateZoomLabel();
+            updatePropPanelVis();
+            ctx.setTransform(1, 0, 0, 1, 0, 0); // 重置变换以清空整屏
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // 这里修改为你的主题色请求：深色下背景为更深的颜色（如 #1a1a1a），浅色为 #fafafa
+            ctx.fillStyle = darkMode ? "#1a1a1a" : "#fafafa";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 应用视图缩放与平移变换
+            ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
+
+            for (var i = 0; i < shapes.length; i++) {
+                drawShape(shapes[i], selected.indexOf(i) >= 0, false);
+            }
+            if (preview) drawShape(preview, false, true);
+            // 绘制框选虚线框
+            if (marquee) {
+                ctx.save(); ctx.strokeStyle = "#4da6ff"; ctx.fillStyle = "rgba(77,166,255,0.1)";
+                ctx.lineWidth = 1; ctx.setLineDash([5, 5]);
+                var mx = Math.min(marquee.StartX, marquee.x);
+                var my = Math.min(marquee.StartY, marquee.y);
+                var mw = Math.abs(marquee.x - marquee.StartX);
+                var mh = Math.abs(marquee.y - marquee.StartY);
+                ctx.fillRect(mx, my, mw, mh);
+                ctx.strokeRect(mx, my, mw, mh);
+                ctx.restore();
+            }
+        }
+
+        function drawShape(s, sel, prev) {
+            var opts = roughOpts(s);
+            if (prev) opts.stroke = darkMode ? "#aaccff" : "#5555cc";
+
+            ctx.save();
+            var tp = toolProps[currentTool] || defaultProps;
+            var op = (s.opacity !== undefined) ? s.opacity : tp.opacity;
+            ctx.globalAlpha = op / 100;
+
+            var cx = 0, cy = 0;
+            if (s.rotation || sel) {
+                var bbr = getBB(s);
+                cx = bbr.x + bbr.w / 2;
+                cy = bbr.y + bbr.h / 2;
+            }
+
+            if (s.rotation) {
+                ctx.translate(cx, cy);
+                ctx.rotate(s.rotation);
+                ctx.translate(-cx, -cy);
+            }
+
+            // 如果关闭抖动，固定手绘随机种子
+            if (!enableJitter) {
+                if (!s.seed) s.seed = Math.floor(Math.random() * 1000000);
+                opts.seed = s.seed;
+            }
+
+            switch (s.type) {
+                case "rect":
+                    rc.rectangle(s.x, s.y, s.w, s.h, opts); break;
+                case "ellipse":
+                    rc.ellipse(s.x + s.w / 2, s.y + s.h / 2, Math.abs(s.w), Math.abs(s.h), opts); break;
+                case "line":
+                    rc.line(s.x, s.y, s.x2, s.y2, opts); break;
+                case "arrow":
+                    rc.line(s.x, s.y, s.x2, s.y2, opts);
+                    drawArrow(s.x, s.y, s.x2, s.y2, opts.stroke, opts.strokeWidth); break;
+                case "pen":
+                    if (s.pts && s.pts.length > 1) rc.curve(s.pts, opts); break;
+                case "text":
+                    ctx.save();
+                    var wFactor = s.strokeWidth || (toolProps["text"] && toolProps["text"].strokeWidth) || 2;
+                    var fSize = wFactor > 2 ? 24 : 18;
+                    ctx.font = fSize + "px 'Chalkboard SE', 'Comic Sans MS', 'Comic Neue', 'Bradley Hand', 'Kaiti SC', 'Kaiti', cursive";
+                    ctx.fillStyle = opts.stroke;
+                    ctx.fillText(s.text || "", s.x, s.y);
+                    ctx.restore();
+                    // Draw rough line under the text to give it a "sketch" feel as there is no native rough text
+                    rc.line(s.x, s.y + 4, s.x + ctx.measureText(s.text).width, s.y + 4, Object.assign({}, opts, { strokeWidth: 1, roughness: opts.roughness + 1 }));
+                    break;
+            }
+            // 绘制选中框 (如果有多个全画框)
+            if (sel) {
+                var bb = getBB(s);
+                ctx.save(); ctx.strokeStyle = "#5555cc"; ctx.lineWidth = 1 / scale; ctx.setLineDash([5 / scale, 4 / scale]);
+                ctx.strokeRect(bb.x - 6 / scale, bb.y - 6 / scale, bb.w + 12 / scale, bb.h + 12 / scale);
+
+                // 绘制旋转手柄
+                if (selected.length === 1 && selected[0] === shapes.indexOf(s)) {
+                    var hX = cx, hY = bb.y - 30 / scale;
+                    ctx.beginPath(); ctx.moveTo(cx, bb.y - 6 / scale); ctx.lineTo(hX, hY); ctx.stroke();
+                    ctx.beginPath(); ctx.arc(hX, hY, 5 / scale, 0, Math.PI * 2);
+                    ctx.fillStyle = darkMode ? "#333" : "#fff"; ctx.fill(); ctx.stroke();
+                }
+                ctx.restore();
+            }
+
+            ctx.restore(); // restore globalAlpha and rotation setup
+        }
+
+        function drawArrow(x1, y1, x2, y2, color, lw) {
+            var ang = Math.atan2(y2 - y1, x2 - x1), sz = 14;
+            ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = lw;
+            ctx.beginPath();
+            ctx.moveTo(x2, y2); ctx.lineTo(x2 - sz * Math.cos(ang - 0.4), y2 - sz * Math.sin(ang - 0.4));
+            ctx.moveTo(x2, y2); ctx.lineTo(x2 - sz * Math.cos(ang + 0.4), y2 - sz * Math.sin(ang + 0.4));
+            ctx.stroke(); ctx.restore();
+        }
+
+        function getBB(s) {
+            if (s.type === "rect")
+                return { x: Math.min(s.x, s.x + s.w), y: Math.min(s.y, s.y + s.h), w: Math.abs(s.w), h: Math.abs(s.h) };
+            if (s.type === "ellipse") {
+                // ellipse is drawn from center with width/height representing rx/ry
+                var rx = Math.abs(s.w), ry = Math.abs(s.h);
+                var cx = s.x + s.w / 2, cy = s.y + s.h / 2;
+                return { x: cx - rx, y: cy - ry, w: rx * 2, h: ry * 2 };
+            }
+            if (s.type === "line" || s.type === "arrow")
+                return { x: Math.min(s.x, s.x2), y: Math.min(s.y, s.y2), w: Math.abs(s.x2 - s.x), h: Math.abs(s.y2 - s.y) };
+            if (s.type === "pen") {
+                var xs = s.pts.map(function (p) { return p[0]; }), ys = s.pts.map(function (p) { return p[1]; });
+                var x = Math.min.apply(null, xs), y = Math.min.apply(null, ys);
+                return { x: x, y: y, w: Math.max.apply(null, xs) - x + 2, h: Math.max.apply(null, ys) - y + 2 };
+            }
+            if (s.type === "text") {
+                ctx.save();
+                var wFactor = s.strokeWidth || (toolProps["text"] && toolProps["text"].strokeWidth) || 2;
+                var fSize = wFactor > 2 ? 24 : 18;
+                ctx.font = fSize + "px 'Chalkboard SE', 'Comic Sans MS', 'Comic Neue', 'Bradley Hand', 'Kaiti SC', 'Kaiti', cursive";
+                var w = ctx.measureText(s.text || "").width;
+                ctx.restore();
+                // Text origin is bottom-left (alphabetic baseline in canvas)
+                return { x: s.x - 4, y: s.y - fSize - 2, w: w + 8, h: fSize + 8 };
+            }
+            return { x: s.x, y: s.y, w: 100, h: 24 };
+        }
+
+        function hitTest(s, px, py) {
+            var b = getBB(s);
+            if (s.rotation) {
+                var cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+                var dx = px - cx, dy = py - cy;
+                px = cx + dx * Math.cos(-s.rotation) - dy * Math.sin(-s.rotation);
+                py = cy + dx * Math.sin(-s.rotation) + dy * Math.cos(-s.rotation);
+            }
+            // 给线段/箭头增加特殊的距离检测，而不是单纯的包围盒检测
+            if (s.type === "line" || s.type === "arrow") {
+                return pDistance(px, py, s.x, s.y, s.x2, s.y2) < 10 / scale;
+            }
+            return px >= b.x - 8 / scale && px <= b.x + b.w + 8 / scale && py >= b.y - 8 / scale && py <= b.y + b.h + 8 / scale;
+        }
+
+        function hitTestHandle(s, px, py) {
+            if (s.type === "pen") return false;
+            var b = getBB(s);
+            var cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+            var r = s.rotation || 0;
+            var dx = px - cx, dy = py - cy;
+            var unrotX = cx + dx * Math.cos(-r) - dy * Math.sin(-r);
+            var unrotY = cy + dx * Math.sin(-r) + dy * Math.cos(-r);
+            var handleX = cx, handleY = b.y - 30 / scale;
+            return pDistance(unrotX, unrotY, handleX, handleY, handleX, handleY) < 15 / scale;
+        }
+
+        // 点到线段距离
+        function pDistance(x, y, x1, y1, x2, y2) {
+            var A = x - x1, B = y - y1, C = x2 - x1, D = y2 - y1;
+            var dot = A * C + B * D;
+            var len_sq = C * C + D * D;
+            var param = -1;
+            if (len_sq != 0) param = dot / len_sq;
+            var xx, yy;
+            if (param < 0) { xx = x1; yy = y1; }
+            else if (param > 1) { xx = x2; yy = y2; }
+            else { xx = x1 + param * C; yy = y1 + param * D; }
+            var dx = x - xx, dy = y - yy;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        function rectIntersect(r1, r2) {
+            return !(r2.x > r1.x + r1.w ||
+                r2.x + r2.w < r1.x ||
+                r2.y > r1.y + r1.h ||
+                r2.y + r2.h < r1.y);
+        }
+
+        function getPos(e) {
+            var r = canvas.getBoundingClientRect();
+            var rawX = e.clientX - r.left;
+            var rawY = e.clientY - r.top;
+            // 考虑缩放和平移，将屏幕坐标转换为画布逻辑坐标
+            return {
+                x: (rawX - offsetX) / scale,
+                y: (rawY - offsetY) / scale,
+                rawX: rawX,
+                rawY: rawY
+            };
+        }
+
+        // ===== Zoom and Pan handlers =====
+        canvas.addEventListener('wheel', function (e) {
+            e.preventDefault();
+            // 针对 Mac 触摸板，原生 pinch-to-zoom 在一些浏览器中表现为带有 ctrlKey 的 wheel 事件。
+            // 但如果环境无法识别 ctrlKey，也可以依靠 JavaFX 在外部捕获 ZoomEvent 然后调用 JS 函数。
+            if (e.ctrlKey || e.metaKey || e.altKey) {
+                // Command(Mac)/Ctrl/Alt + 滚轮 -> 缩放
+                var zoomSpeed = 0.05;
+                if (e.deltaY < 0) scale *= (1 + zoomSpeed);
+                else scale *= (1 - zoomSpeed);
+
+                // 限制缩放级别
+                scale = Math.max(0.1, Math.min(scale, 10));
+
+                var p = getPos(e);
+
+                // 修正平移使得以鼠标为中心缩放
+                offsetX = e.clientX - p.x * scale;
+                offsetY = e.clientY - p.y * scale;
+            } else {
+                // 普通滚轮或触摸板双指滑动 -> 平移画布
+                offsetX -= e.deltaX;
+                offsetY -= e.deltaY;
+            }
+
+            redraw();
+        }, { passive: false });
+
+        // 提供给 Java 层调用的原生 Pinch-to-Zoom 接口
+        window.nativeZoom = function (zoomFactor, cx, cy) {
+            // zoomFactor 是类似 1.1 (放大) 或 0.9 (缩小) 的倍数
+            var rawX = cx;
+            var rawY = cy;
+
+            var pX = (rawX - offsetX) / scale;
+            var pY = (rawY - offsetY) / scale;
+
+            scale *= zoomFactor;
+            scale = Math.max(0.1, Math.min(scale, 10));
+
+            offsetX = rawX - pX * scale;
+            offsetY = rawY - pY * scale;
+
+            redraw();
+        };
+
+        // ===== Mouse handlers (bound via onmousedown etc) =====
+        function onDown(e) {
+            window.focus(); // Ensure WebView has focus to receive keyboard events
+            var p = getPos(e);
+            // 中键平移画布
+            if (e.button === 1 || (e.button === 0 && e.altKey)) {
+                isPanning = true;
+                panStartX = p.rawX - offsetX;
+                panStartY = p.rawY - offsetY;
+                canvas.style.cursor = "grabbing";
+                return;
+            }
+            if (currentTool === "select") {
+                if (selected.length === 1) {
+                    var idx = selected[0];
+                    if (hitTestHandle(shapes[idx], p.x, p.y)) {
+                        isRotating = true;
+                        rotatingShapeIdx = idx;
+                        stateSnapshotOnDown = JSON.stringify(shapes);
+                        return;
+                    }
+                }
+
+                var hit = -1;
+                for (var i = shapes.length - 1; i >= 0; i--) { if (hitTest(shapes[i], p.x, p.y)) { hit = i; break; } }
+
+                if (hit >= 0) {
+                    if (selected.indexOf(hit) < 0) {
+                        selected = [hit];
+                        loadPropsFromShape(shapes[hit]);
+                    }
+                    dragging = true;
+                    dragOffX = p.x; dragOffY = p.y;
+                    stateSnapshotOnDown = JSON.stringify(shapes);
+                } else {
+                    // 点击空白处，清空选择，开始框选
+                    selected = [];
+                    marquee = { StartX: p.x, StartY: p.y, x: p.x, y: p.y };
+                    updatePropPanelVis();
+                }
+                redraw(); return;
+            }
+            if (currentTool === "text") { spawnText(p.x, p.y); return; }
+            isDrawing = true; startX = p.x; startY = p.y;
+            if (currentTool === "pen") {
+                penPoints = [[p.x, p.y]];
+                preview = makeShape("pen", startX, startY, p.x, p.y);
+                preview.pts = penPoints;
+            }
+        }
+
+        function onMove(e) {
+            var p = getPos(e);
+            if (isPanning) {
+                offsetX = p.rawX - panStartX;
+                offsetY = p.rawY - panStartY;
+                redraw();
+                return;
+            }
+            if (isRotating && rotatingShapeIdx >= 0) {
+                var s = shapes[rotatingShapeIdx];
+                var b = getBB(s);
+                var cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+                s.rotation = Math.atan2(p.y - cy, p.x - cx) + Math.PI / 2;
+                redraw();
+                return;
+            }
+            if (currentTool === "select") {
+                if (dragging) {
+                    var dx = p.x - dragOffX, dy = p.y - dragOffY;
+                    if (dx !== 0 || dy !== 0) {
+                        for (var i = 0; i < selected.length; i++) {
+                            moveShape(shapes[selected[i]], dx, dy);
+                        }
+                        dragOffX = p.x; dragOffY = p.y;
+                        redraw();
+                    }
+                    return;
+                }
+                if (marquee) {
+                    marquee.x = p.x; marquee.y = p.y;
+                    // 实时计算框选包含的形状
+                    var mx = Math.min(marquee.StartX, marquee.x);
+                    var my = Math.min(marquee.StartY, marquee.y);
+                    var mw = Math.abs(marquee.x - marquee.StartX);
+                    var mh = Math.abs(marquee.y - marquee.StartY);
+                    var mRect = { x: mx, y: my, w: mw, h: mh };
+
+                    selected = [];
+                    for (var i = 0; i < shapes.length; i++) {
+                        if (rectIntersect(getBB(shapes[i]), mRect)) {
+                            selected.push(i);
+                        }
+                    }
+                    redraw(); return;
+                }
+            }
+            if (!isDrawing) return;
+            if (currentTool === "pen") {
+                penPoints.push([p.x, p.y]);
+                preview.pts = penPoints.slice();
+            } else {
+                preview = makeShape(currentTool, startX, startY, p.x, p.y);
+            }
+            redraw();
+        }
+
+        // Context Menu Handlers
+        var ctxMenu = document.getElementById("canvas-menu");
+        canvas.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+            var p = getPos(e);
+            var hit = -1;
+            for (var i = shapes.length - 1; i >= 0; i--) { if (hitTest(shapes[i], p.x, p.y)) { hit = i; break; } }
+            if (hit >= 0 && selected.indexOf(hit) < 0) {
+                selected = [hit];
+                if (currentTool !== 'select') selectTool('select');
+                redraw();
+            }
+            if (selected.length > 0 || clipboardShapes) {
+                ctxMenu.style.left = e.clientX + 'px';
+                ctxMenu.style.top = e.clientY + 'px';
+                ctxMenu.style.display = 'block';
+            }
+        });
+        document.addEventListener('mousedown', function (e) {
+            if (ctxMenu && !ctxMenu.contains(e.target)) {
+                ctxMenu.style.display = 'none';
+            }
+        });
+
+        window.onCtxCopy = function () {
+            if (selected.length > 0) {
+                clipboardShapes = selected.map(function (idx) { return JSON.parse(JSON.stringify(shapes[idx])); });
+            }
+            if (ctxMenu) ctxMenu.style.display = 'none';
+        }
+        window.onCtxPaste = function () {
+            if (clipboardShapes && clipboardShapes.length > 0) {
+                saveSnapshot(JSON.stringify(shapes));
+                selected = [];
+                clipboardShapes.forEach(function (s) {
+                    var ns = JSON.parse(JSON.stringify(s));
+                    if (ns.type === 'rect' || ns.type === 'ellipse' || ns.type === 'text') {
+                        ns.x += 20; ns.y += 20;
+                    } else if (ns.type === 'line' || ns.type === 'arrow') {
+                        ns.x += 20; ns.y += 20; ns.x2 += 20; ns.y2 += 20;
+                    } else if (ns.type === 'pen') {
+                        ns.pts = ns.pts.map(function (pt) { return [pt[0] + 20, pt[1] + 20]; });
+                    }
+                    delete ns.rotation; delete ns.seed; // remove specific locks
+                    shapes.push(ns);
+                    selected.push(shapes.length - 1);
+                });
+                selectTool('select');
+                redraw();
+            }
+            if (ctxMenu) ctxMenu.style.display = 'none';
+        }
+        window.onCtxDelete = function () {
+            if (selected.length > 0) {
+                saveSnapshot(JSON.stringify(shapes));
+                selected.sort(function (a, b) { return b - a; }).forEach(function (id) { shapes.splice(id, 1); });
+                selected = [];
+                redraw();
+            }
+            if (ctxMenu) ctxMenu.style.display = 'none';
+        }
+        window.onCtxFront = function () {
+            if (selected.length === 1) {
+                saveSnapshot(JSON.stringify(shapes));
+                var s = shapes.splice(selected[0], 1)[0];
+                shapes.push(s);
+                selected = [shapes.length - 1];
+                redraw();
+            }
+            if (ctxMenu) ctxMenu.style.display = 'none';
+        }
+        window.onCtxBack = function () {
+            if (selected.length === 1) {
+                saveSnapshot(JSON.stringify(shapes));
+                var s = shapes.splice(selected[0], 1)[0];
+                shapes.unshift(s);
+                selected = [0];
+                redraw();
+            }
+            if (ctxMenu) ctxMenu.style.display = 'none';
+        }
+
+        function onUp(e) {
+            var p = getPos(e);
+            if (isPanning) {
+                isPanning = false;
+                canvas.style.cursor = currentTool === "select" ? "default" : (currentTool === "text" ? "text" : "crosshair");
+                return;
+            }
+            if (isRotating) {
+                isRotating = false;
+                rotatingShapeIdx = -1;
+                if (stateSnapshotOnDown && stateSnapshotOnDown !== JSON.stringify(shapes)) {
+                    saveSnapshot(stateSnapshotOnDown);
+                }
+                stateSnapshotOnDown = null;
+                return;
+            }
+            if (dragging) {
+                dragging = false;
+                if (stateSnapshotOnDown && stateSnapshotOnDown !== JSON.stringify(shapes)) {
+                    saveSnapshot(stateSnapshotOnDown);
+                }
+                stateSnapshotOnDown = null;
+            }
+            if (marquee) { marquee = null; redraw(); return; }
+            if (!isDrawing) return;
+            isDrawing = false;
+            var s;
+            if (currentTool === "pen") {
+                s = makeShape("pen", startX, startY, p.x, p.y);
+                s.pts = penPoints.slice();
+            } else {
+                s = makeShape(currentTool, startX, startY, p.x, p.y);
+            }
+            if (s && hasSize(s)) {
+                saveSnapshot(JSON.stringify(shapes)); shapes.push(s);
+            }
+            preview = null; penPoints = []; redraw();
+        }
+
+        function applyCurrentProps(s) {
+            var tp = toolProps[currentTool] || defaultProps;
+            s.color = tp.color;
+            s.fillColor = tp.fillColor;
+            s.fillStyle = tp.fillStyle;
+            s.strokeWidth = tp.strokeWidth;
+            s.strokeStyle = tp.strokeStyle;
+            s.roughness = tp.roughness;
+            s.opacity = tp.opacity;
+            return s;
+        }
+
+        function makeShape(tool, x1, y1, x2, y2) {
+            var s = null;
+            if (tool === "rect") s = { type: "rect", x: x1, y: y1, w: x2 - x1, h: y2 - y1 };
+            if (tool === "ellipse") s = { type: "ellipse", x: x1, y: y1, w: x2 - x1, h: y2 - y1 };
+            if (tool === "line") s = { type: "line", x: x1, y: y1, x2: x2, y2: y2 };
+            if (tool === "arrow") s = { type: "arrow", x: x1, y: y1, x2: x2, y2: y2 };
+            if (tool === "pen") s = { type: "pen", x: x1, y: y1 };
+            if (tool === "text") s = { type: "text", x: x1, y: y1 };
+
+            if (s) {
+                return applyCurrentProps(s);
+            }
+            return null;
+        }
+        function hasSize(s) {
+            if (s.type === "pen") return s.pts && s.pts.length > 2;
+            if (s.type === "text") return s.text && s.text.length > 0;
+            var b = getBB(s); return b.w > 3 || b.h > 3;
+        }
+        function moveShape(s, dx, dy) {
+            if (s.type === "rect" || s.type === "ellipse") { s.x += dx; s.y += dy; }
+            if (s.type === "line" || s.type === "arrow") { s.x += dx; s.y += dy; s.x2 += dx; s.y2 += dy; }
+            if (s.type === "pen") { s.pts = s.pts.map(function (p) { return [p[0] + dx, p[1] + dy]; }); }
+            if (s.type === "text") { s.x += dx; s.y += dy; }
+        }
+
+        function spawnText(x, y) {
+            commitTextInput();
+            var inp = document.createElement("input");
+            inp.type = "text";
+            // 输入框位置根据屏幕缩放和平移计算
+            var screenX = (x * scale) + offsetX;
+            var screenY = (y * scale) + offsetY;
+            var tp = toolProps['text'] || defaultProps;
+            var fSize = tp.strokeWidth && tp.strokeWidth > 2 ? 24 : 18;
+            var fontSize = fSize * scale;
+
+            var tpColor = tp.color || "default";
+            if (tpColor === "default") tpColor = darkMode ? "#e0e0e0" : "#222222";
+
+            inp.style.cssText = "position:fixed;left:" + (screenX - 4 * scale) + "px;top:" + (screenY - (fSize + 4) * scale) + "px;min-width:140px;" +
+                "border:2px dashed #5555cc;border-radius:4px;padding:2px 5px;" +
+                "background:transparent;color:" + tpColor + ";caret-color:" + tpColor + ";" +
+                "font:" + fontSize + "px 'Comic Sans MS',cursive;outline:none;z-index:300;";
+            inp.dataset.tx = x; inp.dataset.ty = y;
+            document.body.appendChild(inp);
+
+            // 延迟获取焦点，避免 mousedown 原生事件立刻抢走焦点触发 blur
+            setTimeout(function () {
+                inp.focus();
+                // 延迟绑定 onblur，防止刚刚获取焦点就立刻失去
+                setTimeout(function () {
+                    inp.onblur = function () { commitTextInput(); };
+                }, 100);
+            }, 50);
+
+            inp.onkeydown = function (e) {
+                if (e.keyCode === 13) { commitTextInput(); }
+                if (e.keyCode === 27) { inp.onblur = null; inp.remove(); textInput = null; }
+            };
+            textInput = inp;
+        }
+        function commitTextInput() {
+            if (textInput) {
+                if (textInput.value && textInput.value.trim()) {
+                    var s = makeShape("text", +textInput.dataset.tx, +textInput.dataset.ty);
+                    s.text = textInput.value.trim();
+                    saveSnapshot(JSON.stringify(shapes)); shapes.push(s);
+                }
+                textInput.onblur = null;
+                textInput.remove(); textInput = null; redraw();
+            }
+        }
+
+        // ===== Undo/Redo/Clear =====
+        function saveSnapshot(stateStr) {
+            undoStack.push(stateStr);
+            redoStack = [];
+        }
+        function undo() {
+            if (undoStack.length > 0) {
+                redoStack.push(JSON.stringify(shapes));
+                shapes = JSON.parse(undoStack.pop());
+                selected = [];
+                redraw();
+            }
+        }
+        function redo() {
+            if (redoStack.length > 0) {
+                undoStack.push(JSON.stringify(shapes));
+                shapes = JSON.parse(redoStack.pop());
+                selected = [];
+                redraw();
+            }
+        }
+        function clearAll() {
+            if (shapes.length > 0) {
+                saveSnapshot(JSON.stringify(shapes));
+                shapes = [];
+                selected = [];
+                redraw();
+            }
+        }
+
+        // ===== Keyboard =====
+        document.onkeydown = function (e) {
+            if (textInput) return;
+
+            var cmd = navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? e.metaKey : e.ctrlKey;
+            var shift = e.shiftKey;
+
+            // New (Ctrl/Cmd + N)
+            if (cmd && e.keyCode === 78) { e.preventDefault(); doNew(); return; }
+
+            // Open (Ctrl/Cmd + O)
+            if (cmd && e.keyCode === 79) { e.preventDefault(); doOpen(); return; }
+
+            // Save (Ctrl/Cmd + S)
+            if (cmd && e.keyCode === 83) { e.preventDefault(); doSave(); return; }
+
+            // Select All (Ctrl/Cmd + A)
+            if (cmd && e.keyCode === 65) {
+                e.preventDefault();
+                selected = [];
+                for (var i = 0; i < shapes.length; i++) selected.push(i);
+                selectTool('select');
+                redraw();
+                return;
+            }
+
+            // Undo (Ctrl/Cmd + Z) / Redo (Ctrl/Cmd + Y or Ctrl/Cmd + Shift + Z)
+            if (cmd && e.keyCode === 90) {
+                e.preventDefault();
+                if (shift) redo(); else undo();
+                return;
+            }
+            if (cmd && e.keyCode === 89) {
+                e.preventDefault();
+                redo();
+                return;
+            }
+
+            // Copy / Paste
+            if (cmd && e.keyCode === 67) { onCtxCopy(); e.preventDefault(); return; } // C
+            if (cmd && e.keyCode === 86) { onCtxPaste(); e.preventDefault(); return; } // V
+
+            if (e.keyCode === 46 || e.keyCode === 8) { // Delete or Backspace
+                onCtxDelete();
+                e.preventDefault();
+                return;
+            }
+
+            // Keyboard Zoom (Ctrl/Cmd + Plus/Minus/Equal/Zero)
+            if (cmd) {
+
+                // + / = (187 or 107) -> Zoom in
+                if (e.keyCode === 187 || e.keyCode === 107) {
+                    e.preventDefault();
+                    doZoom(0.1, window.innerWidth / 2, window.innerHeight / 2);
+                }
+                // - (189 or 109) -> Zoom out
+                if (e.keyCode === 189 || e.keyCode === 109) {
+                    e.preventDefault();
+                    doZoom(-0.1, window.innerWidth / 2, window.innerHeight / 2);
+                }
+                // 0 (48) -> Reset Zoom
+                if (e.keyCode === 48) {
+                    e.preventDefault();
+                    scale = 1.0;
+                    offsetX = 0; offsetY = 0;
+                    redraw();
+                }
+            }
+        };
+
+        function doZoom(delta, cx, cy) {
+            // cx, cy are screen coordinates
+            var pX = (cx - offsetX) / scale;
+            var pY = (cy - offsetY) / scale;
+            if (delta > 0) scale *= (1 + delta);
+            else scale *= (1 + delta); // Here delta is negative, so 1 + (-0.1) = 0.9.  Wait, actually just multiply by (1 + delta).
+            scale = Math.max(0.1, Math.min(scale, 10));
+            offsetX = cx - pX * scale;
+            offsetY = cy - pY * scale;
+            redraw();
+        }
+
+        function zoomIn() { doZoom(0.1, window.innerWidth / 2, window.innerHeight / 2); }
+        function zoomOut() { doZoom(-0.1, window.innerWidth / 2, window.innerHeight / 2); }
+        function zoomReset() {
+            scale = 1.0;
+            offsetX = 0; offsetY = 0;
+            redraw();
+        }
+
+        // ===== 文件序列化/反序列化 =====
+        var persistedShapesStr = "[]";
+
+        window.getDrawingData = function () {
+            var data = JSON.stringify(shapes);
+            persistedShapesStr = data; // Assumes getDrawingData means it's being saved
+            return data;
+        };
+        window.loadDrawingData = function (data) {
+            try {
+                var loaded = (typeof data === "string") ? JSON.parse(data) : data;
+                if (Array.isArray(loaded)) {
+                    undoStack = []; redoStack = []; shapes = loaded; selected = [];
+                    persistedShapesStr = JSON.stringify(shapes);
+                    redraw();
+                }
+            } catch (e) {
+                alert("文件格式错误: " + e.message);
+            }
+        };
+
+        function doNew() {
+            closeMenu();
+            var currentShapesStr = JSON.stringify(shapes);
+            if (currentShapesStr !== persistedShapesStr && shapes.length > 0) {
+                var confirmMsg = lang === "zh" ? "当前有未保存的更改，是否放弃更改并新建？" : "There are unsaved changes. Discard and create new?";
+                showConfirm(confirmMsg, function () {
+                    executeNew();
+                });
+            } else {
+                executeNew();
+            }
+        }
+
+        function executeNew() {
+            if (window.javaIO) {
+                window.javaIO.newFile();
+            }
+            undoStack = []; redoStack = []; shapes = []; selected = [];
+            persistedShapesStr = "[]";
+            scale = 1.0; offsetX = 0; offsetY = 0;
+            redraw();
+        }
+
+        function showConfirm(msg, onYes) {
+            var mask = document.createElement("div");
+            mask.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:10000;display:flex;align-items:center;justify-content:center;";
+            var dlg = document.createElement("div");
+            var bg = darkMode ? "#2c2c2c" : "#ffffff";
+            var textCol = darkMode ? "#eeeeee" : "#333333";
+            var borderCol = darkMode ? "#444" : "#ddd";
+
+            // Try to get a primary highlight color from current tool settings
+            var tp = toolProps[currentTool] || defaultProps;
+            var primaryCol = tp.stroke !== "default" ? (tp.color || "#f03e3e") : "#f03e3e";
+            if (primaryCol === "default") primaryCol = "#f03e3e"; // Fallback to a neutral action red
+
+            dlg.style.cssText = "background:" + bg + ";padding:24px;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,0.4);color:" + textCol + ";max-width:320px;text-align:center;border:1px solid " + borderCol + ";";
+            var btnStyle = "padding:6px 16px;border-radius:4px;cursor:pointer;font-size:14px;outline:none;";
+            var cancelText = lang === "zh" ? "取消" : "Cancel";
+            var okText = lang === "zh" ? "确定" : "OK";
+            dlg.innerHTML = "<div style='margin-bottom:24px;font-size:15px;line-height:1.5;'>" + msg + "</div>" +
+                "<button id='cgl-btn-cancel' style='" + btnStyle + "margin-right:12px;border:1px solid " + borderCol + ";background:transparent;color:" + textCol + ";'>" + cancelText + "</button>" +
+                "<button id='cgl-btn-ok' style='" + btnStyle + "border:none;background:" + primaryCol + ";color:#fff;'>" + okText + "</button>";
+
+            mask.appendChild(dlg);
+            document.body.appendChild(mask);
+
+            document.getElementById("cgl-btn-cancel").onclick = function () { document.body.removeChild(mask); };
+            document.getElementById("cgl-btn-ok").onclick = function () { document.body.removeChild(mask); onYes(); };
+        }
+
+        // 调用 Java 侧文件对话框
+        function doSave() {
+            closeMenu();
+            if (window.javaIO) {
+                window.javaIO.saveFile(window.getDrawingData());
+            } else {
+                alert(lang === "zh" ? "保存功能需要在 OpenCGL 中使用" : "Save requires OpenCGL application");
+            }
+        }
+        function doOpen() {
+            closeMenu();
+            if (window.javaIO) {
+                window.javaIO.openFile();
+            } else {
+                alert(lang === "zh" ? "打开功能需要在 OpenCGL 中使用" : "Open requires OpenCGL application");
+            }
+        }
+
+        // ===== Menu API =====
+        function toggleMenu(e) {
+            e.stopPropagation();
+            var m = document.getElementById("main-menu");
+            m.classList.toggle("show");
+        }
+        function closeMenu() {
+            var m = document.getElementById("main-menu");
+            if (m.classList.contains("show")) m.classList.remove("show");
+        }
+        document.addEventListener("click", function (e) {
+            var wrap = document.getElementById("menu-wrap");
+            if (wrap && !wrap.contains(e.target)) {
+                closeMenu();
+            }
+        });
+
+        function doExport() {
+            closeMenu();
+            if (!window.javaIO) {
+                alert(lang === "zh" ? "导出功能需要在 OpenCGL 中使用" : "Export requires OpenCGL application");
+                return;
+            }
+            if (shapes.length === 0) {
+                alert(lang === "zh" ? "画布为空" : "Canvas is empty");
+                return;
+            }
+
+            var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            for (var i = 0; i < shapes.length; i++) {
+                var bb = getBB(shapes[i]);
+                var shapeW = bb.w, shapeH = bb.h;
+                if (shapes[i].type === 'text') {
+                    ctx.font = "18px 'Chalkboard SE', 'Comic Sans MS', 'Comic Neue', 'Bradley Hand', 'Kaiti SC', 'Kaiti', cursive";
+                    shapeW = ctx.measureText(shapes[i].text || "").width + 10;
+                    shapeH = 30;
+                    bb.y -= 20;
+                }
+                minX = Math.min(minX, bb.x);
+                minY = Math.min(minY, bb.y);
+                maxX = Math.max(maxX, bb.x + shapeW);
+                maxY = Math.max(maxY, bb.y + shapeH);
+            }
+
+            if (minX === Infinity) return;
+
+            var pad = 40;
+            minX -= pad; minY -= pad; maxX += pad; maxY += pad;
+            var w = maxX - minX;
+            var h = maxY - minY;
+
+            var exportCanvas = document.createElement("canvas");
+            exportCanvas.width = w;
+            exportCanvas.height = h;
+            var exportCtx = exportCanvas.getContext("2d");
+
+            var isDark = document.body.classList.contains("dark");
+            exportCtx.fillStyle = isDark ? "#121212" : "#ffffff";
+            exportCtx.fillRect(0, 0, w, h);
+
+            // Backup globals
+            var oldCtx = ctx;
+            var oldRc = rc;
+
+            // Override for rendering
+            ctx = exportCtx;
+            rc = window.rough.canvas(exportCanvas);
+
+            ctx.save();
+            ctx.translate(-minX, -minY);
+            for (var i = 0; i < shapes.length; i++) {
+                drawShape(shapes[i], false, false);
+            }
+            ctx.restore();
+
+            try {
+                var dataUrl = exportCanvas.toDataURL("image/png");
+                window.javaIO.exportImage(dataUrl);
+            } catch (e) {
+                alert("Export failed: " + e.message);
+            }
+
+            // Restore globals
+            ctx = oldCtx;
+            rc = oldRc;
+        }
+
+        function showHelp() {
+            closeMenu();
+            var msg = lang === "zh" ?
+                "快捷键:\n" +
+                "Ctrl/Cmd + Z : 撤销\n" +
+                "Ctrl/Cmd + Y : 重做\n" +
+                "Delete/Backspace : 删除选中\n" +
+                "Ctrl/Cmd + +/-/0 : 缩放/重置\n" +
+                "触摸板双指 : 画布平移 / 缩放"
+                :
+                "Shortcuts:\n" +
+                "Ctrl/Cmd + Z : Undo\n" +
+                "Ctrl/Cmd + Y : Redo\n" +
+                "Delete/Backspace : Delete selected\n" +
+                "Ctrl/Cmd + +/-/0 : Zoom in/out/reset\n" +
+                "Touchpad 2-finger : Pan / Zoom";
+            alert(msg);
+        }
+
+        // ===== Java bridge =====
+        window.setTheme = function (theme) { applyTheme(theme === "dark"); };
+        window.setLang = function (l) { lang = (l && l.indexOf("zh") >= 0) ? "zh" : "en"; applyI18n(); };
+
+        // ===== Init =====
+        applyI18n();
+    </script>
+</body>
+
+</html>

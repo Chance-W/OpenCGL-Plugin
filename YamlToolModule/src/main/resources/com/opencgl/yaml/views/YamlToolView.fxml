@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.opencgl.yaml.controller.YamlToolController"
+      spacing="10" style="-fx-padding: 15; -fx-background-color: -theme-bg-primary;">
+
+    <!-- 工具栏 -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Button fx:id="formatBtn" text="%button.format" onAction="#onFormat"
+                style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;"/>
+        <Button fx:id="validateBtn" text="%button.validate" onAction="#onValidate"
+                style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
+        <Button fx:id="yamlToJsonBtn" text="%button.yaml_to_json" onAction="#onYamlToJson"
+                style="-fx-background-color: -theme-warning; -fx-text-fill: -theme-text-inverse;"/>
+        <Button fx:id="jsonToYamlBtn" text="%button.json_to_yaml" onAction="#onJsonToYaml"
+                style="-fx-background-color: -theme-accent; -fx-text-fill: -theme-text-inverse;"/>
+        <Button fx:id="yamlToPropsBtn" text="%button.yaml_to_props" onAction="#onYamlToProperties"
+                style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;"/>
+        <Button fx:id="propsToYamlBtn" text="%button.props_to_yaml" onAction="#onPropertiesToYaml"
+                style="-fx-background-color: -theme-accent; -fx-text-fill: -theme-text-inverse;"/>
+        <Button fx:id="compressBtn" text="%button.compress" onAction="#onCompress"
+                style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-inverse;"/>
+        <Button fx:id="swapBtn" text="%button.swap" onAction="#onSwap"
+                style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-inverse;"/>
+        <Button fx:id="clearBtn" text="%button.clear" onAction="#onClear"
+                style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-inverse;"/>
+        <Label fx:id="statusLabel" HBox.hgrow="ALWAYS"/>
+    </HBox>
+
+    <SplitPane dividerPositions="0.5" VBox.vgrow="ALWAYS">
+        <!-- 左侧：输入 -->
+        <VBox spacing="5" style="-fx-padding: 5;">
+            <Label fx:id="inputLabel" text="%label.input" style="-fx-text-fill: -theme-text-primary; -fx-font-weight: bold;"/>
+            <TextArea fx:id="inputArea" VBox.vgrow="ALWAYS"
+                      style="-fx-control-inner-background: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary; -fx-font-family: 'Consolas';"/>
+        </VBox>
+
+        <!-- 右侧：输出 -->
+        <VBox spacing="5" style="-fx-padding: 5;">
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label fx:id="outputLabel" text="%label.output" style="-fx-text-fill: -theme-text-primary; -fx-font-weight: bold;"/>
+                <Button fx:id="copyToInputBtn" text="%button.copy_to_input" onAction="#onCopyOutput"
+                        style="-fx-font-size: 10px;"/>
+            </HBox>
+            <TextArea fx:id="outputArea" VBox.vgrow="ALWAYS" editable="false"
+                      style="-fx-control-inner-background: -theme-bg-primary; -fx-text-fill: -theme-success; -fx-font-family: 'Consolas';"/>
+        </VBox>
+    </SplitPane>
+
+</VBox>

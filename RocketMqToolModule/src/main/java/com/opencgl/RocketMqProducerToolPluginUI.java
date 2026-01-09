@@ -3,7 +3,9 @@ package com.opencgl;
 import java.io.IOException;
 import java.net.URL;
 
-import com.opencgl.plugin.api.PluginUI;
+import com.opencgl.rocketmq.i18n.I18N;
+import com.opencgl.api.PluginUI;
+import com.opencgl.controller.RocketMqProducerWidgetController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 
@@ -11,23 +13,21 @@ public class RocketMqProducerToolPluginUI implements PluginUI {
 
     // 插件自己的ClassLoader
     private final ClassLoader pluginCl;
+    private RocketMqProducerWidgetController controller;
 
     public RocketMqProducerToolPluginUI() {
         this.pluginCl = this.getClass().getClassLoader();
     }
 
-
     @Override
     public String directoryName() {
-        return "通用工具集";
+        return I18N.get("label.category");
     }
 
     @Override
     public String name() {
-        return "RMQ-Consumer";
+        return I18N.get("label.producer_name");
     }
-
-
 
     @Override
     public URL iconPath() {
@@ -43,12 +43,13 @@ public class RocketMqProducerToolPluginUI implements PluginUI {
     public Object createView() {
         FXMLLoader loader = new FXMLLoader();
         loader.setClassLoader(pluginCl);
-        loader.setLocation(this.getClass().getClassLoader().getResource("RocketMqConsumerWidgetView.fxml"));
+        loader.setResources(I18N.getBundle(I18N.getLocale()));
+        loader.setLocation(this.getClass().getClassLoader().getResource("RocketMqProducerWidgetView.fxml"));
         Parent root;
         try {
             root = loader.load();
-        }
-        catch (IOException e) {
+            controller = loader.getController();
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
         return root;
@@ -56,6 +57,8 @@ public class RocketMqProducerToolPluginUI implements PluginUI {
 
     @Override
     public void dispose() {
-
+        RocketMqProducerWidgetController current = controller;
+        controller = null;
+        if (current != null) current.dispose();
     }
 }

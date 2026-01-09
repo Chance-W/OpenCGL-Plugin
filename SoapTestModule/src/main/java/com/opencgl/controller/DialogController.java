@@ -10,6 +10,7 @@ import com.jfoenix.controls.JFXTextArea;
 import com.jfoenix.validation.RequiredFieldValidator;
 import com.opencgl.model.DialogStyleDto;
 import com.opencgl.model.OperateTypeEnum;
+import com.opencgl.soap.i18n.I18N;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -29,14 +30,14 @@ public class DialogController {
         alert.initModality(Modality.APPLICATION_MODAL);
         alert.setOverlayClose(false);
         JFXDialogLayout layout = new JFXDialogLayout();
-        Label header = new Label("请输入名称");
+        Label header = new Label(I18N.get("dialog.enter_name"));
         layout.setHeading(header);
         TextField TextField = new TextField();
         layout.setBody(TextField);
-        RequiredFieldValidator message = new RequiredFieldValidator("请输入名称!");
+        RequiredFieldValidator message = new RequiredFieldValidator(I18N.get("dialog.enter_name_required"));
         TextField.setText(dialogStyleDto.getText());
-        JFXButton confirmButton = new JFXButton("确定");
-        JFXButton cancelButton = new JFXButton("取消");
+        JFXButton confirmButton = new JFXButton(I18N.get("dialog.confirm"));
+        JFXButton cancelButton = new JFXButton(I18N.get("dialog.cancel"));
         cancelButton.getStyleClass().add("dialog-cancle");
         confirmButton.getStyleClass().add("dialog-accept");
         confirmButton.setOnAction(event -> {
@@ -65,12 +66,12 @@ public class DialogController {
         alert.initModality(Modality.APPLICATION_MODAL);
         alert.setOverlayClose(false);
         JFXDialogLayout layout = new JFXDialogLayout();
-        Label header = new Label("通知");
+        Label header = new Label(I18N.get("dialog.notice"));
         layout.setHeading(header);
-        Label label = new Label("此操作将不可逆转,确定要这样做吗?");
+        Label label = new Label(I18N.get("dialog.confirm_irreversible"));
         layout.setBody(label);
-        JFXButton cancleButton = new JFXButton("取消");
-        JFXButton confirmButton = new JFXButton("确定");
+        JFXButton cancleButton = new JFXButton(I18N.get("dialog.cancel"));
+        JFXButton confirmButton = new JFXButton(I18N.get("dialog.confirm"));
         cancleButton.getStyleClass().add("dialog-cancle");
         cancleButton.setOnAction(event -> alert.hideWithAnimation());
         confirmButton.getStyleClass().add("dialog-accept");
@@ -88,11 +89,11 @@ public class DialogController {
         alert.initModality(Modality.APPLICATION_MODAL);
         alert.setOverlayClose(false);
         JFXDialogLayout layout = new JFXDialogLayout();
-        Label header = new Label("ERROR");
+        Label header = new Label(I18N.get("dialog.error"));
         layout.setHeading(header);
         Label label = new Label(text);
         layout.setBody(label);
-        JFXButton confirmButton = new JFXButton("Confirm");
+        JFXButton confirmButton = new JFXButton(I18N.get("dialog.confirm_btn"));
 
         confirmButton.getStyleClass().add("dialog-accept");
         confirmButton.setOnAction(event -> alert.hideWithAnimation());
@@ -108,12 +109,12 @@ public class DialogController {
         alert.initModality(Modality.APPLICATION_MODAL);
         alert.setOverlayClose(false);
         JFXDialogLayout layout = new JFXDialogLayout();
-        Label header = new Label("注册接口详情");
+        Label header = new Label(I18N.get("dialog.reg_detail"));
         layout.setHeading(header);
         layout.setFillWidth(true);
         Label label = new Label(text);
         layout.setBody(label);
-        JFXButton confirmButton = new JFXButton("确定");
+        JFXButton confirmButton = new JFXButton(I18N.get("dialog.confirm"));
         confirmButton.getStyleClass().add("dialog-accept");
         confirmButton.setOnAction(event -> {
             alert.hideWithAnimation();
@@ -130,11 +131,11 @@ public class DialogController {
         alert.initModality(Modality.APPLICATION_MODAL);
         alert.setOverlayClose(false);
         JFXDialogLayout layout = new JFXDialogLayout();
-        Label header = new Label("WSDL地址详情");
+        Label header = new Label(I18N.get("dialog.wsdl_detail"));
         layout.setHeading(header);
         TextField label = new TextField(text);
         layout.setBody(label);
-        JFXButton confirmButton = new JFXButton("确定");
+        JFXButton confirmButton = new JFXButton(I18N.get("dialog.confirm"));
         confirmButton.getStyleClass().add("dialog-accept");
         confirmButton.setOnAction(actionEvent -> alert.hideWithAnimation());
         layout.setActions(confirmButton);
@@ -157,7 +158,7 @@ public class DialogController {
         layout.setHeading(header);*/
         TextField label = new TextField(text);
         layout.setBody(label);
-        JFXButton confirmButton = new JFXButton("确定");
+        JFXButton confirmButton = new JFXButton(I18N.get("dialog.confirm"));
         confirmButton.getStyleClass().add("dialog-accept");
         confirmButton.setOnAction(actionEvent -> alert.hideWithAnimation());
         layout.setActions(confirmButton);
@@ -177,17 +178,17 @@ public class DialogController {
         alert.initModality(Modality.APPLICATION_MODAL);
         alert.setOverlayClose(false);
         JFXDialogLayout layout = new JFXDialogLayout();
-        Label header = new Label("请求返回内容");
+        Label header = new Label(I18N.get("dialog.request_response"));
         layout.setHeading(header);
         layout.setFillWidth(true);
         layout.setBody(jfxTextArea);
-        JFXButton confirmButton = new JFXButton("确定");
+        JFXButton confirmButton = new JFXButton(I18N.get("dialog.confirm"));
         confirmButton.getStyleClass().add("dialog-accept");
         confirmButton.setOnAction(event -> {
             eventBus.post(DialogStyleDto.builder().text(jfxTextArea.getText()).build());
             alert.hideWithAnimation();
         });
-        JFXButton cancelButton = new JFXButton("取消");
+        JFXButton cancelButton = new JFXButton(I18N.get("dialog.cancel"));
         cancelButton.getStyleClass().add("dialog-cancle");
         cancelButton.setOnAction(actionEvent -> alert.hideWithAnimation());
         layout.setActions(cancelButton, confirmButton);
@@ -211,17 +212,17 @@ public class DialogController {
         alert.initModality(Modality.APPLICATION_MODAL);
         alert.setOverlayClose(false);
         JFXDialogLayout layout = new JFXDialogLayout();
-        Label header = new Label("请求返回内容");
+        Label header = new Label(I18N.get("dialog.request_response"));
         layout.setHeading(header);
         layout.setFillWidth(true);
         layout.setBody(jfxTextArea);
-        JFXButton confirmButton = new JFXButton("确定");
+        JFXButton confirmButton = new JFXButton(I18N.get("dialog.confirm"));
         confirmButton.getStyleClass().add("dialog-accept");
         confirmButton.setOnAction(event -> {
             eventBus.post(DialogStyleDto.builder().type(OperateTypeEnum.CREATE).text(jfxTextArea.getText()).build());
             alert.hideWithAnimation();
         });
-        JFXButton cancelButton = new JFXButton("取消");
+        JFXButton cancelButton = new JFXButton(I18N.get("dialog.cancel"));
         cancelButton.getStyleClass().add("dialog-cancle");
         cancelButton.setOnAction(actionEvent -> alert.hideWithAnimation());
         layout.setActions(cancelButton, confirmButton);
@@ -243,14 +244,14 @@ public class DialogController {
         alert.initModality(Modality.APPLICATION_MODAL);
         alert.setOverlayClose(false);
         JFXDialogLayout layout = new JFXDialogLayout();
-        Label header = new Label("webservice配置");
+        Label header = new Label(I18N.get("dialog.webservice_config"));
         layout.setHeading(header);
         VBox bodyVbox = new VBox();
         bodyVbox.setSpacing(30);
         TextField projectNameSettingTextField = new TextField();
-        projectNameSettingTextField.setPromptText("项目名称设置..");
+        projectNameSettingTextField.setPromptText(I18N.get("dialog.project_name_prompt"));
         TextField projectUrlSettingTextField = new TextField();
-        projectUrlSettingTextField.setPromptText("项目url地址配置..");
+        projectUrlSettingTextField.setPromptText(I18N.get("dialog.project_url_prompt"));
         bodyVbox.getChildren().addAll(projectNameSettingTextField, projectUrlSettingTextField);
         layout.setBody(bodyVbox);
       /*  RequiredFieldValidator nameMessage = new RequiredFieldValidator("项目名称设置不能为空..");
@@ -272,8 +273,8 @@ public class DialogController {
             }
         });*/
 
-        JFXButton confirmButton = new JFXButton("确定");
-        JFXButton cancelButton = new JFXButton("取消");
+        JFXButton confirmButton = new JFXButton(I18N.get("dialog.confirm"));
+        JFXButton cancelButton = new JFXButton(I18N.get("dialog.cancel"));
         cancelButton.getStyleClass().add("dialog-cancle");
         confirmButton.getStyleClass().add("dialog-accept");
         confirmButton.setOnAction(event -> {

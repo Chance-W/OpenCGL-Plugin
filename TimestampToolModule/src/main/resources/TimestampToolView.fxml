@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import io.github.palexdev.materialfx.controls.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.opencgl.timestamp.controller.TimestampToolController">
+   <children>
+      <VBox spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <!-- 顶部实时时钟卡片 -->
+            <!-- -fx-background-color: #2196f3;-->
+            <VBox style="-fx-background-radius: 5;">
+               <padding>
+                  <Insets bottom="15.0" left="20.0" right="20.0" top="15.0" />
+               </padding>
+               <children>
+                  <HBox alignment="CENTER_LEFT" spacing="30.0">
+                     <children>
+                        <VBox>
+                           <children>
+                              <Label fx:id="label_local_time" text="%label.local_time" style="-fx-text-fill: -theme-text-secondary;">
+                                 <font><Font size="12.0" /></font>
+                              </Label>
+                              <Label fx:id="currentLocalTimeLabel" text="Loading..." style="-fx-text-fill: -theme-text-inverse;">
+                                 <font><Font name="System Bold" size="24.0" /></font>
+                              </Label>
+                           </children>
+                        </VBox>
+                        <Separator orientation="VERTICAL" />
+                        <VBox>
+                           <children>
+                              <Label fx:id="label_utc_time" text="%label.utc_time" style="-fx-text-fill: -theme-text-secondary;">
+                                 <font><Font size="12.0" /></font>
+                              </Label>
+                              <Label fx:id="currentUtcTimeLabel" text="Loading..." style="-fx-text-fill: -theme-text-inverse;">
+                                 <font><Font name="System Bold" size="24.0" /></font>
+                              </Label>
+                           </children>
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <VBox alignment="CENTER_RIGHT">
+                           <children>
+                              <HBox alignment="CENTER_RIGHT" spacing="10">
+                                 <Label fx:id="label_unix_seconds" text="%label.unix_seconds" style="-fx-text-fill: -theme-text-secondary;" />
+                                 <Label fx:id="unixSecondsLabel" text="0000000000" style="-fx-text-fill: -theme-text-inverse; -fx-font-family: monospace; -fx-font-size: 16;">
+                                 </Label>
+                              </HBox>
+                              <HBox alignment="CENTER_RIGHT" spacing="10">
+                                 <Label fx:id="label_unix_millis" text="%label.unix_millis" style="-fx-text-fill: -theme-text-secondary;" />
+                                 <Label fx:id="unixMillisLabel" text="0000000000000" style="-fx-text-fill: -theme-text-inverse; -fx-font-family: monospace; -fx-font-size: 16;">
+                                 </Label>
+                              </HBox>
+                           </children>
+                        </VBox>
+                        <MFXButton fx:id="pauseBtn" style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;" text="%button.pause" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+
+            <!-- 主要内容区 -->
+            <SplitPane dividerPositions="0.65" VBox.vgrow="ALWAYS">
+               <items>
+                  <!-- 左侧：转换器 -->
+                  <VBox spacing="15.0">
+                     <padding>
+                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                     </padding>
+                     <children>
+                        <Label fx:id="title_converter" text="%title.converter" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                        
+                        <HBox spacing="10.0" alignment="CENTER_LEFT">
+                           <children>
+                              <MFXTextField fx:id="inputField" floatMode="BORDER" floatingText="%prompt.input" prefWidth="400.0" />
+                              <MFXComboBox fx:id="timezoneCombo" floatMode="BORDER" floatingText="%prompt.timezone" prefWidth="200.0" />
+                           </children>
+                        </HBox>
+                        
+                        <HBox spacing="10.0">
+                           <children>
+                              <MFXButton fx:id="convertBtn" style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;" text="%button.convert" />
+                              <MFXButton fx:id="nowBtn" style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;" text="%button.now" />
+                              <MFXButton fx:id="clearBtn" style="-fx-background-color: -theme-danger; -fx-text-fill: -theme-text-inverse;" text="%button.clear" />
+                           </children>
+                        </HBox>
+                        
+                        <Separator />
+                        
+                        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+                           <content>
+                              <VBox fx:id="resultsBox" spacing="5.0">
+                                 <padding>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </padding>
+                              </VBox>
+                           </content>
+                        </ScrollPane>
+                     </children>
+                  </VBox>
+                  
+                  <!-- 右侧：计算器 - 包裹在 ScrollPane 中 -->
+                  <ScrollPane fitToWidth="true">
+                     <content>
+                        <VBox spacing="15.0">
+                           <padding>
+                              <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                           </padding>
+                           <children>
+                              <Label fx:id="title_calculator" text="%title.calculator" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                              
+                              <TitledPane fx:id="section_diff" collapsible="false" text="%section.diff">
+                                 <content>
+                                    <VBox spacing="10.0">
+                                       <children>
+                                          <MFXTextField fx:id="calcStartTimeField" floatMode="BORDER" floatingText="%prompt.start_time" maxWidth="Infinity" />
+                                          <MFXTextField fx:id="calcEndTimeField" floatMode="BORDER" floatingText="%prompt.end_time" maxWidth="Infinity" />
+                                          <HBox alignment="CENTER_RIGHT">
+                                             <Label fx:id="diffResultLabel" text="%label.wait_input" wrapText="true" />
+                                          </HBox>
+                                       </children>
+                                    </VBox>
+                                 </content>
+                              </TitledPane>
+                              
+                              <TitledPane fx:id="section_offset" collapsible="false" text="%section.offset">
+                                 <content>
+                                    <VBox spacing="10.0">
+                                       <children>
+                                          <MFXTextField fx:id="calcBaseTimeField" floatMode="BORDER" floatingText="%prompt.base_time" maxWidth="Infinity" />
+                                          <HBox spacing="5.0" alignment="CENTER_LEFT">
+                                             <MFXTextField fx:id="calcAmountField" floatMode="BORDER" floatingText="%prompt.amount" prefWidth="80.0" />
+                                             <MFXComboBox fx:id="calcUnitCombo" floatMode="BORDER" floatingText="%prompt.unit" prefWidth="100.0" />
+                                          </HBox>
+                                          <HBox spacing="10.0">
+                                             <MFXButton fx:id="calcAddBtn" style="-fx-background-color: -theme-warning; -fx-text-fill: -theme-text-inverse;" text="%button.add" />
+                                             <MFXButton fx:id="calcSubBtn" style="-fx-background-color: -theme-accent; -fx-text-fill: -theme-text-inverse;" text="%button.sub" />
+                                          </HBox>
+                                          <Label fx:id="calcResultLabel" text="%label.wait_calc" wrapText="true" style="-fx-padding: 10 0 0 0;" />
+                                       </children>
+                                    </VBox>
+                                 </content>
+                              </TitledPane>
+                              
+                              <VBox style="-fx-padding: 10;">
+                                 <children>
+                                    <Label fx:id="section_help" text="%section.help" style="-fx-font-weight: bold;" />
+                                    <Label fx:id="help_1" text="%help.1" wrapText="true" />
+                                    <Label fx:id="help_2" text="%help.2" wrapText="true" />
+                                    <Label fx:id="help_3" text="%help.3" wrapText="true" />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </VBox>
+                     </content>
+                  </ScrollPane>
+               </items>
+            </SplitPane>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

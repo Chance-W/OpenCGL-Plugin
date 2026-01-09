@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import io.github.palexdev.materialfx.controls.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.opencgl.textescape.controller.TextEscapeController">
+   <children>
+      <VBox spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+         <children>
+             <!-- 顶部控制栏 -->
+             <TitledPane collapsible="false" text="%title.operation">
+                <content>
+                   <FlowPane hgap="10.0" vgap="10.0">
+                      <children>
+                          <Label text="%label.json" style="-fx-font-weight: bold; -fx-text-fill: -theme-info;" />
+                          <MFXButton onAction="#onJsonFormat" style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;" text="%btn.format" />
+                          <MFXButton onAction="#onJsonCompress" style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;" text="%btn.compress" />
+                          <MFXButton onAction="#onJsonEscape" style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;" text="%btn.escape" />
+                          <MFXButton onAction="#onJsonUnescape" style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;" text="%btn.unescape" />
+                          <Separator orientation="VERTICAL" />
+                          <Label text="%label.htmlXml" style="-fx-font-weight: bold; -fx-text-fill: -theme-warning;" />
+                          <MFXButton onAction="#onHtmlEscape" style="-fx-background-color: -theme-warning; -fx-text-fill: -theme-text-inverse;" text="%btn.htmlEscape" />
+                          <MFXButton onAction="#onHtmlUnescape" style="-fx-background-color: -theme-warning; -fx-text-fill: -theme-text-inverse;" text="%btn.htmlUnescape" />
+                          <MFXButton onAction="#onXmlEscape" style="-fx-background-color: -theme-warning; -fx-text-fill: -theme-text-inverse;" text="%btn.xmlEscape" />
+                          <MFXButton onAction="#onXmlUnescape" style="-fx-background-color: -theme-warning; -fx-text-fill: -theme-text-inverse;" text="%btn.xmlUnescape" />
+                          <Separator orientation="VERTICAL" />
+                          <Label text="%label.url" style="-fx-font-weight: bold; -fx-text-fill: -theme-success;" />
+                          <MFXButton onAction="#onUrlEncode" style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;" text="%btn.encode" />
+                          <MFXButton onAction="#onUrlDecode" style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;" text="%btn.decode" />
+                          <Separator orientation="VERTICAL" />
+                          <Label text="%label.string" style="-fx-font-weight: bold; -fx-text-fill: -theme-accent;" />
+                          <MFXButton onAction="#onJavaEscape" style="-fx-background-color: -theme-accent; -fx-text-fill: -theme-text-inverse;" text="%btn.javaEscape" />
+                          <MFXButton onAction="#onJavaUnescape" style="-fx-background-color: -theme-accent; -fx-text-fill: -theme-text-inverse;" text="%btn.javaUnescape" />
+                          <MFXButton onAction="#onEscapeNewlines" style="-fx-background-color: -theme-accent; -fx-text-fill: -theme-text-inverse;" text="%btn.escapeNewlines" />
+                          <MFXButton onAction="#onUnescapeNewlines" style="-fx-background-color: -theme-accent; -fx-text-fill: -theme-text-inverse;" text="%btn.unescapeNewlines" />
+                          <MFXButton onAction="#onRemoveNewlines" style="-fx-background-color: -theme-accent; -fx-text-fill: -theme-text-inverse;" text="%btn.removeNewlines" />
+                      </children>
+                   </FlowPane>
+                </content>
+             </TitledPane>
+             <HBox spacing="10.0" alignment="CENTER_LEFT">
+                 <MFXButton onAction="#onExchange" style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;" text="%btn.exchange" />
+                 <MFXButton onAction="#onClear" style="-fx-background-color: -theme-danger; -fx-text-fill: -theme-text-inverse;" text="%btn.clear" />
+                 <Region HBox.hgrow="ALWAYS" />
+                 <Label fx:id="statusLabel" text="%label.statusReady" style="-fx-text-fill: -theme-text-secondary;" />
+                 <MFXButton onAction="#onCopyResult" style="-fx-background-color: -theme-accent; -fx-text-fill: -theme-text-inverse;" text="%btn.copyResult" />
+             </HBox>
+            <SplitPane dividerPositions="0.5" orientation="HORIZONTAL" VBox.vgrow="ALWAYS">
+               <items>
+                  <VBox spacing="5.0">
+                     <children>
+                        <Label text="%label.input" style="-fx-font-weight: bold;" />
+                        <TextArea fx:id="inputArea" promptText="%prompt.input" style="-fx-font-family: 'Consolas', 'Monaco', monospace;" VBox.vgrow="ALWAYS" wrapText="true" />
+                     </children>
+                     <padding><Insets bottom="5" left="5" right="5" top="5"/></padding>
+                  </VBox>
+                  <VBox spacing="5.0">
+                     <children>
+                        <Label text="%label.output" style="-fx-font-weight: bold;" />
+                        <TextArea fx:id="outputArea" promptText="%prompt.output" editable="false" style="-fx-font-family: 'Consolas', 'Monaco', monospace;" VBox.vgrow="ALWAYS" wrapText="true" />
+                     </children>
+                     <padding><Insets bottom="5" left="5" right="5" top="5"/></padding>
+                  </VBox>
+               </items>
+            </SplitPane>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

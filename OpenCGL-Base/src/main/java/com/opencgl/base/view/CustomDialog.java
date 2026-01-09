@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.opencgl.base.utils.i18n.BASE18N;
+import com.opencgl.base.utils.i18n.BaseI18N;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import io.github.palexdev.materialfx.enums.ButtonType;
@@ -19,6 +19,7 @@ import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -49,14 +50,18 @@ public class CustomDialog extends Dialog<String> {
     private void initCustomDialog() {
         initStyle(StageStyle.UNDECORATED);
         initModality(Modality.APPLICATION_MODAL);
-        getDialogPane().getStylesheets().setAll(Objects.requireNonNull(this.getClass().getResource("/com/opencgl/base/css/opencgl-dialog.css")).toExternalForm());
-        getDialogPane().getStyleClass().setAll("opencgl-dialog");
+//        getDialogPane().getStylesheets().setAll(Objects.requireNonNull(this.getClass().getResource("/com/opencgl/base/css/opencgl-dialog.css")).toExternalForm());
+//        getDialogPane().getStyleClass().setAll("opencgl-dialog");
 
-        Label label = new Label(BASE18N.getOrDefault("opencgl.base.dialog.labelHeader"));
+        Label label = new Label(BaseI18N.getOrDefault("opencgl.base.dialog.labelHeader"));
         HBox headerHBox = new HBox(label);
         textField = new MFXTextField();
         textField.setFloatMode(FloatMode.ABOVE);
-        textField.setPromptText(BASE18N.getOrDefault("opencgl.base.dialog.labelHeader"));
+        textField.setPromptText(BaseI18N.getOrDefault("opencgl.base.dialog.labelHeader"));
+        textField.setMinWidth(420);
+        textField.setPrefWidth(420);
+        textField.setPrefColumnCount(28);
+        textField.setMaxWidth(Double.MAX_VALUE);
         textField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (StringUtils.isEmpty(newValue)) {
                 textField.setStyle("-fx-border-color: red;");
@@ -75,8 +80,9 @@ public class CustomDialog extends Dialog<String> {
         });
         HBox textHBox = new HBox();
         textHBox.getChildren().add(textField);
+        HBox.setHgrow(textField, Priority.ALWAYS);
 
-        confirmButton = new MFXButton(BASE18N.getOrDefault("opencgl.base.button.confirm"));
+        confirmButton = new MFXButton(BaseI18N.getOrDefault("opencgl.base.button.confirm"));
         confirmButton.setButtonType(ButtonType.RAISED);
         confirmButton.setOnAction(event -> {
             if (textField.getText().isEmpty() || textField.getText().trim().isEmpty()) {
@@ -87,7 +93,7 @@ public class CustomDialog extends Dialog<String> {
             close();
         });
 
-        cancelButton = new MFXButton(BASE18N.getOrDefault("opencgl.base.button.cancel"));
+        cancelButton = new MFXButton(BaseI18N.getOrDefault("opencgl.base.button.cancel"));
         cancelButton.setButtonType(ButtonType.RAISED);
         cancelButton.setOnAction(event -> {
             setResult("");
@@ -101,16 +107,24 @@ public class CustomDialog extends Dialog<String> {
 
         VBox vBox = new VBox();
         vBox.getChildren().addAll(headerHBox, textHBox, buttonHBox);
-        vBox.setSpacing(20);
-        vBox.setPadding(new Insets(10));
+        vBox.setSpacing(24);
+        vBox.setPadding(new Insets(24));
+        vBox.setMinWidth(480);
         // END VBox
         getDialogPane().setContent(vBox);
+        getDialogPane().setMinWidth(500);
+        getDialogPane().setPrefWidth(500);
         Window window = Stage.getWindows().get(0);
         this.initOwner(window);
         this.setOnShown(event -> Platform.runLater(() -> {
-            this.setX(window.getX() + (window.getWidth() - this.getDialogPane().getWidth()) / 2);
-            // 位置稍微高一点，使用者视觉效果可能会好一点
-            this.setY(window.getY() + (window.getHeight() - this.getDialogPane().getHeight() - 100) / 2);
+            Window win = getDialogPane().getScene() != null ? getDialogPane().getScene().getWindow() : null;
+            if (win == null) return;
+            double paneW = getDialogPane().getWidth() > 0 ? getDialogPane().getWidth() : getDialogPane().getPrefWidth();
+            double paneH = getDialogPane().getHeight() > 0 ? getDialogPane().getHeight() : getDialogPane().getPrefHeight();
+            if (paneW <= 0) paneW = 500;
+            if (paneH <= 0) paneH = 200;
+            win.setX(window.getX() + (window.getWidth() - paneW) / 2);
+            win.setY(window.getY() + (window.getHeight() - paneH - 100) / 2);
         }));
     }
 

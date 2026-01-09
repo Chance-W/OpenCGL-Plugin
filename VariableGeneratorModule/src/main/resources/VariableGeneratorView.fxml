@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+
+<StackPane fx:id="rootPane" xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.opencgl.variable.controller.VariableGeneratorWidgetController"
+            prefHeight="600.0" prefWidth="800.0">
+    <VBox spacing="10.0">
+        <padding>
+            <Insets top="10" right="10" bottom="10" left="10"/>
+        </padding>
+        <HBox spacing="10.0" alignment="CENTER_LEFT">
+             <MFXButton fx:id="generateBtn" text="%btn.generate" onAction="#onGenerate" style="-fx-background-color: #007bff; -fx-text-fill: -theme-text-inverse;"/>
+             <MFXButton fx:id="copyBtn" text="%btn.copy" onAction="#onCopy"/>
+        </HBox>
+        <SplitPane VBox.vgrow="ALWAYS" dividerPositions="0.5">
+            <VBox spacing="5" VBox.vgrow="ALWAYS">
+                <Label text="%label.inputTemplate"/>
+                <TextArea fx:id="inputArea" VBox.vgrow="ALWAYS" wrapText="true" style="-fx-font-family: 'Consolas', monospace;"/>
+            </VBox>
+            <VBox spacing="5" VBox.vgrow="ALWAYS">
+                <Label text="%label.result"/>
+                <TextArea fx:id="outputArea" VBox.vgrow="ALWAYS" wrapText="true" editable="false" style="-fx-font-family: 'Consolas', monospace;"/>
+            </VBox>
+        </SplitPane>
+    </VBox>
+</StackPane>

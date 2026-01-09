@@ -1,0 +1,37 @@
+/* Java语法高亮样式 - IntelliJ IDEA Dark主题 */
+
+.code-area {
+    -fx-background-color: -theme-bg-primary;
+}
+
+.code-area .text {
+    -fx-fill: #a9b7c6;
+}
+
+.code-area .keyword {
+    -fx-fill: #cc7832;
+    -fx-font-weight: bold;
+}
+
+.code-area .string {
+    -fx-fill: #6a8759;
+}
+
+.code-area .comment {
+    -fx-fill: #808080;
+    -fx-font-style: italic;
+}
+
+.code-area .annotation {
+    -fx-fill: #bbb529;
+}
+
+.code-area .paren,
+.code-area .brace,
+.code-area .bracket {
+    -fx-fill: #ffc66d;
+}
+
+.code-area .semicolon {
+    -fx-fill: #cc7832;
+}

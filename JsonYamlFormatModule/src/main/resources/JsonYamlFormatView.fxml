@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.*?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+
+<StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.opencgl.jsonyaml.controller.JsonYamlFormatController">
+    <BorderPane fx:id="contentBorderPane" style="-fx-background-color: -theme-bg-primary;">
+        <top>
+            <VBox spacing="10" style="-fx-background-color: -theme-bg-secondary; -fx-padding: 12 16;">
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <Label fx:id="titleLabel" text="%label.title" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: -theme-text-primary;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <MFXButton fx:id="validateButton" text="%button.validate" prefWidth="90" prefHeight="36"/>
+                    <MFXButton fx:id="formatButton" text="%button.format" prefWidth="90" prefHeight="36"/>
+                    <MFXButton fx:id="compressButton" text="%button.compress" prefWidth="90" prefHeight="36"/>
+                    <MFXButton fx:id="clearButton" text="%button.clear" prefWidth="90" prefHeight="36"/>
+                </HBox>
+            </VBox>
+        </top>
+        <center>
+            <VBox style="-fx-padding: 10;">
+                <TabPane fx:id="typeTabPane">
+                    <Tab fx:id="jsonTab" text="%label.tab_json"/>
+                    <Tab fx:id="yamlTab" text="%label.tab_yaml"/>
+                </TabPane>
+                <SplitPane dividerPositions="0.5" style="-fx-background-color: transparent;" VBox.vgrow="ALWAYS">
+                    <VBox spacing="4" style="-fx-padding: 6;">
+                        <Label fx:id="inputLabel" text="%label.input" style="-fx-text-fill: -theme-text-secondary; -fx-font-size: 12;"/>
+                        <TextArea fx:id="inputArea" wrapText="false" style="-fx-font-family: monospace; -fx-font-size: 13; -fx-text-fill: -theme-text-primary;" VBox.vgrow="ALWAYS"/>
+                    </VBox>
+                    <VBox spacing="4" style="-fx-padding: 6;">
+                        <Label fx:id="outputLabel" text="%label.output" style="-fx-text-fill: -theme-text-secondary; -fx-font-size: 12;"/>
+                        <TextArea fx:id="outputArea" wrapText="false" editable="false" style="-fx-font-family: monospace; -fx-font-size: 13; -fx-text-fill: -theme-success;" VBox.vgrow="ALWAYS"/>
+                    </VBox>
+                </SplitPane>
+            </VBox>
+        </center>
+        <bottom>
+            <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-background-color: -theme-bg-secondary; -fx-padding: 8 15;">
+                <Label fx:id="statusLabel" text="%label.ready" style="-fx-text-fill: -theme-text-secondary;"/>
+            </HBox>
+        </bottom>
+    </BorderPane>
+</StackPane>

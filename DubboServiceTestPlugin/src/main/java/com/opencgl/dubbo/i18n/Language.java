@@ -31,16 +31,24 @@ public enum Language {
                     }
                 }
                 return Language.ENGLISH;
-            }
-            catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                 return Language.ENGLISH;
             }
-        }
-        else {
+        } else {
             return Language.ENGLISH;
         }
     }
 
+    public static Language fromLocale(Locale locale) {
+        if (locale == null)
+            return ENGLISH;
+        for (Language lang : values()) {
+            if (lang.locale.getLanguage().equals(locale.getLanguage())) {
+                return lang;
+            }
+        }
+        return ENGLISH;
+    }
 
     public Locale getLocale() {
         return locale;

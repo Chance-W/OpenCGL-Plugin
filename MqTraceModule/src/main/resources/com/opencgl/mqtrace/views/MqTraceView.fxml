@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.opencgl.mqtrace.controller.MqTraceController"
+      spacing="10" style="-fx-padding: 15; -fx-background-color: -theme-bg-primary;">
+
+    <!-- MQ 类型选择 -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="%label.mq_type" style="-fx-text-fill: -theme-text-primary; -fx-font-weight: bold;"/>
+        <ComboBox fx:id="mqTypeCombo" prefWidth="150"/>
+    </HBox>
+
+    <TabPane VBox.vgrow="ALWAYS">
+        <!-- 连接配置 Tab -->
+        <Tab text="%tab.config" closable="false">
+            <VBox spacing="20" style="-fx-padding: 15;">
+                <!-- RocketMQ 配置 -->
+                <TitledPane fx:id="rocketConfigPane" text="%pane.rocketmq" expanded="true">
+                    <VBox spacing="10" style="-fx-padding: 10;">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="%label.nameserver" style="-fx-text-fill: -theme-text-primary;"/>
+                            <TextField fx:id="rocketNamesrvField" HBox.hgrow="ALWAYS"
+                                       style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                        </HBox>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="%label.access_key" style="-fx-text-fill: -theme-text-primary;"/>
+                            <TextField fx:id="rocketAccessKeyField" prefWidth="150" promptText="%prompt.optional"
+                                       style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                            <Label text="%label.secret_key" style="-fx-text-fill: -theme-text-primary;"/>
+                            <PasswordField fx:id="rocketSecretKeyField" prefWidth="150" promptText="%prompt.optional"
+                                           style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                            <Button fx:id="rocketConnectBtn" text="%btn.connect" onAction="#onRocketConnect"
+                                    style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
+                            <Label fx:id="rocketStatusLabel"/>
+                        </HBox>
+                    </VBox>
+                </TitledPane>
+
+                <!-- RabbitMQ 配置 -->
+                <TitledPane fx:id="rabbitConfigPane" text="%pane.rabbitmq" expanded="true">
+                    <VBox spacing="10" style="-fx-padding: 10;">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="%label.host" style="-fx-text-fill: -theme-text-primary;"/>
+                            <TextField fx:id="rabbitHostField" prefWidth="150"
+                                       style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                            <Label text="%label.port" style="-fx-text-fill: -theme-text-primary;"/>
+                            <TextField fx:id="rabbitPortField" prefWidth="80"
+                                       style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                            <Label text="%label.vhost" style="-fx-text-fill: -theme-text-primary;"/>
+                            <TextField fx:id="rabbitVhostField" prefWidth="80"
+                                       style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                        </HBox>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="%label.username" style="-fx-text-fill: -theme-text-primary;"/>
+                            <TextField fx:id="rabbitUserField" prefWidth="120"
+                                       style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                            <Label text="%label.password" style="-fx-text-fill: -theme-text-primary;"/>
+                            <PasswordField fx:id="rabbitPassField" prefWidth="120"
+                                           style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                            <Button fx:id="rabbitConnectBtn" text="%btn.connect" onAction="#onRabbitConnect"
+                                    style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
+                            <Label fx:id="rabbitStatusLabel"/>
+                        </HBox>
+                    </VBox>
+                </TitledPane>
+            </VBox>
+        </Tab>
+
+        <!-- 消息追踪 Tab -->
+        <Tab text="%tab.trace" closable="false">
+            <SplitPane dividerPositions="0.25">
+                <VBox spacing="5" style="-fx-padding: 10;">
+                    <Label text="%label.topics" style="-fx-text-fill: -theme-text-primary; -fx-font-weight: bold;"/>
+                    <ListView fx:id="topicListView" VBox.vgrow="ALWAYS"
+                               style="-fx-control-inner-background: -theme-bg-tertiary;"/>
+                </VBox>
+                <VBox spacing="10" style="-fx-padding: 10;">
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <ComboBox fx:id="queryTypeCombo" prefWidth="120"/>
+                        <TextField fx:id="queryField" HBox.hgrow="ALWAYS" 
+                                   promptText="%prompt.query_input"
+                                   style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                        <Button text="%btn.query" onAction="#onQuery"
+                                style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;"/>
+                        <Button text="%btn.clear" onAction="#onClear"
+                                style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-inverse;"/>
+                    </HBox>
+                    <VBox spacing="5" VBox.vgrow="ALWAYS">
+                        <Label text="%label.query_result" style="-fx-text-fill: -theme-text-primary;"/>
+                        <TextArea fx:id="resultArea" VBox.vgrow="ALWAYS" editable="false"
+                                  style="-fx-control-inner-background: -theme-bg-primary; -fx-text-fill: -theme-success; -fx-font-family: 'Consolas';"/>
+                    </VBox>
+                </VBox>
+            </SplitPane>
+        </Tab>
+
+        <!-- 发送消息 Tab -->
+        <Tab text="%tab.send" closable="false">
+            <StackPane>
+                <!-- RocketMQ 发送 -->
+                <VBox fx:id="rocketSendPane" spacing="10" style="-fx-padding: 10;">
+                    <Label text="%label.rocket_send" style="-fx-text-fill: -theme-text-primary; -fx-font-weight: bold;"/>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="%label.topic" style="-fx-text-fill: -theme-text-primary;"/>
+                        <TextField fx:id="sendTopicField" HBox.hgrow="ALWAYS"
+                                   style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                    </HBox>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="%label.tags" style="-fx-text-fill: -theme-text-primary;"/>
+                        <TextField fx:id="sendTagsField" prefWidth="150"
+                                   style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                        <Label text="%label.keys" style="-fx-text-fill: -theme-text-primary;"/>
+                        <TextField fx:id="sendKeysField" HBox.hgrow="ALWAYS"
+                                   style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                    </HBox>
+                    <VBox spacing="5" VBox.vgrow="ALWAYS">
+                        <Label text="%label.msg_body" style="-fx-text-fill: -theme-text-primary;"/>
+                        <TextArea fx:id="sendBodyArea" VBox.vgrow="ALWAYS"
+                                  style="-fx-control-inner-background: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                    </VBox>
+                    <HBox spacing="10" alignment="CENTER">
+                        <Button text="%btn.send" onAction="#onSendRocketMessage" prefWidth="100"
+                                style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse; -fx-font-weight: bold;"/>
+                        <Label fx:id="sendStatusLabel"/>
+                    </HBox>
+                </VBox>
+
+                <!-- RabbitMQ 发送 -->
+                <VBox fx:id="rabbitSendPane" spacing="10" style="-fx-padding: 10;">
+                    <Label text="%label.rabbit_send" style="-fx-text-fill: -theme-text-primary; -fx-font-weight: bold;"/>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="%label.exchange" style="-fx-text-fill: -theme-text-primary;"/>
+                        <TextField fx:id="rabbitExchangeField" prefWidth="150"
+                                   style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                        <Label text="%label.routing_key" style="-fx-text-fill: -theme-text-primary;"/>
+                        <TextField fx:id="rabbitRoutingKeyField" HBox.hgrow="ALWAYS"
+                                   style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                    </HBox>
+                    <VBox spacing="5" VBox.vgrow="ALWAYS">
+                        <Label text="%label.msg_body" style="-fx-text-fill: -theme-text-primary;"/>
+                        <TextArea fx:id="rabbitSendBodyArea" VBox.vgrow="ALWAYS"
+                                  style="-fx-control-inner-background: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                    </VBox>
+                    <HBox spacing="10" alignment="CENTER">
+                        <Button text="%btn.send" onAction="#onSendRabbitMessage" prefWidth="100"
+                                style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse; -fx-font-weight: bold;"/>
+                        <Label fx:id="rabbitSendStatusLabel"/>
+                    </HBox>
+                </VBox>
+            </StackPane>
+        </Tab>
+
+        <!-- 订阅消费 Tab -->
+        <Tab text="%tab.subscribe" closable="false">
+            <StackPane>
+                <!-- RocketMQ 订阅 -->
+                <VBox fx:id="rocketSubscribePane" spacing="10" style="-fx-padding: 10;">
+                    <Label text="%label.rocket_sub" style="-fx-text-fill: -theme-text-primary; -fx-font-weight: bold;"/>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="%label.topic" style="-fx-text-fill: -theme-text-primary;"/>
+                        <TextField fx:id="subscribeTopicField" HBox.hgrow="ALWAYS"
+                                   style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                    </HBox>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="%label.group" style="-fx-text-fill: -theme-text-primary;"/>
+                        <TextField fx:id="subscribeGroupField" prefWidth="200"
+                                   style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                        <Label text="%label.tags" style="-fx-text-fill: -theme-text-primary;"/>
+                        <TextField fx:id="subscribeTagsField" HBox.hgrow="ALWAYS" promptText="%prompt.tags_all"
+                                   style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                    </HBox>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Button fx:id="startConsumeBtn" text="%btn.start_consume" onAction="#onStartRocketConsume"
+                                style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
+                        <Button fx:id="stopConsumeBtn" text="%btn.stop_consume" onAction="#onStopRocketConsume" disable="true"
+                                style="-fx-background-color: -theme-danger; -fx-text-fill: -theme-text-inverse;"/>
+                        <Button text="%btn.clear" onAction="#onClearConsumeResult"
+                                style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-inverse;"/>
+                    </HBox>
+                    <VBox spacing="5" VBox.vgrow="ALWAYS">
+                        <Label text="%label.consume_msg" style="-fx-text-fill: -theme-text-primary;"/>
+                        <TextArea fx:id="consumeResultArea" VBox.vgrow="ALWAYS" editable="false"
+                                  style="-fx-control-inner-background: -theme-bg-primary; -fx-text-fill: -theme-success; -fx-font-family: 'Consolas';"/>
+                    </VBox>
+                </VBox>
+
+                <!-- RabbitMQ 订阅 -->
+                <VBox fx:id="rabbitSubscribePane" spacing="10" style="-fx-padding: 10;">
+                    <Label text="%label.rabbit_sub" style="-fx-text-fill: -theme-text-primary; -fx-font-weight: bold;"/>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="%label.queue" style="-fx-text-fill: -theme-text-primary;"/>
+                        <TextField fx:id="rabbitQueueField" HBox.hgrow="ALWAYS"
+                                   style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                    </HBox>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Button fx:id="rabbitStartConsumeBtn" text="%btn.start_consume" onAction="#onStartRabbitConsume"
+                                style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
+                        <Button fx:id="rabbitStopConsumeBtn" text="%btn.stop_consume" onAction="#onStopRabbitConsume" disable="true"
+                                style="-fx-background-color: -theme-danger; -fx-text-fill: -theme-text-inverse;"/>
+                    </HBox>
+                    <VBox spacing="5" VBox.vgrow="ALWAYS">
+                        <Label text="%label.consume_msg" style="-fx-text-fill: -theme-text-primary;"/>
+                        <TextArea fx:id="rabbitConsumeResultArea" VBox.vgrow="ALWAYS" editable="false"
+                                  style="-fx-control-inner-background: -theme-bg-primary; -fx-text-fill: -theme-success; -fx-font-family: 'Consolas';"/>
+                    </VBox>
+                </VBox>
+            </StackPane>
+        </Tab>
+    </TabPane>
+
+</VBox>

@@ -22,35 +22,35 @@
                 </padding>
                 <VBox layoutX="56.0" layoutY="30.0" spacing="10">
                     <HBox spacing="40">
-                        <MFXButton fx:id="testButton" mnemonicParsing="false" text="生成随机数">
+                        <MFXButton fx:id="testButton" mnemonicParsing="false" text="%button.generateRandom">
                             <tooltip>
-                                <Tooltip text="点击在文本框生成随机数"/>
+                                <Tooltip fx:id="tooltipGenerateRandom" text="%tooltip.generateRandom"/>
                             </tooltip>
                         </MFXButton>
-                        <MFXButton fx:id="testButton2" mnemonicParsing="false" text="弹输入框">
+                        <MFXButton fx:id="testButton2" mnemonicParsing="false" text="%button.showInput">
                             <tooltip>
-                                <Tooltip text="点击弹框"/>
+                                <Tooltip fx:id="tooltipShowInput" text="%tooltip.showInput"/>
                             </tooltip>
                         </MFXButton>
-                        <MFXButton fx:id="testButton3" mnemonicParsing="false" text="loading">
+                        <MFXButton fx:id="testButton3" mnemonicParsing="false" text="%button.loading">
                             <tooltip>
-                                <Tooltip text="点击loading"/>
+                                <Tooltip fx:id="tooltipLoading" text="%tooltip.loading"/>
                             </tooltip>
                         </MFXButton>
-                        <MFXButton fx:id="testButton4" mnemonicParsing="false" text="弹提示框">
+                        <MFXButton fx:id="testButton4" mnemonicParsing="false" text="%button.showToast">
                             <tooltip>
-                                <Tooltip text="点击弹提示框"/>
+                                <Tooltip fx:id="tooltipShowToast" text="%tooltip.showToast"/>
                             </tooltip>
                         </MFXButton>
-                        <MFXButton fx:id="testButton5" disable="true" mnemonicParsing="false" text="保存树子节点内容">
+                        <MFXButton fx:id="testButton5" disable="true" mnemonicParsing="false" text="%button.saveTree">
                             <tooltip>
-                                <Tooltip text="点击保存树子节点的内容"/>
+                                <Tooltip fx:id="tooltipSaveTree" text="%tooltip.saveTree"/>
                             </tooltip>
                         </MFXButton>
                     </HBox>
                     <HBox>
                         <MFXFilterComboBox minWidth="500" maxHeight="50" fx:id="filterCombo" scrollOnOpen="true"
-                                           selectable="true" floatingText="选择" allowEdit="true" HBox.hgrow="ALWAYS"/>
+                                           selectable="true" floatingText="%combo.select" allowEdit="true" HBox.hgrow="ALWAYS"/>
                     </HBox>
                     <HBox>
                         <TextArea fx:id="testArea" layoutX="47.0" layoutY="135.0" prefHeight="500.0" prefWidth="500.0"/>

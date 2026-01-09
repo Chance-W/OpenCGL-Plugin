@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.opencgl.graphql.controller.GraphQLController"
+      spacing="10" style="-fx-padding: 15; -fx-background-color: -theme-bg-primary;">
+
+    <!-- 端点配置 -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="%label.endpoint" style="-fx-text-fill: -theme-text-primary;"/>
+        <TextField fx:id="endpointField" HBox.hgrow="ALWAYS"
+                   style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+    </HBox>
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="%label.header" style="-fx-text-fill: -theme-text-primary;"/>
+        <TextField fx:id="headerKeyField" prefWidth="120" promptText="%promptText.header_key"
+                   style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+        <TextField fx:id="headerValueField" HBox.hgrow="ALWAYS" promptText="%promptText.header_value"
+                   style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+    </HBox>
+
+    <SplitPane dividerPositions="0.5" VBox.vgrow="ALWAYS">
+        <!-- 左侧：查询 -->
+        <VBox spacing="5" style="-fx-padding: 5;">
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="%label.query" style="-fx-text-fill: -theme-text-primary; -fx-font-weight: bold;"/>
+                <Button text="%button.execute" onAction="#onExecute"
+                        style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
+                <Button text="%button.introspect" onAction="#onIntrospect"
+                        style="-fx-background-color: -theme-accent; -fx-text-fill: -theme-text-inverse;"/>
+                <Button text="%button.format" onAction="#onFormatQuery"
+                        style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;"/>
+                <Button text="%button.clear" onAction="#onClear"
+                        style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-inverse;"/>
+                <Label fx:id="statusLabel"/>
+            </HBox>
+            <TextArea fx:id="queryArea" VBox.vgrow="ALWAYS"
+                      style="-fx-control-inner-background: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary; -fx-font-family: 'Consolas';"/>
+            
+            <Label text="%label.variables" style="-fx-text-fill: -theme-text-primary;"/>
+            <TextArea fx:id="variablesArea" prefHeight="80" promptText='{"id": "123"}'
+                      style="-fx-control-inner-background: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary; -fx-font-family: 'Consolas';"/>
+        </VBox>
+
+        <!-- 右侧：响应 -->
+        <VBox spacing="5" style="-fx-padding: 5;">
+            <Label text="%label.response" style="-fx-text-fill: -theme-text-primary; -fx-font-weight: bold;"/>
+            <TextArea fx:id="responseArea" VBox.vgrow="ALWAYS" editable="false"
+                      style="-fx-control-inner-background: -theme-bg-primary; -fx-text-fill: -theme-success; -fx-font-family: 'Consolas';"/>
+        </VBox>
+    </SplitPane>
+
+</VBox>

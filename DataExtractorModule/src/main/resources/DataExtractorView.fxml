@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.String?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXComboBox?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
+
+<StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.opencgl.extractor.controller.DataExtractorController">
+    <BorderPane fx:id="contentBorderPane" style="-fx-background-color: -theme-bg-primary;">
+        <top>
+            <VBox spacing="5" style="-fx-background-color: -theme-bg-secondary; -fx-background-radius: 0 0 12 12;">
+                <padding>
+                    <Insets top="15" right="20" bottom="15" left="20"/>
+                </padding>
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <Label fx:id="titleLabel" text="%label.title" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: -theme-accent;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="dataTypeLabel" text="%label.dataType"/>
+                    <MFXComboBox fx:id="dataTypeComboBox" prefWidth="120">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="JSON"/>
+                                <String fx:value="XML"/>
+                            </FXCollections>
+        </items>
+                    </MFXComboBox>
+                    <Label fx:id="statusLabel" text="%label.statusReady" style="-fx-text-fill: -theme-text-secondary;"/>
+                </HBox>
+            </VBox>
+        </top>
+        <center>
+            <SplitPane dividerPositions="0.65" style="-fx-padding: 15;">
+                <!-- 左侧：输入和提取 -->
+                <VBox spacing="15" style="-fx-background-color: -theme-bg-tertiary; -fx-background-radius: 8; -fx-padding: 20;">
+                    <Label fx:id="inputDataLabel" text="%label.inputData" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: -theme-text-primary;"/>
+                    <VBox fx:id="inputDataContainer" VBox.vgrow="ALWAYS" 
+                          style="-fx-background-color: -theme-bg-secondary; -fx-background-radius: 4;"/>
+                    
+                    <Separator/>
+                    
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label fx:id="expressionLabel" text="%label.expression" style="-fx-font-weight: bold; -fx-text-fill: -theme-text-primary;" prefWidth="70"/>
+                        <MFXTextField fx:id="expressionField" HBox.hgrow="ALWAYS" 
+                                      promptText="%prompt.expression"/>
+                        <MFXButton fx:id="extractButton" text="%btn.extract" 
+                                   style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
+                        <MFXButton fx:id="clearButton" text="%btn.clear"
+                                   style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                    </HBox>
+                    
+                    <Label fx:id="resultLabel" text="%label.result" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: -theme-text-primary;"/>
+                    <TextArea fx:id="resultArea" VBox.vgrow="ALWAYS" editable="false" wrapText="true"
+                              style="-fx-font-family: monospace;"/>
+                </VBox>
+                
+                <!-- 右侧：表达式模板 -->
+                <VBox spacing="10" style="-fx-background-color: -theme-bg-tertiary; -fx-background-radius: 8; -fx-padding: 15;">
+                    <Label fx:id="templatesLabel" text="%label.templates" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: -theme-text-primary;"/>
+                    <Label fx:id="doubleClickLabel" text="%label.doubleClickTip" style="-fx-font-size: 12; -fx-text-fill: -theme-text-secondary;"/>
+                    <ListView fx:id="templatesList" VBox.vgrow="ALWAYS"/>
+                </VBox>
+            </SplitPane>
+        </center>
+    </BorderPane>
+</StackPane>

@@ -10,11 +10,11 @@ import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.exception.ZkInterruptedException;
 import org.I0Itec.zkclient.exception.ZkTimeoutException;
 import org.apache.dubbo.common.URL;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ZkClientTestUtil {
-    private static final Logger log = LogManager.getLogger(ZkClientTestUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(ZkClientTestUtil.class);
 
     public ZkClientTestUtil() {
     }

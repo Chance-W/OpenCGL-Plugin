@@ -3,31 +3,27 @@ package com.opencgl;
 import java.io.IOException;
 import java.net.URL;
 
-import com.opencgl.plugin.api.PluginUI;
+import com.opencgl.api.PluginUI;
+import com.opencgl.template.i18n.I18N;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 
 public class TemplatePluginUI implements PluginUI {
 
-    // 插件自己的ClassLoader
-    private final ClassLoader pluginCl;
+    private final ClassLoader pluginCl = this.getClass().getClassLoader();
 
     public TemplatePluginUI() {
-        this.pluginCl = this.getClass().getClassLoader();
     }
-
 
     @Override
     public String directoryName() {
-        return "插件开发模板演示目录";
+        return I18N.get("label.category");
     }
 
     @Override
     public String name() {
-        return "插件开发模板1";
+        return I18N.get("label.name");
     }
-
-
 
     @Override
     public URL iconPath() {
@@ -43,15 +39,13 @@ public class TemplatePluginUI implements PluginUI {
     public Object createView() {
         FXMLLoader loader = new FXMLLoader();
         loader.setClassLoader(pluginCl);
+        loader.setResources(I18N.getBundle(I18N.getLocale()));
         loader.setLocation(this.getClass().getClassLoader().getResource("com/opencgl/template/views/TemplateWidgetView.fxml"));
-        Parent root;
         try {
-            root = loader.load();
-        }
-        catch (IOException e) {
+            return loader.load();
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return root;
     }
 
     @Override

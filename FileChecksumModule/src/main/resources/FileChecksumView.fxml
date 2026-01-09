@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.String?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXComboBox?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
+
+<StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.opencgl.checksum.controller.FileChecksumController">
+    <BorderPane fx:id="contentBorderPane">
+        <top>
+            <VBox spacing="5" style="-fx-background-color: -theme-bg-primary; -fx-background-radius: 0 0 12 12;">
+                <padding>
+                    <Insets top="15" right="20" bottom="15" left="20"/>
+                </padding>
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <Label fx:id="titleLabel" text="%label.title" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="algoLabel" text="%label.algo"/>
+                    <MFXComboBox fx:id="algorithmComboBox" prefWidth="100">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="MD5"/>
+                                <String fx:value="SHA1"/>
+                                <String fx:value="SHA256"/>
+                            </FXCollections>
+                        </items>
+                    </MFXComboBox>
+                    <MFXButton fx:id="selectFileButton" text="%button.select_file"
+                               style="-fx-background-color: #27ae60; -fx-text-fill: -theme-text-inverse;"/>
+                    <MFXButton fx:id="selectFolderButton" text="%button.select_folder"
+                               style="-fx-background-color: #3498db; -fx-text-fill: -theme-text-inverse;"/>
+                    <MFXButton fx:id="clearButton" text="%button.clear"/>
+                    <MFXButton fx:id="exportButton" text="%button.export"/>
+                    <Label fx:id="statusLabel" text="%label.status_ready" style="-fx-text-fill: -theme-text-secondary;"/>
+                </HBox>
+            </VBox>
+        </top>
+        <center>
+            <VBox spacing="15" style="-fx-padding: 20;">
+                <VBox spacing="10" style="-fx-background-color: -theme-bg-tertiary; -fx-background-radius: 8; -fx-padding: 15;">
+                    <Label fx:id="resultsLabel" text="%label.results" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+                    <Label fx:id="dragDropLabel" text="%label.drag_drop" style="-fx-font-size: 12; -fx-text-fill: -theme-text-secondary;"/>
+                    <TableView fx:id="resultsTable" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="filenameColumn" text="%column.filename" prefWidth="200"/>
+                            <TableColumn fx:id="sizeColumn" text="%column.size" prefWidth="100"/>
+                            <TableColumn fx:id="algoColumn" text="%column.algo" prefWidth="80"/>
+                            <TableColumn fx:id="hashColumn" text="%column.hash" prefWidth="400"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+
+                <VBox spacing="10" style="-fx-background-color: -theme-bg-tertiary; -fx-background-radius: 8; -fx-padding: 15;">
+                    <Label fx:id="compareLabel" text="%label.compare" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label fx:id="hash1Label" text="%label.hash1" prefWidth="80"/>
+                        <MFXTextField fx:id="file1HashField" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                                      promptText="%prompt.hash1"/>
+                    </HBox>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label fx:id="hash2Label" text="%label.hash2" prefWidth="80"/>
+                        <MFXTextField fx:id="file2HashField" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                                      promptText="%prompt.hash2"/>
+                    </HBox>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <MFXButton fx:id="compareButton" text="%button.compare"
+                                   style="-fx-background-color: #e67e22; -fx-text-fill: -theme-text-inverse;"/>
+                        <Label fx:id="compareResultLabel" text="" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+                    </HBox>
+                </VBox>
+            </VBox>
+        </center>
+    </BorderPane>
+</StackPane>

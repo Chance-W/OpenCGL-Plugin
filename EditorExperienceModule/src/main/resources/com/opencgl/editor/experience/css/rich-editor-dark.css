@@ -1,0 +1,34 @@
+.keyword {
+    -fx-fill: #cc7832;
+    -fx-font-weight: bold;
+}
+
+.semicolon {
+    -fx-fill: #cc7832;
+}
+
+.paren {
+    -fx-fill: #a9b7c6;
+}
+
+.bracket {
+    -fx-fill: #a9b7c6;
+}
+
+.brace {
+    -fx-fill: #a9b7c6;
+}
+
+.string {
+    -fx-fill: #6a8759;
+}
+
+.comment {
+    -fx-fill: #808080;
+}
+
+.error {
+    -fx-underline: true;
+    -fx-fill: #ff6b68;
+    -fx-background-fill: #5c2020;
+}

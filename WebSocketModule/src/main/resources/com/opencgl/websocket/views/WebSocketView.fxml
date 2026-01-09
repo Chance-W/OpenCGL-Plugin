@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.opencgl.websocket.controller.WebSocketController"
+      spacing="10" style="-fx-padding: 15; -fx-background-color: -theme-bg-primary;">
+
+    <!-- 连接配置 -->
+    <VBox spacing="5">
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="%label.url" style="-fx-text-fill: -theme-text-primary;"/>
+            <TextField fx:id="urlField" HBox.hgrow="ALWAYS"
+                       style="-fx-text-fill: -theme-text-primary;"/>
+            <Button fx:id="connectBtn" text="%button.connect" onAction="#onConnect"
+                    style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
+            <Button fx:id="disconnectBtn" text="%button.disconnect" onAction="#onDisconnect"
+                    style="-fx-background-color: -theme-danger; -fx-text-fill: -theme-text-inverse;"/>
+        </HBox>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="%label.header" style="-fx-text-fill: -theme-text-primary;"/>
+            <TextField fx:id="headerKeyField" prefWidth="120" promptText="%prompt.headerKey"
+                       style="-fx-text-fill: -theme-text-primary;"/>
+            <TextField fx:id="headerValueField" prefWidth="200" promptText="%prompt.headerValue"
+                       style="-fx-text-fill: -theme-text-primary;"/>
+            <Label fx:id="connectionStatusLabel" HBox.hgrow="ALWAYS"/>
+        </HBox>
+    </VBox>
+
+    <SplitPane dividerPositions="0.3" VBox.vgrow="ALWAYS" orientation="VERTICAL">
+        <!-- 发送区域 -->
+        <VBox spacing="5" style="-fx-padding: 5;">
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="%label.sendMessage" style="-fx-text-fill: -theme-text-primary; -fx-font-weight: bold;"/>
+                <Button text="%button.send" onAction="#onSend"
+                        style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
+            </HBox>
+            <TextArea fx:id="messageArea" VBox.vgrow="ALWAYS" promptText="%prompt.message"
+                      style="-fx-text-fill: -theme-text-primary; -fx-font-family: 'Consolas';"/>
+        </VBox>
+
+        <!-- 接收/历史区域 -->
+        <VBox spacing="5" style="-fx-padding: 5;">
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="%label.history" style="-fx-text-fill: -theme-text-primary; -fx-font-weight: bold;"/>
+                <Button text="%button.clear" onAction="#onClearHistory"
+                        style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+            </HBox>
+            <TextArea fx:id="historyArea" VBox.vgrow="ALWAYS" editable="false"
+                      style="-fx-text-fill: -theme-success; -fx-font-family: 'Consolas';"/>
+        </VBox>
+    </SplitPane>
+
+</VBox>

@@ -4,11 +4,12 @@ import com.opencgl.qr.utils.CorrectionLevel;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TitledPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -20,10 +21,29 @@ public abstract class QRCodeGenerateView implements Initializable {
     protected AnchorPane mainPane;
 
     @FXML
-    protected Button builderButton;
+    protected TitledPane contentTitledPane;
+    @FXML
+    protected TitledPane basicTitledPane;
+    @FXML
+    protected TitledPane logoTitledPane;
 
     @FXML
-    protected Button snapshotButton;
+    protected Label foregroundLabel;
+    @FXML
+    protected Label backgroundLabel;
+    @FXML
+    protected Label errorCorrectionLabel;
+    @FXML
+    protected Label marginLabel;
+    @FXML
+    protected Label encodingLabel;
+    @FXML
+    protected Label imageFormatLabel;
+    @FXML
+    protected Label logoOverlayLabel;
+
+    @FXML
+    protected Button builderButton;
 
     @FXML
     protected TextArea contentTextField;
@@ -51,9 +71,6 @@ public abstract class QRCodeGenerateView implements Initializable {
 
     @FXML
     protected Button logoButton;
-
-    @FXML
-    protected Button snapshotDesktopButton;
 
     @FXML
     protected ChoiceBox<Integer> marginChoiceBox;

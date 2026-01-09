@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Template 6 - HTML + Java Bridge</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; }
+        h1 { color: #333; }
+        p { line-height: 1.6; color: #555; }
+        button { padding: 8px 16px; margin: 4px; cursor: pointer; }
+        .out { margin-top: 12px; padding: 10px; background: #f0f0f0; border-radius: 6px; min-height: 1.5em; }
+    </style>
+</head>
+<body>
+    <h1>Template 6 - 有 Java 接口</h1>
+    <p>本页通过 <code>window.javaBridge</code> 调用 Java 方法（主程序在加载完成后注入）。</p>
+    <div>
+        <button type="button" id="btnGreeting">获取 Java 问候语</button>
+        <button type="button" id="btnMessage">弹出 Java 对话框</button>
+    </div>
+    <div class="out" id="output"></div>
+
+    <script>
+        (function() {
+            var out = document.getElementById('output');
+            function log(msg) {
+                out.textContent = msg;
+            }
+
+            document.getElementById('btnGreeting').onclick = function() {
+                if (typeof window.javaBridge === 'undefined') {
+                    log('window.javaBridge 未就绪（未实现 WebPluginWithBridge 或尚未注入）');
+                    return;
+                }
+                try {
+                    var s = window.javaBridge.getGreeting();
+                    log('Java 返回: ' + s);
+                } catch (e) {
+                    log('调用异常: ' + e);
+                }
+            };
+
+            document.getElementById('btnMessage').onclick = function() {
+                if (typeof window.javaBridge === 'undefined') {
+                    log('window.javaBridge 未就绪');
+                    return;
+                }
+                try {
+                    window.javaBridge.showMessage('来自页面的消息');
+                    log('已调用 showMessage');
+                } catch (e) {
+                    log('调用异常: ' + e);
+                }
+            };
+        })();
+    </script>
+</body>
+</html>

@@ -58,7 +58,6 @@ public class CustomMFXFilterComboBoxSkin<T> extends MFXFilterComboBoxSkin<T> {
 
         // 根据item动态调整virtualFlow宽度,observable展开时为true 收起时为false
         comboBox.showingProperty().addListener(observable -> {
-            System.out.println(observable);
             if (BooleanUtils.isTrue(((ReadOnlyBooleanProperty) observable).get())) {
                 double maxWidthValue = 0;
                 for (int i = 0; i < comboBox.getItems().size(); i++) {
@@ -86,7 +85,7 @@ public class CustomMFXFilterComboBoxSkin<T> extends MFXFilterComboBoxSkin<T> {
         createBinding.run();
 
         VBox container = new VBox(10, searchField, virtualFlow);
-        container.getStyleClass().add("search-container");
+       // container.getStyleClass().add("search-container");
         container.setAlignment(Pos.TOP_CENTER);
         return container;
     }

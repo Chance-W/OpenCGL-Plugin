@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<VBox fx:id="rootPane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" spacing="8" styleClass="root"
+      fx:controller="com.opencgl.doctomd.controller.DocToMarkdownController"
+      stylesheets="@DocToMarkdownView.css">
+    <padding>
+        <Insets top="8" right="10" bottom="8" left="10"/>
+    </padding>
+
+    <MenuBar>
+        <Menu text="%menu.file">
+            <MenuItem text="%menu.exit" onAction="#onExit"/>
+        </Menu>
+        <Menu text="%menu.help">
+            <MenuItem text="%menu.about" onAction="#onAbout"/>
+        </Menu>
+    </MenuBar>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Button fx:id="addFilesButton" text="%btn.addFiles" onAction="#onAddFiles"/>
+        <Button fx:id="removeButton" text="%btn.remove" onAction="#onRemove"/>
+        <Button fx:id="clearButton" text="%btn.clear" onAction="#onClear"/>
+        <Region HBox.hgrow="ALWAYS"/>
+    </HBox>
+
+    <TableView fx:id="fileTable" VBox.vgrow="ALWAYS" prefHeight="200">
+        <columns>
+            <TableColumn fx:id="colFilename" text="%col.filename" prefWidth="220"/>
+            <TableColumn fx:id="colFormat" text="%col.format" prefWidth="60"/>
+            <TableColumn fx:id="colOutputDir" text="%col.outputDir" prefWidth="200"/>
+            <TableColumn fx:id="colMediaDir" text="%col.mediaDir" prefWidth="100"/>
+            <TableColumn fx:id="colStatus" text="%col.status" prefWidth="90"/>
+        </columns>
+    </TableView>
+
+    <TitledPane text="%options.title" collapsible="false">
+        <VBox spacing="6">
+            <padding>
+                <Insets top="6" right="8" bottom="8" left="8"/>
+            </padding>
+            <CheckBox fx:id="extractImagesCheck" text="%check.extractImages" selected="true"/>
+            <CheckBox fx:id="ocrCheck" text="%check.ocr" selected="false"/>
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Label text="%label.pathType"/>
+                <RadioButton fx:id="radioRelative" text="%radio.relative" selected="true"/>
+                <RadioButton fx:id="radioAbsolute" text="%radio.absolute"/>
+            </HBox>
+            <Label fx:id="tipLabel" styleClass="hint" wrapText="true"/>
+        </VBox>
+    </TitledPane>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <ProgressBar fx:id="progressBar" styleClass="doctomd-progress-bar" prefWidth="280" progress="0"
+                     HBox.hgrow="ALWAYS"/>
+        <Label fx:id="progressLabel" minWidth="45" text="0%"/>
+        <MFXButton fx:id="convertButton" text="%btn.convert" onAction="#onConvert" defaultButton="true"/>
+    </HBox>
+
+    <Label text="%label.log" style="-fx-font-weight: bold;"/>
+    <TextArea fx:id="logArea" editable="false" wrapText="true" prefHeight="100" VBox.vgrow="ALWAYS"/>
+</VBox>

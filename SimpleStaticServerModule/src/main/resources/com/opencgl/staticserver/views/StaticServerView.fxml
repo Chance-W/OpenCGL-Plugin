@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import io.github.palexdev.materialfx.controls.*?>
+
+<StackPane fx:id="rootPane" xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.opencgl.staticserver.controller.StaticServerController"
+           style="-fx-background-color: -theme-bg-primary">
+    <ScrollPane fitToWidth="true">
+        <VBox spacing="20" alignment="TOP_CENTER"
+              style="-fx-background-color: -theme-bg-primary;-fx-effect: -theme-shadow-md;">
+            <padding>
+                <Insets top="30" right="30" bottom="30" left="30"/>
+            </padding>
+
+            <!-- 标题 -->
+            <Label text="%label.title"
+                   style="-fx-font-size: 24; -fx-font-weight: bold;"/>
+
+            <!-- 目录选择 -->
+            <VBox spacing="10">
+                <Label text="%label.service_dir" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <MFXButton fx:id="selectDirButton" text="%button.add_dir"
+                               style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+                    <!--                <MFXButton fx:id="selectMultiDirButton" text="%button.add_multi"-->
+                    <!--                           style="-fx-background-color: #17a2b8; -fx-text-fill: white;"/>-->
+                    <MFXButton fx:id="removeDirButton" text="%button.remove_selected"
+                               style="-fx-background-color: #e74c3c; -fx-text-fill: white;"/>
+                </HBox>
+                <ListView fx:id="directoryListView" prefHeight="150" minHeight="100"
+                          style="-fx-border-radius: 4;"/>
+            </VBox>
+
+            <!-- 网络配置 -->
+            <VBox spacing="10">
+                <HBox spacing="15" alignment="CENTER_LEFT">
+                    <Label text="%label.ip" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+                    <ComboBox fx:id="ipComboBox" prefWidth="200" promptText="%promptText.select_ip"/>
+                    <Label text="%label.ip_hint" style="-fx-font-size: 11; -fx-text-fill: #7f8c8d;"/>
+                </HBox>
+                <HBox spacing="15" alignment="CENTER_LEFT">
+                    <Label text="%label.port" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+                    <TextField fx:id="portField" prefWidth="100" promptText="%promptText.port"
+                               style="-fx-border-radius: 4;"/>
+                </HBox>
+            </VBox>
+
+            <!-- 控制按钮 -->
+            <HBox spacing="20" alignment="CENTER">
+                <MFXButton fx:id="startButton" text="%button.start" prefWidth="150" prefHeight="45"
+                           style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;"/>
+                <MFXButton fx:id="stopButton" text="%button.stop" prefWidth="150" prefHeight="45"
+                           style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;"/>
+            </HBox>
+
+            <!-- 状态显示 -->
+            <VBox spacing="5" alignment="CENTER">
+                <Label fx:id="statusLabel" text="%status.stopped"
+                       style="-fx-font-size: 16;"/>
+                <HBox spacing="5" alignment="CENTER">
+                    <Hyperlink fx:id="urlLink" style="-fx-font-size: 14; -fx-text-fill: #3498db;"/>
+                    <MFXButton fx:id="copyUrlButton" text="%button.copy_url"/>
+                </HBox>
+
+            </VBox>
+
+            <!-- 二维码 -->
+            <VBox fx:id="qrCodeBox" spacing="10" alignment="CENTER" visible="false">
+                <Separator/>
+                <Label text="%label.scan_qr" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+                <ImageView fx:id="qrCodeImage" fitWidth="200" fitHeight="200" preserveRatio="true"/>
+            </VBox>
+
+        </VBox>
+    </ScrollPane>
+</StackPane>

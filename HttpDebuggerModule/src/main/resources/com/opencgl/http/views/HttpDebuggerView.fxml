@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import org.fxmisc.flowless.VirtualizedScrollPane?>
+<?import com.opencgl.base.controls.CustomTextArea?>
+<?import io.github.palexdev.materialfx.controls.MFXScrollPane?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.opencgl.http.controller.HttpDebuggerController">
+    <fx:define>
+        <ToggleGroup fx:id="bodyTypeGroup"/>
+    </fx:define>
+
+    <!-- 右侧：内容区域 -->
+    <StackPane fx:id="contentArea">
+        <!-- 欢迎/空状态 -->
+        <VBox fx:id="emptyState" alignment="CENTER" spacing="20">
+            <Label text="%message.empty_state" style="-fx-font-size: 16px; -fx-text-fill: -theme-text-secondary;"/>
+        </VBox>
+
+            <!-- 请求面板 -->
+            <SplitPane fx:id="requestPanel" orientation="VERTICAL" visible="false" dividerPositions="0.6">
+                <!-- Top: Request Config -->
+                <VBox spacing="10">
+                    <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+
+                    <!-- 1. 请求行 -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <ComboBox fx:id="methodComboBox" prefWidth="100"/>
+                        <TextField fx:id="urlField" HBox.hgrow="ALWAYS" promptText="%label.url_prompt"/>
+                        <Button fx:id="sendButton" text="%button.send" styleClass="primary-button" prefWidth="80"/>
+                        <Button fx:id="saveButton" text="%button.save" prefWidth="80"/>
+                        <Button fx:id="proxyButton" text="%button.proxy" prefWidth="60"/>
+                        <Button fx:id="importButton" text="%button.import" prefWidth="70"/>
+                    </HBox>
+
+                    <Label text="%label.request_config" style="-fx-font-weight: bold;"/>
+
+                    <!-- 2. 请求配置区 -->
+                    <TabPane fx:id="requestTabPane" VBox.vgrow="ALWAYS" minHeight="200">
+                        <!-- Params -->
+                    <Tab text="%tab.params" closable="false">
+                        <VBox spacing="5">
+                            <HBox spacing="10" alignment="CENTER_RIGHT">
+                                <Button fx:id="paramsBulkEditBtn" text="%button.bulk_edit" styleClass="secondary-button"/>
+                                <Button fx:id="addParamButton" text="%button.add_param" />
+                            </HBox>
+                            <StackPane VBox.vgrow="ALWAYS">
+                                <TableView fx:id="paramsTable" editable="true">
+                                    <columns>
+                                        <TableColumn fx:id="paramEnabledCol" text="%col.enabled" prefWidth="30"/>
+                                        <TableColumn fx:id="paramKeyCol" text="%col.key" prefWidth="200"/>
+                                        <TableColumn fx:id="paramValueCol" text="%col.value" prefWidth="350"/>
+                                    </columns>
+                                </TableView>
+                                <CustomTextArea fx:id="paramsBulkEditor" visible="false" managed="false" style="-fx-font-family: monospace;"/>
+                            </StackPane>
+                        </VBox>
+                    </Tab>
+
+                    <!-- Headers -->
+                    <Tab text="%tab.headers" closable="false">
+                        <VBox spacing="5">
+                            <HBox spacing="5" alignment="CENTER_RIGHT">
+                                <Button fx:id="addHeaderButton" text="%button.add_header" />
+                            </HBox>
+                            <TableView fx:id="headersTable" VBox.vgrow="ALWAYS" editable="true">
+                                <columns>
+                                    <TableColumn fx:id="headerEnabledCol" text="%col.enabled" prefWidth="30"/>
+                                    <TableColumn fx:id="headerKeyCol" text="%col.key" prefWidth="200"/>
+                                    <TableColumn fx:id="headerValueCol" text="%col.value" prefWidth="350"/>
+                                </columns>
+                            </TableView>
+                        </VBox>
+                    </Tab>
+
+                    <!-- Body -->
+                    <Tab text="%tab.body" closable="false">
+                        <VBox spacing="10">
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <RadioButton fx:id="bodyNoneRadio" text="%radio.none" toggleGroup="$bodyTypeGroup" selected="true"/>
+                                <RadioButton fx:id="bodyJsonRadio" text="%radio.json" toggleGroup="$bodyTypeGroup"/>
+                                <RadioButton fx:id="bodyFormRadio" text="%radio.form" toggleGroup="$bodyTypeGroup"/>
+                                <RadioButton fx:id="bodyRawRadio" text="%radio.raw" toggleGroup="$bodyTypeGroup"/>
+                                <RadioButton fx:id="bodyXmlRadio" text="%radio.xml" toggleGroup="$bodyTypeGroup"/>
+                                <!-- Spacer -->
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <!-- Formatting buttons -->
+                                <HBox fx:id="bodyFormatToolbar" spacing="5" alignment="CENTER_RIGHT">
+                                    <Button fx:id="formatBodyButton" text="%button.format" styleClass="secondary-button">
+                                        <tooltip><Tooltip text="%tooltip.format"/></tooltip>
+                                    </Button>
+                                    <Button fx:id="compactBodyButton" text="%button.compact" styleClass="secondary-button">
+                                        <tooltip><Tooltip text="%tooltip.compact"/></tooltip>
+                                    </Button>
+                                </HBox>
+                            </HBox>
+                            <!-- Body Content: Switch between CodeArea and TableView based on type -->
+                            <StackPane fx:id="bodyContentPane" VBox.vgrow="ALWAYS">
+                                <!-- CustomTextArea for JSON/Raw/XML/None with wrap toggle -->
+                                <StackPane fx:id="bodyRawContainer">
+                                    <VirtualizedScrollPane>
+                                        <content>
+                                            <CustomTextArea fx:id="bodyEditor" style="-fx-border-color: -theme-border;"/>
+                                        </content>
+                                    </VirtualizedScrollPane>
+                                </StackPane>
+
+                                <!-- TableView for Form (x-www-form-urlencoded) -->
+                                <VBox fx:id="bodyFormContainer" spacing="5" managed="false" visible="false">
+                                    <HBox spacing="10" alignment="CENTER_RIGHT">
+                                        <Button fx:id="formBulkEditBtn" text="%button.bulk_edit" styleClass="secondary-button"/>
+                                        <Button fx:id="addFormFieldButton" text="%button.add_form" styleClass="secondary-button"/>
+                                    </HBox>
+                                    <StackPane VBox.vgrow="ALWAYS">
+                                        <TableView fx:id="bodyFormTable" editable="true">
+                                            <columns>
+                                                <TableColumn fx:id="formKeyCol" text="%col.key" prefWidth="200" editable="true"/>
+                                                <TableColumn fx:id="formValueCol" text="%col.value" prefWidth="400" editable="true"/>
+                                            </columns>
+                                        </TableView>
+                                        <CustomTextArea fx:id="formBulkEditor" visible="false" managed="false" style="-fx-font-family: monospace;"/>
+                                    </StackPane>
+                                </VBox>
+                            </StackPane>
+                        </VBox>
+                    </Tab>
+
+                        <!-- Auth -->
+                        <Tab text="%tab.auth" closable="false">
+                            <VBox spacing="15" alignment="TOP_LEFT">
+                                <padding><Insets top="20" left="20" right="20"/></padding>
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <Label text="%auth.type" minWidth="80"/>
+                                    <ComboBox fx:id="authTypeCombo" promptText="%auth.select_type" prefWidth="200"/>
+                                </HBox>
+                                <!-- Auth Content Container -->
+                                <VBox fx:id="authContentPane" VBox.vgrow="ALWAYS" spacing="10"/>
+                            </VBox>
+                        </Tab>
+
+                        <!-- Hook（与 Dubbo 模块一致：选择文件、编辑、测试、输出） -->
+                        <Tab fx:id="hooksTab" text="%tab.hook" closable="false">
+                            <SplitPane dividerPositions="0.6" orientation="VERTICAL">
+                                <VBox spacing="10">
+                                    <padding><Insets bottom="10" left="10" right="10" top="10"/></padding>
+                                    <HBox spacing="10" alignment="CENTER_LEFT">
+                                        <Label fx:id="hookScriptLabel" text="%label.hook_script"/>
+                                        <TextField fx:id="hookScriptPathField" promptText="%prompt.hook_script" HBox.hgrow="ALWAYS"/>
+                                        <Button fx:id="browseHookButton" styleClass="secondary-button" text="...">
+                                            <tooltip><Tooltip text="%tooltip.browse_script"/></tooltip>
+                                        </Button>
+                                        <Button fx:id="saveHookButton" styleClass="secondary-button" text="%label.save_script">
+                                            <tooltip><Tooltip text="%tooltip.save_script"/></tooltip>
+                                        </Button>
+                                        <Button fx:id="testHookButton" text="%label.test_hook">
+                                            <tooltip><Tooltip text="%tooltip.test_hook"/></tooltip>
+                                        </Button>
+                                    </HBox>
+                                    <Label fx:id="scriptPreviewLabel" text="%label.script_preview"/>
+                                    <VirtualizedScrollPane VBox.vgrow="ALWAYS">
+                                        <content>
+                                            <CustomTextArea fx:id="hookPreviewTextArea" styleClass="code-area"/>
+                                        </content>
+                                    </VirtualizedScrollPane>
+                                </VBox>
+                                <VBox spacing="5">
+                                    <padding><Insets bottom="5" left="5" right="5" top="5"/></padding>
+                                    <Label fx:id="testOutputLabel" text="%label.test_output"/>
+                                    <VirtualizedScrollPane VBox.vgrow="ALWAYS">
+                                        <content>
+                                            <CustomTextArea fx:id="hookOutputTextArea" editable="false" styleClass="console-area"/>
+                                        </content>
+                                    </VirtualizedScrollPane>
+                                </VBox>
+                            </SplitPane>
+                        </Tab>
+
+                        <!-- Settings -->
+                        <Tab text="%tab.settings" closable="false">
+                            <MFXScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="edge-to-edge">
+                                <content>
+                                    <VBox spacing="15">
+                                        <padding><Insets top="20" left="20" right="20" bottom="20"/></padding>
+                                        <Label text="%label.request_config" style="-fx-font-weight: bold;"/>
+
+                                        <HBox spacing="10" alignment="CENTER_LEFT">
+                                            <Label text="%label.timeout" minWidth="120"/>
+                                            <TextField fx:id="configTimeoutField" text="30" prefWidth="80"/>
+                                        </HBox>
+
+                                        <Separator/>
+
+                                        <CheckBox fx:id="configSslCheck" text="%label.ssl_verify" selected="true"/>
+                                        <Label text="%label.ssl_verify_tip" style="-fx-font-size: 10px; -fx-text-fill: -theme-text-secondary;">
+                                            <VBox.margin><Insets top="-10" left="25"/></VBox.margin>
+                                        </Label>
+
+                                        <CheckBox fx:id="configRedirectCheck" text="%label.follow_redirect" selected="true"/>
+
+                                        <Separator/>
+
+                                        <Label text="%label.mtls_config" style="-fx-font-weight: bold;"/>
+                                        <GridPane hgap="10" vgap="10">
+                                            <Label text="%label.keystore_file" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                            <HBox spacing="5" GridPane.rowIndex="0" GridPane.columnIndex="1" HBox.hgrow="ALWAYS">
+                                                <TextField fx:id="configCertPathField" promptText="%label.cert_prompt" HBox.hgrow="ALWAYS"/>
+                                                <Button fx:id="browseCertBtn" text="..."/>
+                                            </HBox>
+
+                                            <Label text="%label.password" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                            <PasswordField fx:id="configCertPassField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                                        </GridPane>
+
+                                        <Separator/>
+
+                                        <Label text="%label.ca_config" style="-fx-font-weight: bold;"/>
+                                        <GridPane hgap="10" vgap="10">
+                                            <Label text="%label.ca_file" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                            <HBox spacing="5" GridPane.rowIndex="0" GridPane.columnIndex="1" HBox.hgrow="ALWAYS">
+                                                <TextField fx:id="configCaPathField" promptText="%label.ca_prompt" HBox.hgrow="ALWAYS"/>
+                                                <Button fx:id="browseCaBtn" text="..."/>
+                                            </HBox>
+ 
+                                            <Label text="%label.password" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                            <PasswordField fx:id="configCaPassField" promptText="%label.optional_jks" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                                        </GridPane>
+                                    </VBox>
+                                </content>
+                            </MFXScrollPane>
+                        </Tab>
+                    </TabPane>
+                </VBox>
+
+                <!-- Bottom: Response Result -->
+                <VBox spacing="5">
+                    <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                    <Label text="%label.response_result" style="-fx-font-weight: bold;"/>
+
+                    <VBox VBox.vgrow="ALWAYS" spacing="5">
+                        <HBox fx:id="responseStatusBar" spacing="20" alignment="CENTER_LEFT" style="-fx-padding: 5; -fx-background-radius: 4;">
+                            <Label fx:id="statusLabel" text="%label.status_initial" style="-fx-font-weight: bold;"/>
+                            <Label fx:id="timeLabel" text="%label.time_initial"/>
+                            <Label fx:id="sizeLabel" text="%label.size_initial"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button fx:id="previewInBrowserButton" text="%button.open_browser" visible="false" managed="false"/>
+                        </HBox>
+
+                        <TabPane fx:id="responseTabPane" VBox.vgrow="ALWAYS">
+                            <Tab text="%tab.response_body" closable="false">
+                                 <StackPane>
+                                    <VirtualizedScrollPane>
+                                        <content>
+                                            <CustomTextArea fx:id="responseBodyArea" editable="false"/>
+                                        </content>
+                                    </VirtualizedScrollPane>
+                                     <HBox fx:id="responseFabBox" alignment="TOP_RIGHT" pickOnBounds="false" spacing="5">
+                                        <padding><Insets top="5" right="5"/></padding>
+                                        <Button fx:id="formatJsonButton" text="{ }" style="-fx-background-radius: 20;">
+                                            <tooltip>
+                                                <Tooltip text="%tooltip.format"/>
+                                            </tooltip>
+                                        </Button>
+                                    </HBox>
+                                 </StackPane>
+                            </Tab>
+                            <Tab text="%tab.response_headers" closable="false">
+                                <TableView fx:id="responseHeadersTable">
+                                    <columns>
+                                        <TableColumn fx:id="respHeaderKeyCol" text="%col.key" prefWidth="200"/>
+                                        <TableColumn fx:id="respHeaderValueCol" text="%col.value" prefWidth="400"/>
+                                    </columns>
+                                </TableView>
+                            </Tab>
+                        </TabPane>
+                    </VBox>
+                </VBox>
+            </SplitPane>
+    </StackPane>
+
+</StackPane>

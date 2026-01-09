@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import org.fxmisc.flowless.VirtualizedScrollPane?>
+<?import com.opencgl.base.controls.CustomMFXFilterComboBox?>
+<?import com.opencgl.base.controls.CustomTextArea?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXComboBox?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
+<?import io.github.palexdev.mfxresources.fonts.MFXFontIcon?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.opencgl.dubbossl.controller.DubboSslWidgetController"
+           stylesheets="@./com/opencgl/css/DubboSslWidgetView.css">
+    <BorderPane fx:id="contentBorderPane" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
+                AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+        <!-- 左侧树视图通过controller代码设置 -->
+        <center>
+            <!-- 右侧主区域：按钮 + TitledPanes + 输入输出 -->
+            <VBox fx:id="mainContentVbox" spacing="1.0">
+                <!-- 第一行：操作按钮和选择器 -->
+                <VBox fx:id="operateTopVbox" spacing="1.0">
+                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                        <MFXButton fx:id="sendButton" buttonType="RAISED" onMouseClicked="#sendLabelAction" text="%btn.send">
+                            <graphic>
+                                <MFXFontIcon description="fas-play" size="15.0"/>
+                            </graphic>
+                        </MFXButton>
+                        <MFXButton fx:id="refreshButton" buttonType="RAISED" onMouseClicked="#refreshLabelAction" text="%btn.refresh">
+                            <graphic>
+                                <MFXFontIcon description="fas-arrows-rotate" size="15.0"/>
+                            </graphic>
+                        </MFXButton>
+                        <MFXButton fx:id="copyButton" buttonType="RAISED" onMouseClicked="#copyLabelAction" text="%btn.copy"
+                                   prefHeight="30.0" prefWidth="10.0">
+                            <graphic>
+                                <MFXFontIcon description="fas-copy" size="15.0"/>
+                            </graphic>
+                        </MFXButton>
+                        <MFXButton fx:id="saveButton" buttonType="RAISED" onMouseClicked="#saveLabelAction" text="%btn.save"
+                                   prefHeight="30.0" prefWidth="10.0">
+                            <graphic>
+                                <MFXFontIcon description="fas-floppy-disk" size="15.0"/>
+                            </graphic>
+                        </MFXButton>
+                        <MFXButton fx:id="settingButton" buttonType="RAISED" onMouseClicked="#settingLabelAction" text="%btn.settings"
+                                   prefHeight="30.0" prefWidth="10.0">
+                            <graphic>
+                                <MFXFontIcon description="fas-gears" size="15.0"/>
+                            </graphic>
+                        </MFXButton>
+                        <CustomMFXFilterComboBox fx:id="chooseEnvComboBox"
+                                                 floatMode="DISABLED"
+                                                 scrollOnOpen="true"
+                                                 selectable="true"
+                                                 allowEdit="true"
+                                                 prefWidth="100"
+                                                 promptText="%prompt.chooseEnv"
+                                                 style="-fx-prompt-text-fill: -theme-text-secondary;"
+                                                 HBox.hgrow="ALWAYS">
+                        </CustomMFXFilterComboBox>
+                        <CustomMFXFilterComboBox fx:id="chooseIntComboBox" editable="true" prefHeight="30"
+                                                 prefWidth="600"
+                                                 floatMode="DISABLED"
+                                                 scrollOnOpen="true"
+                                                 selectable="true"
+                                                 allowEdit="true"
+                                                 promptText="%prompt.chooseInterface"
+                                                 style="-fx-prompt-text-fill: -theme-text-secondary;"
+                                                 HBox.hgrow="ALWAYS">
+                        </CustomMFXFilterComboBox>
+                        <CustomMFXFilterComboBox fx:id="chooseMetComboBox" floatMode="DISABLED" editable="true"
+                                                 prefHeight="30"
+                                                 prefWidth="170"
+                                                 scrollOnOpen="true"
+                                                 selectable="true" allowEdit="true"
+                                                 promptText="%prompt.chooseMethod"
+                                                 style="-fx-prompt-text-fill: -theme-text-secondary;">
+                        </CustomMFXFilterComboBox>
+                        <!-- 移除下拉框 -->
+                        <padding>
+                            <Insets left="10.0" top="10"/>
+                        </padding>
+                        <HBox.margin>
+                            <Insets right="10.0"/>
+                        </HBox.margin>
+                        <VBox.margin>
+                            <Insets bottom="5.0"/>
+                        </VBox.margin>
+                    </HBox>
+                    <!-- 扩展区域：使用 TitledPane 包裹 -->
+                    <TitledPane fx:id="extTitledPane" text="%ext.title" expanded="false" collapsible="true" animated="true">
+                        <HBox fx:id="extHbox" alignment="CENTER_LEFT" spacing="10.0">
+                            <CustomMFXFilterComboBox fx:id="chooseProvideComboBox"
+                                                     prefHeight="30.0"
+                                                     prefWidth="300.0"
+                                                     floatMode="DISABLED"
+                                                     scrollOnOpen="true"
+                                                     selectable="true"
+                                                     allowEdit="true"
+                                                     promptText="%prompt.provider"
+                                                     style="-fx-prompt-text-fill: -theme-text-secondary;">
+                            </CustomMFXFilterComboBox>
+                            <MFXTextField floatMode="BORDER"
+                                          floatingText="%floating.requestType"
+                                          fx:id="extRequestType" prefWidth="400" prefHeight="30.0">
+                            </MFXTextField>
+                            <MFXTextField floatMode="BORDER"
+                                          floatingText="%floating.requestCount"
+                                          fx:id="requestCountField" prefWidth="120" prefHeight="30.0"
+                                          text="1">
+                            </MFXTextField>
+                            <MFXComboBox fx:id="hookScriptCombo"
+                                         prefWidth="150" 
+                                         prefHeight="30"
+                                         floatMode="DISABLED"
+                                         promptText="%prompt.hookScript">
+                            </MFXComboBox>
+                            <padding>
+                                <Insets left="10.0" top="10.0" bottom="10.0"/>
+                            </padding>
+                        </HBox>
+                    </TitledPane>
+                </VBox>
+                
+                <!-- TLS 证书配置区域 -->
+                <TitledPane text="%tls.title" expanded="true" collapsible="true">
+                    <GridPane hgap="10" vgap="5">
+                        <padding>
+                            <Insets left="10" right="10" top="5" bottom="5"/>
+                        </padding>
+                        <Label text="%label.clientCert" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <MFXTextField fx:id="clientCertField" prefWidth="250" prefHeight="28"
+                                      floatMode="DISABLED" promptText="%prompt.clientCert" 
+                                      GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                        <MFXButton buttonType="RAISED" prefWidth="40" text=""
+                                   onMouseClicked="#selectClientCert"
+                                   GridPane.rowIndex="0" GridPane.columnIndex="2">
+                            <graphic>
+                                <MFXFontIcon description="fas-folder-open" size="12.0"/>
+                            </graphic>
+                        </MFXButton>
+                        
+                        <Label text="%label.clientKey" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+                        <MFXTextField fx:id="clientKeyField" prefWidth="250" prefHeight="28"
+                                      floatMode="DISABLED" promptText="%prompt.clientKey" 
+                                      GridPane.rowIndex="0" GridPane.columnIndex="4"/>
+                        <MFXButton buttonType="RAISED" prefWidth="40" text=""
+                                   onMouseClicked="#selectClientKey"
+                                   GridPane.rowIndex="0" GridPane.columnIndex="5">
+                            <graphic>
+                                <MFXFontIcon description="fas-folder-open" size="12.0"/>
+                            </graphic>
+                        </MFXButton>
+                        
+                        <Label text="%label.caCert" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <MFXTextField fx:id="caCertField" prefWidth="250" prefHeight="28"
+                                      floatMode="DISABLED" promptText="%prompt.caCert" 
+                                      GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                        <MFXButton buttonType="RAISED" prefWidth="40" text=""
+                                   onMouseClicked="#selectCaCert"
+                                   GridPane.rowIndex="1" GridPane.columnIndex="2">
+                            <graphic>
+                                <MFXFontIcon description="fas-folder-open" size="12.0"/>
+                            </graphic>
+                        </MFXButton>
+                        
+                        <Label text="%label.keyPassword" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+                        <MFXTextField fx:id="keyPasswordField" prefWidth="250" prefHeight="28"
+                                      floatMode="DISABLED" promptText="%prompt.keyPassword" 
+                                      GridPane.rowIndex="1" GridPane.columnIndex="4"/>
+                    </GridPane>
+                </TitledPane>
+                
+                <!-- 输入输出区域 -->
+                <StackPane fx:id="contentInputAndOutputPane" VBox.vgrow="ALWAYS">
+                    <SplitPane dividerPositions="0.5" fx:id="splitPane">
+                        <VirtualizedScrollPane>
+                            <content>
+                                <CustomTextArea fx:id="inputTextArea"/>
+                            </content>
+                        </VirtualizedScrollPane>
+                        <VirtualizedScrollPane>
+                            <content>
+                                <CustomTextArea fx:id="outputTextArea" wrapText="true"/>
+                            </content>
+                        </VirtualizedScrollPane>
+                    </SplitPane>
+                </StackPane>
+            </VBox>
+        </center>
+    </BorderPane>
+</StackPane>

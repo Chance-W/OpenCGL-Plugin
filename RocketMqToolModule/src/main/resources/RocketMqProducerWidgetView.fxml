@@ -15,8 +15,8 @@
     <BorderPane fx:id="contentBorderPane" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
                 AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
         <top>
-            <VBox spacing="1.0" style="-fx-background-color:WHITE" BorderPane.alignment="CENTER">
-                <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-background-color:WHITE">
+            <VBox spacing="1.0" BorderPane.alignment="CENTER">
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
                     <MFXButton fx:id="refreshButton" buttonType="RAISED" onMouseClicked="#refreshLabelAction"
                                prefHeight="30.0" prefWidth="10.0" text="">
                         <graphic>
@@ -36,18 +36,18 @@
                         </graphic>
                     </MFXButton>
                     <MFXTextField fx:id="nameServerAddrTextField" prefHeight="30"
-                                  prefWidth="200.0" promptText="NameServerAddr"
-                                  style="-fx-prompt-text-fill:rgba(63,75,77,0.39)"
+                                  prefWidth="200.0" promptText="%prompt.namesrv_addr"
+                                  style="-fx-prompt-text-fill:-theme-text-secondary"
                                   HBox.hgrow="ALWAYS">
                     </MFXTextField>
                     <MFXTextField fx:id="topicTextField" prefHeight="30"
-                                  prefWidth="300.0" promptText="Topic" style="-fx-prompt-text-fill:rgba(63,75,77,0.39)">
+                                  prefWidth="300.0" promptText="%prompt.topic" style="-fx-prompt-text-fill:-theme-text-secondary">
                     </MFXTextField>
                     <MFXTextField fx:id="tagsTextField" prefHeight="30"
-                                  prefWidth="170" promptText="tags" style="-fx-prompt-text-fill:rgba(63,75,77,0.39)">
+                                  prefWidth="170" promptText="%prompt.tags" style="-fx-prompt-text-fill:-theme-text-secondary">
                     </MFXTextField>
                     <MFXTextField fx:id="countTextField" text="1" prefHeight="30"
-                                  prefWidth="50" promptText="循环次数" style="-fx-prompt-text-fill:rgba(63,75,77,0.39)">
+                                  prefWidth="50" promptText="%prompt.loop_count" style="-fx-prompt-text-fill:-theme-text-secondary">
                     </MFXTextField>
                     <MFXButton fx:id="sendButton" buttonType="RAISED" onMouseClicked="#sendLabelAction"
                                prefHeight="30.0" prefWidth="10.0" text="">

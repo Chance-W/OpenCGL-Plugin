@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Template 6 - HTML Only</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; }
+        h1 { color: #333; }
+        p { line-height: 1.6; color: #555; }
+        .note { background: #f5f5f5; padding: 12px; border-radius: 8px; margin-top: 16px; }
+    </style>
+</head>
+<body>
+    <h1>Template 6 - 无 Java 接口</h1>
+    <p>本页为纯 HTML，由插件通过 <code>createView()</code> 返回 URL 或 HTML 字符串加载。</p>
+    <p>主程序仅做 <code>WebEngine.load()</code> / <code>loadContent()</code>，不注入任何 <code>window.javaBridge</code>。</p>
+    <div class="note">
+        <strong>说明：</strong>不接入主题与语言切换，适用于静态说明页、简单工具页等。
+    </div>
+</body>
+</html>

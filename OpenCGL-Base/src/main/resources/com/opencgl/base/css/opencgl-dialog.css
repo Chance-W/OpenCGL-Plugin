@@ -1,6 +1,4 @@
-@import 'Fonts.css';
-@import 'Common.css';
-@import 'MFXColors.css';
+/* opencgl-dialog.css - 主题化版本 */
 
 .opencgl-dialog {
     -fx-border-width: 6;
@@ -8,12 +6,15 @@
     -fx-background-insets: 0;
 }
 
-
 .mfx-button {
     -fx-font-family: 'Visby Round CF Medium';
-    -fx-text-fill: -mfx-text-he;
+    -fx-text-fill: -theme-text-primary;
     -fx-pref-height: 27px;
-    -fx-background-color: rgb(240, 240, 240);
+    -fx-background-color: -theme-bg-secondary;
+}
+
+.mfx-button:hover {
+    -fx-background-color: -theme-card-hover-bg;
 }
 
 .mfx-button .mfx-ripple-generator {
@@ -22,7 +23,6 @@
 }
 
 .mfx-button .text {
-    -fx-background-color: red;
     -fx-font-smoothing-type: lcd;
 }
 
@@ -30,8 +30,18 @@
     -fx-pref-height: 40px;
     -fx-pref-width: 400;
     -fx-font-family: 'Visby Round CF Medium';
+    -fx-text-fill: -theme-text-primary;
+    -fx-background-color: -theme-bg-primary;
 }
 
 .text-field .floating-text {
     -fx-font-family: 'Visby Round CF Medium';
+    -fx-fill: -theme-text-secondary;
+}
+
+.opencgl-dialog .dialog-text-area .content{
+    -fx-background-color: -theme-bg-primary;
+    -fx-text-fill: -theme-text-primary;
+    -fx-border-color:transparent;
+    background-color: -theme-bg-primary;
 }

@@ -1,9 +1,11 @@
 package com.opencgl.base.utils.i18n;
 
 import java.util.Locale;
-
 import org.apache.commons.lang.StringUtils;
 
+/**
+ * OpenCGL 支持的语言枚举
+ */
 public enum BaseLanguage {
     ARABIC(Locale.forLanguageTag("ar")),
     CZECH(Locale.forLanguageTag("cs-cz")),
@@ -31,16 +33,13 @@ public enum BaseLanguage {
                     }
                 }
                 return BaseLanguage.ENGLISH;
-            }
-            catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                 return BaseLanguage.ENGLISH;
             }
-        }
-        else {
+        } else {
             return BaseLanguage.ENGLISH;
         }
     }
-
 
     public Locale getLocale() {
         return locale;

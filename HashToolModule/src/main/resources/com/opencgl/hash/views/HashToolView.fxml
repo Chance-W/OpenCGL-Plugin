@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.opencgl.hash.controller.HashToolController"
+      spacing="10" style="-fx-padding: 15; -fx-background-color: -theme-bg-primary;">
+
+    <!-- 顶部工具栏 -->
+    <HBox spacing="15" alignment="CENTER_LEFT">
+        <Label text="%label.algo" style="-fx-text-fill: -theme-text-primary;"/>
+        <ComboBox fx:id="algorithmCombo" prefWidth="120"/>
+
+        <Separator orientation="VERTICAL"/>
+
+        <Label text="%label.input_type" style="-fx-text-fill: -theme-text-primary;"/>
+        <HBox spacing="10">
+            <fx:define>
+                <ToggleGroup fx:id="inputTypeGroup"/>
+            </fx:define>
+            <RadioButton fx:id="textRadio" text="%label.type_text" toggleGroup="$inputTypeGroup"
+                         style="-fx-text-fill: -theme-text-primary;"/>
+            <RadioButton fx:id="fileRadio" text="%label.type_file" toggleGroup="$inputTypeGroup"
+                         style="-fx-text-fill: -theme-text-primary;"/>
+        </HBox>
+
+        <Separator orientation="VERTICAL"/>
+
+        <CheckBox fx:id="upperCaseCheck" text="%check.upper" selected="true"
+                  style="-fx-text-fill: -theme-text-primary;"/>
+    </HBox>
+
+    <VBox spacing="5" VBox.vgrow="ALWAYS">
+        <Label text="%label.input" style="-fx-text-fill: -theme-text-primary;"/>
+
+        <TextArea fx:id="inputTextArea" VBox.vgrow="ALWAYS"
+                  promptText="%prompt.input"
+                  style="-fx-control-inner-background: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+
+        <HBox fx:id="fileInputBox" spacing="10" visible="false" managed="false">
+            <TextField fx:id="filePathField" HBox.hgrow="ALWAYS"
+                       promptText="%prompt.file"
+                       style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+            <Button fx:id="chooseFileBtn" text="%button.browse" onAction="#onChooseFile"
+                    style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;"/>
+        </HBox>
+    </VBox>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Button fx:id="calculateBtn" text="%button.calc" onAction="#onCalculate" prefWidth="120"
+                style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse; -fx-font-weight: bold;"/>
+        <Button text="%button.copy_result" onAction="#onCopy" prefWidth="100"
+                style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;"/>
+        <Button text="%button.clear" onAction="#onClear" prefWidth="80"
+                style="-fx-background-color: -theme-danger; -fx-text-fill: -theme-text-inverse;"/>
+    </HBox>
+
+    <VBox spacing="5">
+        <Label text="%label.result" style="-fx-text-fill: -theme-text-primary;"/>
+        <TextArea fx:id="resultArea" prefHeight="80" editable="false"
+                  style="-fx-control-inner-background: -theme-bg-primary; -fx-text-fill: -theme-info; -fx-font-family: 'Consolas';"/>
+    </VBox>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="%label.verify" style="-fx-text-fill: -theme-text-primary;"/>
+        <TextField fx:id="verifyField" HBox.hgrow="ALWAYS"
+                   promptText="%prompt.verify"
+                   style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+        <Label fx:id="verifyResultLabel" prefWidth="80"/>
+    </HBox>
+
+</VBox>

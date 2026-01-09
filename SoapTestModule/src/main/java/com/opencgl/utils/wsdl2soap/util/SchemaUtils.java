@@ -4,7 +4,8 @@ import com.opencgl.utils.wsdl2soap.ws.common.ResourceUtils;
 import com.opencgl.utils.wsdl2soap.ws.SoapBuilderException;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.xmlbeans.*;
 import org.w3c.dom.*;
 
@@ -14,7 +15,7 @@ import java.net.URL;
 import java.util.*;
 
 public class SchemaUtils {
-    private final static Logger log = Logger.getLogger(SchemaUtils.class);
+    private final static Logger log = LoggerFactory.getLogger(SchemaUtils.class);
     private static Map<String, XmlObject> defaultSchemas = new HashMap<String, XmlObject>();
 
     public static final boolean STRICT_SCHEMA_TYPES = false;

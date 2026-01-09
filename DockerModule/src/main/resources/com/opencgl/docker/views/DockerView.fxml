@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.opencgl.docker.controller.DockerController"
+      spacing="10" style="-fx-padding: 15; -fx-background-color: -theme-bg-primary;">
+
+    <!-- 连接配置 -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="%label.dockerHost" style="-fx-text-fill: -theme-text-primary;"/>
+        <TextField fx:id="dockerHostField" prefWidth="300"
+                   style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+        <Button fx:id="connectBtn" text="%button.connect" onAction="#onConnect"
+                style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
+        <Label fx:id="connectionStatusLabel"/>
+    </HBox>
+
+    <TabPane VBox.vgrow="ALWAYS">
+        <!-- 容器管理 Tab -->
+        <Tab text="%tab.containers" closable="false">
+            <VBox spacing="10" style="-fx-padding: 10;">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Button text="%button.refresh" onAction="#onRefreshContainers"
+                            style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;"/>
+                    <CheckBox fx:id="showAllCheckBox" text="%check.showAll" style="-fx-text-fill: -theme-text-primary;"/>
+                    <Separator orientation="VERTICAL"/>
+                    <Button text="%button.start" onAction="#onStartContainer"
+                            style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
+                    <Button text="%button.stop" onAction="#onStopContainer"
+                            style="-fx-background-color: -theme-warning; -fx-text-fill: -theme-text-inverse;"/>
+                    <Button text="%button.restart" onAction="#onRestartContainer"
+                            style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;"/>
+                    <Button text="%button.remove" onAction="#onRemoveContainer"
+                            style="-fx-background-color: -theme-danger; -fx-text-fill: -theme-text-inverse;"/>
+                </HBox>
+                
+                <TableView fx:id="containerTable" VBox.vgrow="ALWAYS"
+                           style="-fx-control-inner-background: -theme-bg-tertiary;">
+                    <columns>
+                        <TableColumn fx:id="containerIdCol" text="%col.id" prefWidth="100"/>
+                        <TableColumn fx:id="containerImageCol" text="%col.image" prefWidth="200"/>
+                        <TableColumn fx:id="containerNameCol" text="%col.name" prefWidth="150"/>
+                        <TableColumn fx:id="containerStateCol" text="%col.state" prefWidth="80"/>
+                        <TableColumn fx:id="containerStatusCol" text="%col.status" prefWidth="200"/>
+                    </columns>
+                </TableView>
+            </VBox>
+        </Tab>
+
+        <!-- 镜像管理 Tab -->
+        <Tab text="%tab.images" closable="false">
+            <VBox spacing="10" style="-fx-padding: 10;">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Button text="%button.refresh" onAction="#onRefreshImages"
+                            style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;"/>
+                    <Button text="%button.removeImage" onAction="#onRemoveImage"
+                            style="-fx-background-color: -theme-danger; -fx-text-fill: -theme-text-inverse;"/>
+                </HBox>
+                
+                <TableView fx:id="imageTable" VBox.vgrow="ALWAYS"
+                           style="-fx-control-inner-background: -theme-bg-tertiary;">
+                    <columns>
+                        <TableColumn fx:id="imageIdCol" text="%col.id" prefWidth="120"/>
+                        <TableColumn fx:id="imageTagCol" text="%col.tag" prefWidth="300"/>
+                        <TableColumn fx:id="imageSizeCol" text="%col.size" prefWidth="100"/>
+                    </columns>
+                </TableView>
+            </VBox>
+        </Tab>
+
+        <!-- 日志 Tab -->
+        <Tab text="%tab.logs" closable="false">
+            <VBox spacing="5" style="-fx-padding: 10;">
+                <TextArea fx:id="logArea" VBox.vgrow="ALWAYS" editable="false"
+                          style="-fx-control-inner-background: -theme-bg-primary; -fx-text-fill: -theme-success; -fx-font-family: 'Consolas';"/>
+            </VBox>
+        </Tab>
+    </TabPane>
+
+</VBox>

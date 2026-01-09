@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+    <top>
+        <ToolBar>
+            <ToggleButton fx:id="monitorToggle" text="%btn.monitorOn"/>
+            <Button fx:id="clearButton" text="%btn.clear"/>
+            <Separator orientation="VERTICAL"/>
+            <Label text="%label.search"/>
+            <TextField fx:id="searchField" promptText="%prompt.filter" prefWidth="200"/>
+        </ToolBar>
+    </top>
+
+    <center>
+        <VBox spacing="5">
+            <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+            
+            <Label fx:id="countLabel" text="%label.historyCountInitial" style="-fx-font-weight: bold;"/>
+            
+            <ListView fx:id="historyList" VBox.vgrow="ALWAYS">
+                <!-- Custom cell factory will be set in controller -->
+            </ListView>
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox spacing="10" alignment="CENTER" style="-fx-padding: 10;">
+            <Button fx:id="copyButton" text="%btn.copy"/>
+            <Button fx:id="deleteButton" text="%btn.delete"/>
+            <Button fx:id="favoriteButton" text="%btn.favorite"/>
+        </HBox>
+    </bottom>
+</BorderPane>

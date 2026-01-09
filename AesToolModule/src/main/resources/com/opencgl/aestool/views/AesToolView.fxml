@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<StackPane fx:id="rootPane" xmlns="http://javafx.com/javafx/19"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.opencgl.aestool.controller.AesToolController"
+           stylesheets="@../styles/aes-style.css">
+
+    <VBox spacing="15">
+        <padding>
+            <Insets top="20" left="30" right="30" bottom="20"/>
+        </padding>
+
+        <Label fx:id="titleLabel" text="%label.title">
+            <font>
+                <Font name="System Bold" size="24"/>
+            </font>
+        </Label>
+
+        <Separator/>
+
+        <HBox spacing="20" alignment="CENTER_LEFT">
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label fx:id="aesKeyLabel" text="%label.aes_key" style="-fx-text-fill: -theme-text-secondary;"/>
+                <TextField fx:id="aesKeyField" promptText="%prompt.aes_key"
+                           style="-fx-padding: 10;-fx-prompt-text-fill: -theme-text-secondary;"/>
+            </VBox>
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label fx:id="aesIvLabel" text="%label.iv" style="-fx-text-fill: -theme-text-secondary;"/>
+                <TextField fx:id="aesIvField" promptText="%prompt.iv"
+                           style=" -fx-padding: 10;-fx-prompt-text-fill: -theme-text-secondary;"/>
+            </VBox>
+        </HBox>
+
+        <Separator/>
+
+        <HBox spacing="20" VBox.vgrow="ALWAYS">
+            <VBox spacing="10" HBox.hgrow="ALWAYS">
+                <Label fx:id="plainLabel" text="%label.plain" style="-fx-text-fill: white;">
+                    <font>
+                        <Font name="System Bold" size="14"/>
+                    </font>
+                </Label>
+                <TextArea fx:id="plaintextArea" wrapText="true" prefHeight="300"
+                          promptText="%prompt.plain"
+                          style="-fx-border-color: -theme-border;"
+                          VBox.vgrow="ALWAYS"/>
+                <MFXButton fx:id="encryptButton" text="%button.encrypt"
+                           style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"
+                           prefWidth="180" prefHeight="40"/>
+            </VBox>
+
+            <VBox spacing="10" HBox.hgrow="ALWAYS">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label fx:id="cipherLabel" text="%label.cipher" style="-fx-text-fill: white;">
+                        <font>
+                            <Font name="System Bold" size="14"/>
+                        </font>
+                    </Label>
+<!--                    <MFXButton fx:id="copyButton" text="%button.copy"-->
+<!--                               style="-fx-background-color: -theme-text-secondary; -fx-text-fill: -theme-text-inverse;"-->
+<!--                               prefWidth="80"/>-->
+                </HBox>
+                <TextArea fx:id="ciphertextArea" wrapText="true" prefHeight="300"
+                          promptText="%prompt.cipher"
+                          style="-fx-border-color: -theme-border;"
+                          VBox.vgrow="ALWAYS"/>
+                <MFXButton fx:id="decryptButton" text="%button.decrypt"
+                           style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;"
+                           prefWidth="180" prefHeight="40"/>
+            </VBox>
+        </HBox>
+    </VBox>
+</StackPane>

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import org.fxmisc.flowless.VirtualizedScrollPane?>
+<?import com.opencgl.base.controls.CustomTextArea?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.opencgl.aiqa.controller.AiQaController">
+    <HBox>
+        <!-- 左侧模型列表 -->
+        <VBox prefWidth="200" spacing="10" styleClass="model-list-panel">
+            <padding>
+                <Insets top="10" left="10" right="10" bottom="10"/>
+            </padding>
+
+            <Label fx:id="modelListLabel" text="%label.model_list" styleClass="section-title"/>
+
+            <!-- 模型列表 -->
+            <ListView fx:id="modelListView" VBox.vgrow="ALWAYS"/>
+
+            <!-- 操作按钮 -->
+            <HBox spacing="5" alignment="CENTER">
+                <MFXButton fx:id="addModelBtn" buttonType="FLAT" text="+" prefWidth="40"/>
+                <MFXButton fx:id="editModelBtn" buttonType="FLAT" text="✏" prefWidth="40"/>
+                <MFXButton fx:id="deleteModelBtn" buttonType="FLAT" text="🗑" prefWidth="40"/>
+                <MFXButton fx:id="saveModelBtn" buttonType="FLAT" text="💾" prefWidth="40"/>
+            </HBox>
+        </VBox>
+
+        <!-- 右侧主区域 -->
+        <BorderPane HBox.hgrow="ALWAYS">
+            <padding>
+                <Insets top="10" left="10" right="10" bottom="10"/>
+            </padding>
+
+            <!-- 顶部: 可折叠配置区 -->
+            <top>
+                <VBox spacing="10">
+                    <!-- 模型配置 (可折叠) -->
+                    <TitledPane fx:id="configPane" text="%label.model_config" expanded="false">
+                        <VBox spacing="12">
+                            <padding>
+                                <Insets top="10" left="10" right="10" bottom="10"/>
+                            </padding>
+                            <HBox spacing="10" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                                <Label text="%label.api_url" prefWidth="70"/>
+                                <MFXTextField fx:id="baseUrlField" floatMode="DISABLED" prefHeight="35"
+                                              maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                                <Label text="%label.api_key" prefWidth="70"/>
+                                <MFXTextField fx:id="apiKeyField" floatMode="DISABLED" prefHeight="35"
+                                              maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                                <Label text="%label.model" prefWidth="70"/>
+                                <MFXTextField fx:id="modelField" floatMode="DISABLED" prefHeight="35"
+                                              maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                                <Label text="%label.temperature" prefWidth="70"/>
+                                <MFXTextField fx:id="temperatureField" floatMode="DISABLED" prefHeight="35"
+                                              maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                                <MFXButton fx:id="testConnectionBtn" buttonType="FLAT" text="%button.test_conn"
+                                           prefHeight="35"/>
+                            </HBox>
+                        </VBox>
+                    </TitledPane>
+
+                    <TitledPane fx:id="docPane" text="%label.doc_lib" expanded="false">
+                        <VBox spacing="10">
+                            <padding>
+                                <Insets top="10" left="10" right="10" bottom="10"/>
+                            </padding>
+                            <HBox spacing="5" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                                <MFXTextField fx:id="docPathField" floatMode="DISABLED" prefHeight="35"
+                                              maxWidth="Infinity" promptText="%prompt.doc_path" HBox.hgrow="ALWAYS"/>
+                                <MFXButton fx:id="browseDocBtn" buttonType="FLAT" text="%button.browse" prefHeight="35"
+                                           prefWidth="70"/>
+                            </HBox>
+                            <Label fx:id="docCountLabel" text="%label.doc_not_loaded"
+                                   style="-fx-font-size: 12px; -fx-text-fill: #666;"/>
+                        </VBox>
+                    </TitledPane>
+
+                    <Separator/>
+                </VBox>
+            </top>
+
+            <!-- 中间: 聊天消息 -->
+            <center>
+                <ScrollPane fx:id="chatScrollPane" fitToWidth="true" vbarPolicy="AS_NEEDED">
+                    <VBox fx:id="chatContainer" spacing="15">
+                        <padding>
+                            <Insets top="10" left="10" right="10" bottom="10"/>
+                        </padding>
+                    </VBox>
+                </ScrollPane>
+            </center>
+
+            <!-- 底部: 输入区 -->
+            <bottom>
+                <HBox spacing="10" alignment="CENTER">
+                    <padding>
+                        <Insets top="10"/>
+                    </padding>
+                    <VirtualizedScrollPane HBox.hgrow="ALWAYS" prefHeight="80">
+                        <content>
+                            <CustomTextArea fx:id="inputTextArea" wrapText="true" formatDrawing="false"/>
+                        </content>
+                    </VirtualizedScrollPane>
+                    <VBox spacing="5">
+                        <MFXButton fx:id="sendBtn" buttonType="RAISED" text="%button.send" prefHeight="35"
+                                   prefWidth="70"/>
+                        <MFXButton fx:id="clearChatBtn" buttonType="FLAT" text="%button.clear" prefHeight="35"
+                                   prefWidth="70"/>
+                    </VBox>
+                </HBox>
+            </bottom>
+        </BorderPane>
+    </HBox>
+</StackPane>

@@ -8,9 +8,8 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 import com.alibaba.fastjson.JSONObject;
-import javafx.scene.control.TreeView;
+import javafx.scene.Node;
 import javafx.scene.layout.Pane;
-import lombok.SneakyThrows;
 
 /**
  * @author Chance.W
@@ -22,9 +21,12 @@ public class ThemeSwitchUtil {
     private static final File FILE = new File(THEME_NAME);
 
 
-    @SneakyThrows
-    public static void treeStyleSwitch(Pane mainStackPane, Pane contentBorderPane, TreeView<?> treeView) {
-        mainStackPane.getChildren().addAll(CommonPaneUsualTemplateController.buildPane(contentBorderPane, treeView));
+    public static void treeStyleSwitch(Pane mainStackPane, Pane contentBorderPane, Node treeView) {
+        try {
+            mainStackPane.getChildren().addAll(commonPaneUsualTemplateController.buildPane(contentBorderPane, treeView));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to build pane", e);
+        }
     }
 
     public static Object getTreeStyle() throws IOException {
@@ -47,6 +49,5 @@ public class ThemeSwitchUtil {
             fos.close();
         }
     }
-
 
 }

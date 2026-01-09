@@ -1,7 +1,142 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.StackPane?>
-<StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.opencgl.cron.web.controller.CronExpBuilderController">
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 
-</StackPane>
+<!--
+  布局说明：
+    ScrollPane 只能有【一个】子节点作为 content，多个子节点只有最后一个生效。
+    因此用一个 VBox 包裹所有内容（标题 + 内容区 + 底部栏）作为 ScrollPane 的唯一 content。
+    当 mainTabPane 隐藏时，全部内容紧凑；显示时自动撑高，超出窗口时可滚动。
+-->
+<ScrollPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.opencgl.cron.web.controller.CronExpBuilderController"
+            fitToWidth="true"
+            styleClass="root"
+            stylesheets="@CronBuilder.css">
+
+    <!-- ScrollPane 唯一 content：所有 UI 包在这个 VBox 里 -->
+    <VBox>
+
+        <!-- ========== 标题 + 预设下拉 ========== -->
+        <HBox alignment="CENTER_LEFT" spacing="12">
+            <padding><Insets top="14" right="16" bottom="10" left="16"/></padding>
+            <Label text="%label.title" styleClass="section-title-label"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label text="%label.preset" styleClass="field-label"/>
+            <ComboBox fx:id="presetComboBox" prefWidth="220" styleClass="cron-preset-combo"/>
+        </HBox>
+
+        <!-- ========== 内容区：badge + 简单配置 + mainTabPane(动态显隐) ========== -->
+        <VBox fx:id="centerContentBox" spacing="0">
+            <padding><Insets top="0" right="16" bottom="0" left="16"/></padding>
+
+            <!-- Cron 字段 Badge 总览行 -->
+            <HBox spacing="6" alignment="CENTER_LEFT" styleClass="cron-overview-bar">
+                <padding><Insets top="10" right="14" bottom="10" left="14"/></padding>
+
+                <VBox alignment="CENTER" styleClass="cron-field-badge" minWidth="68">
+                    <Label fx:id="badgeSecond" text="*" styleClass="cron-badge-value"/>
+                    <Label text="%field.second" styleClass="cron-badge-label"/>
+                    <TextField fx:id="fieldSecond" visible="false" managed="false" promptText="*"/>
+                </VBox>
+                <VBox alignment="CENTER" styleClass="cron-field-badge" minWidth="68">
+                    <Label fx:id="badgeMinute" text="*" styleClass="cron-badge-value"/>
+                    <Label text="%field.minute" styleClass="cron-badge-label"/>
+                    <TextField fx:id="fieldMinute" visible="false" managed="false" promptText="*"/>
+                </VBox>
+                <VBox alignment="CENTER" styleClass="cron-field-badge" minWidth="68">
+                    <Label fx:id="badgeHour" text="*" styleClass="cron-badge-value"/>
+                    <Label text="%field.hour" styleClass="cron-badge-label"/>
+                    <TextField fx:id="fieldHour" visible="false" managed="false" promptText="*"/>
+                </VBox>
+                <VBox alignment="CENTER" styleClass="cron-field-badge" minWidth="68">
+                    <Label fx:id="badgeDay" text="?" styleClass="cron-badge-value"/>
+                    <Label text="%field.day" styleClass="cron-badge-label"/>
+                    <TextField fx:id="fieldDay" visible="false" managed="false" promptText="?"/>
+                </VBox>
+                <VBox alignment="CENTER" styleClass="cron-field-badge" minWidth="68">
+                    <Label fx:id="badgeMonth" text="*" styleClass="cron-badge-value"/>
+                    <Label text="%field.month" styleClass="cron-badge-label"/>
+                    <TextField fx:id="fieldMonth" visible="false" managed="false" promptText="*"/>
+                </VBox>
+                <VBox alignment="CENTER" styleClass="cron-field-badge" minWidth="68">
+                    <Label fx:id="badgeWeek" text="?" styleClass="cron-badge-value"/>
+                    <Label text="%field.week" styleClass="cron-badge-label"/>
+                    <TextField fx:id="fieldWeek" visible="false" managed="false" promptText="?"/>
+                </VBox>
+                <VBox alignment="CENTER" styleClass="cron-field-badge" minWidth="68">
+                    <Label fx:id="badgeYear" text="*" styleClass="cron-badge-value"/>
+                    <Label text="%field.year" styleClass="cron-badge-label"/>
+                    <TextField fx:id="fieldYear" visible="false" managed="false" promptText="*"/>
+                </VBox>
+
+                <Separator orientation="VERTICAL" styleClass="cron-overview-sep"/>
+
+                <Label fx:id="descriptionLabel" wrapText="true" styleClass="cron-description-label"
+                       HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+            </HBox>
+
+            <!-- 简单快速配置区 -->
+            <VBox fx:id="simpleArea" spacing="8" styleClass="cron-simple-card">
+                <padding><Insets top="12" right="14" bottom="12" left="14"/></padding>
+                <Label text="%simple.frequency" styleClass="field-label"/>
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <ComboBox fx:id="simpleFrequency" prefWidth="170" styleClass="cron-preset-combo"/>
+                    <Label text="%simple.time" styleClass="field-label"/>
+                    <TextField fx:id="simpleHour" prefWidth="50" promptText="时"/>
+                    <Label text=":" styleClass="field-label"/>
+                    <TextField fx:id="simpleMinute" prefWidth="50" promptText="分"/>
+                </HBox>
+                <HBox fx:id="simpleWeekdayBox" spacing="8" alignment="CENTER_LEFT" visible="false" managed="false">
+                    <Label text="%simple.weekdays" styleClass="field-label"/>
+                    <HBox fx:id="simpleWeekdays" spacing="4"/>
+                </HBox>
+                <HBox fx:id="simpleMonthDayBox" spacing="8" alignment="CENTER_LEFT" visible="false" managed="false">
+                    <Label text="%simple.month_day" styleClass="field-label"/>
+                    <TextField fx:id="simpleMonthDay" prefWidth="54" promptText="1-31"/>
+                </HBox>
+            </VBox>
+
+            <!--
+              mainTabPane：初始 visible=false managed=false（不占高度）
+              showAdvanced() -> visible=true managed=true -> VBox 自动拉高
+              hideAdvanced() -> visible=false managed=false -> VBox 收缩回原高
+            -->
+            <TabPane fx:id="mainTabPane" tabClosingPolicy="UNAVAILABLE"
+                     styleClass="cron-tab-pane" prefHeight="260"
+                     visible="false" managed="false"/>
+
+        </VBox>
+
+        <!-- ========== 底部栏 ========== -->
+        <VBox spacing="8" styleClass="cron-bottom-bar">
+            <padding><Insets top="12" right="16" bottom="12" left="16"/></padding>
+
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="%label.cron_expression" styleClass="field-label"/>
+                <TextField fx:id="cronExpressionField" HBox.hgrow="ALWAYS"
+                           styleClass="cron-expression-field" promptText="* * * * * ?"/>
+                <Button fx:id="parseFromExpressionButton" text="%button.parse_to_ui"
+                        styleClass="secondary-button"/>
+                <Button fx:id="copyButton" text="%button.copy" styleClass="secondary-button"/>
+                <Button fx:id="verifyButton" text="%button.verify" styleClass="primary-button"/>
+            </HBox>
+
+            <Label text="%label.next_run_times" styleClass="section-subtitle-label"/>
+            <ListView fx:id="nextRunTimesList" prefHeight="100" styleClass="cron-next-runs-list"/>
+        </VBox>
+
+    </VBox>
+
+</ScrollPane>

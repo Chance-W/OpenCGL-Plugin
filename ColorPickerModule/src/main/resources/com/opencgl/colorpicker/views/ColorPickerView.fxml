@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.opencgl.colorpicker.controller.ColorPickerController"
+      spacing="15" style="-fx-padding: 15;">
+    <ColorPicker fx:id="colorPicker"/>
+    <Label text="%label.hex_rgb" style="-fx-text-fill: -theme-text-primary;"/>
+    <Label fx:id="hexRgbLabel" style="-fx-text-fill: -theme-info; -fx-font-family: 'Consolas';"/>
+    <HBox spacing="10">
+        <Button fx:id="btnCopyHex" text="%button.copy_hex" onAction="#onCopyHex"/>
+        <Button fx:id="btnCopyRgb" text="%button.copy_rgb" onAction="#onCopyRgb"/>
+    </HBox>
+</VBox>

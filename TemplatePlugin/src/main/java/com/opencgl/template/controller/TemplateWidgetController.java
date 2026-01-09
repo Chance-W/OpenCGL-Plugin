@@ -1,7 +1,6 @@
 package com.opencgl.template.controller;
 
 
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.List;
 import java.util.Random;
@@ -15,11 +14,12 @@ import org.slf4j.LoggerFactory;
 import com.opencgl.base.ViewControllerUtil.ThemeSwitchUtil;
 import com.opencgl.base.service.TreeOperateService;
 import com.opencgl.base.utils.DialogUtil;
-import com.opencgl.base.utils.LoadingUtil;
+import com.opencgl.base.utils.LoadingMask;
 import com.opencgl.base.utils.TooltipUtil;
-import com.opencgl.base.utils.TreeViewUtil;
+import com.opencgl.base.utils.tree.TreeViewBuilder;
 import com.opencgl.base.view.CustomizeTreeItem;
 import com.opencgl.template.dao.TestDao;
+import com.opencgl.template.i18n.I18N;
 import com.opencgl.template.model.Person;
 import com.opencgl.template.model.TestDataDto;
 import com.opencgl.template.views.TemplateWidgetView;
@@ -32,36 +32,61 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 
 /**
  * @author Chance.W
  * @version 9.0
  * @className TestController
- * @description TODO
  * @date 2022/8/6 18:27
  */
 public class TemplateWidgetController extends TemplateWidgetView implements Initializable, TreeOperateService<TestDataDto> {
 
     private static final Logger logger = LoggerFactory.getLogger(TemplateWidgetController.class);
     private final TestDao testDao = new TestDao();
-
+    private TreeView<TestDataDto> treeView;
+    private final LoadingMask loadingMask = new LoadingMask();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        try {
-            init();
-        }
-        catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        }
+        init();
+        initI18n();
     }
 
-    void init()
-        throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        List<TestDataDto> testDataDtos = queryAll();
-        TreeView<TestDataDto> treeView = TreeViewUtil.buildTreeView(testDataDtos, rootPane, this, TestDataDto.class);
-        ThemeSwitchUtil.treeStyleSwitch(rootPane, contentBorderPane, treeView);
+    private void initI18n() {
+        // 按钮文字绑定（覆盖 FXML %key 静态赋值，实现切换语言时实时更新）
+        testButton.textProperty().bind(I18N.getBinding("button.generateRandom"));
+        testButton2.textProperty().bind(I18N.getBinding("button.showInput"));
+        testButton3.textProperty().bind(I18N.getBinding("button.loading"));
+        testButton4.textProperty().bind(I18N.getBinding("button.showToast"));
+        testButton5.textProperty().bind(I18N.getBinding("button.saveTree"));
+        filterCombo.floatingTextProperty().bind(I18N.getBinding("combo.select"));
+
+        // Tooltip 文字绑定（通过 getTooltip() 访问，不依赖 @FXML 字段）
+        if (testButton.getTooltip() != null)
+            testButton.getTooltip().textProperty().bind(I18N.getBinding("tooltip.generateRandom"));
+        if (testButton2.getTooltip() != null)
+            testButton2.getTooltip().textProperty().bind(I18N.getBinding("tooltip.showInput"));
+        if (testButton3.getTooltip() != null)
+            testButton3.getTooltip().textProperty().bind(I18N.getBinding("tooltip.loading"));
+        if (testButton4.getTooltip() != null)
+            testButton4.getTooltip().textProperty().bind(I18N.getBinding("tooltip.showToast"));
+        if (testButton5.getTooltip() != null)
+            testButton5.getTooltip().textProperty().bind(I18N.getBinding("tooltip.saveTree"));
+    }
+
+    void init() {
+        // 使用新版TreeViewBuilder构建树（支持拖拽排序）
+        VBox treeViewBox = new TreeViewBuilder<TestDataDto>()
+            .enableSearch(true)
+            .onTreeCreated(tree -> this.treeView = tree)
+            .service(this)
+            .enableSearch(true)
+            .dataType(TestDataDto.class)
+            .enableDragDrop(true)
+            .build();
+        ThemeSwitchUtil.treeStyleSwitch(rootPane, contentBorderPane, treeViewBox);
 
         testButton.setOnAction(actionEvent -> {
             Random random = new Random();
@@ -73,7 +98,7 @@ public class TemplateWidgetController extends TemplateWidgetView implements Init
             logger.info("cccccccccccccc {}", result);
         });
 
-        testButton3.setOnAction(event -> Platform.runLater(() -> LoadingUtil.show(rootPane)));
+        testButton3.setOnAction(event -> Platform.runLater(() -> loadingMask.show(rootPane)));
 
         testButton4.setOnAction(event -> DialogUtil.showSuccessInfo("HELLO!!!"));
 
@@ -90,7 +115,7 @@ public class TemplateWidgetController extends TemplateWidgetView implements Init
             TestDataDto value = treeView.getSelectionModel().getSelectedItem().getValue();
             CustomizeTreeItem<TestDataDto> update = update(value);
             if (update != null) {
-                TooltipUtil.showToast(contentBorderPane, "修改成功");
+                TooltipUtil.showToast(contentBorderPane, I18N.get("msg.updateSuccess"));
             }
 
         });
@@ -221,5 +246,15 @@ public class TemplateWidgetController extends TemplateWidgetView implements Init
     @Override
     public List<TestDataDto> queryAll() {
         return testDao.queryAllData();
+    }
+
+    @Override
+    public void updatePositionOnly(TestDataDto dto) {
+        try {
+            testDao.updatePositionOnly(dto);
+        }
+        catch (Exception e) {
+            logger.error(I18N.get("msg.updatePositionFailed"), e);
+        }
     }
 }

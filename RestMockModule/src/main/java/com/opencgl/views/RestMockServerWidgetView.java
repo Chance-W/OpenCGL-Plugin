@@ -1,16 +1,11 @@
 package com.opencgl.views;
 
-import com.opencgl.base.controls.CustomTextArea;
 import com.opencgl.model.RestMockTableBean;
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXProgressBar;
-import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.fxml.FXML;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 
 /**
  * @author Chance.W
@@ -19,45 +14,71 @@ public class RestMockServerWidgetView {
     @FXML
     protected StackPane mainStackPane;
     @FXML
-    protected SplitPane splitPane;
+    protected VBox mainWrap;
     @FXML
-    protected MFXButton addButton;
+    protected SplitPane mainSplitPane;
+
+    // 顶部工具栏
     @FXML
-    protected MFXButton startButton;
+    protected Button startButton;
     @FXML
-    protected MFXButton stopButton;
+    protected Button stopButton;
+    @FXML
+    protected TextField portTextField;
+    @FXML
+    protected HBox stateHbox;
+    @FXML
+    protected ProgressIndicator statusProcessBar;
+    @FXML
+    protected Label statusLabel;
+
+    // 左侧: 规则列表
+    @FXML
+    protected Button addRuleButton;
+    @FXML
+    protected TextField searchField;
     @FXML
     protected TableView<RestMockTableBean> tableViewMain;
     @FXML
     protected TableColumn<RestMockTableBean, Boolean> isEnabledTableColumn;
     @FXML
+    protected TableColumn<RestMockTableBean, String> methodTableColumn;
+    @FXML
     protected TableColumn<RestMockTableBean, String> contentPathTableColumn;
     @FXML
-    protected TableColumn<RestMockTableBean, String> responseHeaderTableColumn;
-    @FXML
-    protected TableColumn<RestMockTableBean, String> responseContentTableColumn;
-    @FXML
     protected TableColumn<RestMockTableBean, String> desTableColumn;
+
+    // 右侧: 详情面板
     @FXML
-    protected TableColumn<RestMockTableBean, String> stateTableColumn;
+    protected StackPane rightContentArea;
     @FXML
-    protected CustomTextArea outputTextArea;
+    protected VBox emptyState;
     @FXML
-    protected MFXTextField portTextField;
+    protected VBox ruleDetailPane;
     @FXML
-    protected MFXTextField contentPath;
+    protected Label ruleDetailTitle;
     @FXML
-    protected MFXTextField responseHeader;
+    protected Button deleteRuleButton;
     @FXML
-    protected CustomTextArea responseContent;
+    protected Button saveRuleButton;
     @FXML
-    protected MFXTextField des;
+    protected ComboBox<String> httpMethodCombo;
     @FXML
-    protected HBox stateHbox;
+    protected ComboBox<String> statusCodeCombo;
     @FXML
-    protected MFXProgressBar statusProcessBar;
+    protected TextField delayMsField;
     @FXML
-    protected MFXButton responseContentButton;
+    protected TextField contentPath;
     @FXML
-    protected HBox responseContentHbox;
+    protected TextField des;
+    @FXML
+    protected TextField responseHeader;
+    @FXML
+    protected TextArea responseContent;
+
+    // 底部日志
+    @FXML
+    protected TextArea outputTextArea;
+    @FXML
+    protected TitledPane logDrawerPane;
 }

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.opencgl.experience.controller.EditorExperienceController">
+   <top>
+      <VBox spacing="10.0" BorderPane.alignment="CENTER">
+         <children>
+            <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: -theme-bg-tertiary; -fx-padding: 10;">
+               <children>
+                  <Label text="%label.editor_impl" style="-fx-font-weight: bold;"/>
+                  <RadioButton fx:id="rbRichText" mnemonicParsing="false" text="%label.richtextfx" selected="true">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="groupEditor" />
+                     </toggleGroup>
+                  </RadioButton>
+                  <RadioButton fx:id="rbMonaco" mnemonicParsing="false" text="%label.monaco" toggleGroup="$groupEditor" />
+                  <RadioButton fx:id="rbRSyntax" mnemonicParsing="false" text="%label.rsyntax" toggleGroup="$groupEditor" />
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-padding: 0 10 10 10;">
+               <children>
+                  <Label text="%label.language" />
+                  <ComboBox fx:id="comboLanguage" prefWidth="150.0" />
+                  <Label text="%label.theme" />
+                  <ComboBox fx:id="comboTheme" prefWidth="120.0" />
+                  <Button fx:id="btnFormat" mnemonicParsing="false" text="%button.format" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </top>
+   <center>
+      <StackPane fx:id="editorContainer" BorderPane.alignment="CENTER" style="-fx-border-color: -theme-text-secondary; -fx-border-width: 1 0 0 0;">
+         <padding>
+            <Insets top="1.0" />
+         </padding></StackPane>
+   </center>
+   <bottom>
+       <HBox style="-fx-padding: 5; -fx-background-color: -theme-bg-tertiary;">
+           <Label text="%label.note" style="-fx-text-fill: -theme-text-secondary"/>
+       </HBox>
+   </bottom>
+</BorderPane>

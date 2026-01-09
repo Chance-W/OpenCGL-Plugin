@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.opencgl.mongodb.controller.MongoDBController"
+      spacing="10" style="-fx-padding: 15; -fx-background-color: -theme-bg-primary;">
+
+    <!-- 连接配置 -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="%label.connectionString" style="-fx-text-fill: -theme-text-primary;"/>
+        <TextField fx:id="connectionStringField" HBox.hgrow="ALWAYS"
+                   style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+        <Button fx:id="connectBtn" text="%button.connect" onAction="#onConnect"
+                style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
+        <Label fx:id="connectionStatusLabel" style="-fx-text-fill: -theme-text-primary;"/>
+    </HBox>
+
+    <SplitPane dividerPositions="0.2, 0.5" VBox.vgrow="ALWAYS">
+        <!-- 左侧：数据库/集合列表 -->
+        <VBox spacing="5" style="-fx-padding: 5;">
+            <Label text="%label.databases" style="-fx-text-fill: -theme-text-primary; -fx-font-weight: bold;"/>
+            <ListView fx:id="databaseListView" VBox.vgrow="ALWAYS" prefHeight="150"
+                      style="-fx-control-inner-background: -theme-bg-tertiary;"/>
+            <Label text="%label.collections" style="-fx-text-fill: -theme-text-primary; -fx-font-weight: bold;"/>
+            <ListView fx:id="collectionListView" VBox.vgrow="ALWAYS"
+                      style="-fx-control-inner-background: -theme-bg-tertiary;"/>
+        </VBox>
+
+        <!-- 中间：查询/操作 -->
+        <VBox spacing="10" style="-fx-padding: 10;">
+            <VBox spacing="5">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="%label.queryOrPipeline" style="-fx-text-fill: -theme-text-primary;"/>
+                    <Label text="%label.limit" style="-fx-text-fill: -theme-text-primary;"/>
+                    <TextField fx:id="limitField" prefWidth="60"
+                               style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                </HBox>
+                <TextArea fx:id="queryArea" prefHeight="100" promptText="%prompt.query"
+                          style="-fx-control-inner-background: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary; -fx-font-family: 'Consolas';"/>
+            </VBox>
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button text="%button.find" onAction="#onFind"
+                        style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;"/>
+                <Button text="%button.count" onAction="#onCount"
+                        style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                <Button text="%button.aggregate" onAction="#onAggregate"
+                        style="-fx-background-color: -theme-accent; -fx-text-fill: -theme-text-inverse;"/>
+                <Button text="%button.indexes" onAction="#onListIndexes"
+                        style="-fx-background-color: -theme-warning; -fx-text-fill: -theme-text-inverse;"/>
+                <Button text="%button.clear" onAction="#onClear"
+                        style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+            </HBox>
+
+            <Separator/>
+
+            <VBox spacing="5">
+                <Label text="%label.document" style="-fx-text-fill: -theme-text-primary;"/>
+                <TextArea fx:id="documentArea" prefHeight="100" promptText="%prompt.document"
+                          style="-fx-control-inner-background: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary; -fx-font-family: 'Consolas';"/>
+            </VBox>
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button text="%button.insert" onAction="#onInsert"
+                        style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
+                <Button text="%button.update" onAction="#onUpdate"
+                        style="-fx-background-color: -theme-warning; -fx-text-fill: -theme-text-inverse;"/>
+                <Button text="%button.delete" onAction="#onDelete"
+                        style="-fx-background-color: -theme-danger; -fx-text-fill: -theme-text-inverse;"/>
+                <Label fx:id="operationStatusLabel"/>
+            </HBox>
+        </VBox>
+
+        <!-- 右侧：结果 -->
+        <VBox spacing="5" style="-fx-padding: 10;">
+            <Label text="%label.result" style="-fx-text-fill: -theme-text-primary; -fx-font-weight: bold;"/>
+            <TextArea fx:id="resultArea" VBox.vgrow="ALWAYS" editable="false"
+                      style="-fx-control-inner-background: -theme-bg-primary; -fx-text-fill: -theme-success; -fx-font-family: 'Consolas';"/>
+        </VBox>
+    </SplitPane>
+
+</VBox>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import io.github.palexdev.materialfx.controls.*?>
+
+<StackPane fx:id="rootPane" xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.opencgl.lanmsg.controller.LanMessengerController"
+           style="-fx-background-color: -theme-bg-primary;">
+    
+    <VBox spacing="0" style="-fx-background-color: -theme-bg-primary;">
+        
+        <!-- 主内容区 -->
+        <SplitPane dividerPositions="0.25" VBox.vgrow="ALWAYS">
+            
+            <!-- 左侧：用户列表 -->
+            <VBox spacing="10" style="-fx-background-color: -theme-bg-secondary; -fx-padding: 15;">
+                <Label fx:id="userCountLabel" text="%label.usersOnline" 
+                       style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: -theme-text-primary;"/>
+                
+                <ListView fx:id="userListView" VBox.vgrow="ALWAYS"/>
+                
+                <MFXButton fx:id="refreshButton" text="%btn.refreshUsers" maxWidth="Infinity"
+                           style="-fx-background-color: -theme-accent; -fx-text-fill: -theme-text-inverse;"/>
+                
+                <Separator/>
+                
+                <!-- 设置区域 -->
+                <Label fx:id="settingsLabel" text="%label.settings" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: -theme-text-primary;"/>
+                <HBox spacing="5" alignment="CENTER_LEFT">
+                    <Label fx:id="usernameLabel" text="%label.username" style="-fx-text-fill: -theme-text-secondary;" minWidth="50"/>
+                    <TextField fx:id="usernameField" HBox.hgrow="ALWAYS"
+                               style="-fx-text-fill: -theme-text-primary; -fx-pref-height: 40;"/>
+                </HBox>
+                <HBox spacing="5" alignment="CENTER_LEFT">
+                    <Label fx:id="ipLabel" text="%label.localIp" style="-fx-text-fill: -theme-text-secondary;" minWidth="50"/>
+                    <ComboBox fx:id="ipComboBox" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                </HBox>
+                <HBox spacing="5" alignment="CENTER_LEFT">
+                    <Label fx:id="portLabel" text="%label.port" style="-fx-text-fill: -theme-text-secondary;" minWidth="50"/>
+                    <TextField fx:id="portField" text="2425" HBox.hgrow="ALWAYS"
+                               style="-fx-text-fill: -theme-text-primary;"/>
+                </HBox>
+                <HBox spacing="10">
+                    <MFXButton fx:id="startServiceButton" text="%btn.startService" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                               style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
+                    <MFXButton fx:id="stopServiceButton" text="%btn.stopService" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                               style="-fx-background-color: -theme-danger; -fx-text-fill: -theme-text-inverse;"/>
+                </HBox>
+            </VBox>
+            
+            <!-- 右侧：聊天区域 -->
+            <VBox spacing="10" style="-fx-background-color: -theme-bg-primary; -fx-padding: 15;">
+                <Label fx:id="chatTitleLabel" text="%label.chatTitle" 
+                       style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: -theme-text-primary;"/>
+                
+                <ListView fx:id="chatListView" VBox.vgrow="ALWAYS"/>
+                
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <TextField fx:id="messageInput" HBox.hgrow="ALWAYS" promptText="%prompt.messageInput"
+                               style="-fx-text-fill: -theme-text-primary; -fx-pref-height: 40;"/>
+                    <MFXButton fx:id="sendFileButton" text="📎"
+                               style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary; -fx-min-width: 45; -fx-pref-height: 40;"/>
+                    <MFXButton fx:id="sendButton" text="%btn.send" prefWidth="80"
+                               style="-fx-background-color: -theme-accent; -fx-text-fill: -theme-text-inverse; -fx-pref-height: 40;"/>
+                </HBox>
+            </VBox>
+        </SplitPane>
+        
+        <!-- 状态栏 -->
+        <HBox spacing="20" alignment="CENTER_LEFT" 
+              style="-fx-background-color: -theme-accent; -fx-padding: 8 15;">
+            <Label fx:id="myInfoLabel" text="%label.me" style="-fx-text-fill: -theme-text-inverse;"/>
+            <Label fx:id="statusLabel" text="%label.statusReady" HBox.hgrow="ALWAYS" style="-fx-text-fill: -theme-text-inverse;"/>
+        </HBox>
+        
+    </VBox>
+</StackPane>

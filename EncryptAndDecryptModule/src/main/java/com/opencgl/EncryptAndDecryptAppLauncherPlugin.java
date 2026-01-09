@@ -7,6 +7,6 @@ import javafx.application.Application;
  */
 public class EncryptAndDecryptAppLauncherPlugin {
     public static void main(String[] args) {
-        Application.launch(NewMainPlugin.class, args);
+        Application.launch(EncryptAndDecryptStartAppLauncherPlugin.class, args);
     }
 }

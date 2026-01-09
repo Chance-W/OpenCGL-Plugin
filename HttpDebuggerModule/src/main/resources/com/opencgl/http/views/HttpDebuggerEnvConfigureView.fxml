@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<StackPane fx:id="envConfigRoot" prefHeight="500.0" prefWidth="800.0" styleClass="http-env-dialog-root"
+           style="-fx-border-color: -theme-border; -fx-border-width: 1px; -fx-border-radius: 6px; -fx-background-radius: 6px;"
+           xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+    <BorderPane>
+        <center>
+            <SplitPane fx:id="splitPane" dividerPositions="0.3">
+                <!-- Left: 环境列表 (仅 ListView + 新建/删除) -->
+                <VBox spacing="5">
+                    <padding>
+                        <Insets bottom="10" left="10" right="10" top="10"/>
+                    </padding>
+                    <Label fx:id="envListLabel" style="-fx-font-weight: bold" text="%dialog.env.list.title"/>
+                    <ListView fx:id="envList" VBox.vgrow="ALWAYS"/>
+                    <HBox spacing="10">
+                        <Button fx:id="newButton" maxWidth="Infinity" styleClass="secondary-button"
+                                text="%dialog.env.button.new" HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="deleteButton" maxWidth="Infinity" styleClass="secondary-button"
+                                text="%dialog.env.button.delete" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Right: 环境配置 (环境名称 + Key/Value 表) -->
+                <VBox spacing="15">
+                    <padding>
+                        <Insets bottom="20" left="20" right="20" top="20"/>
+                    </padding>
+                    <Label fx:id="envConfigLabel" style="-fx-font-size: 16px; -fx-font-weight: bold;"
+                           text="%dialog.env.form.title"/>
+
+                    <GridPane hgap="10" vgap="15">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="NEVER" minWidth="80"/>
+                            <ColumnConstraints hgrow="ALWAYS"/>
+                        </columnConstraints>
+                        <Label fx:id="envNameLabel" text="%dialog.env.label.name" GridPane.columnIndex="0"
+                               GridPane.rowIndex="0"/>
+                        <TextField fx:id="envNameField" promptText="%dialog.env.prompt.name" GridPane.columnIndex="1"
+                                   GridPane.rowIndex="0"/>
+                    </GridPane>
+
+                    <HBox spacing="5" alignment="CENTER_LEFT">
+                        <Button fx:id="addVarBtn" styleClass="secondary-button" text="%dialog.env.button.add_var"/>
+                    </HBox>
+                    <TableView fx:id="varTable" editable="true" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="keyCol" prefWidth="200" text="%col.key"/>
+                            <TableColumn fx:id="valueCol" prefWidth="380" text="%col.value"/>
+                        </columns>
+                    </TableView>
+
+                    <VBox VBox.vgrow="ALWAYS"/>
+                    <HBox alignment="CENTER_RIGHT" spacing="10">
+                        <Button fx:id="saveButton" styleClass="primary-button" text="%button.save"/>
+                        <Button fx:id="cancelButton" styleClass="secondary-button" text="%button.close"/>
+                    </HBox>
+                </VBox>
+            </SplitPane>
+        </center>
+    </BorderPane>
+</StackPane>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.web.WebView?>
+
+<StackPane fx:id="rootPane" xmlns="http://javafx.com/javafx/19"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.opencgl.imagesvg.controller.ImageSvgController">
+    <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
+        <VBox spacing="15" style="-fx-background-color: -theme-bg-primary">
+            <padding>
+                <Insets top="20" left="25" right="25" bottom="20"/>
+            </padding>
+
+            <Label text="%title.tool">
+                <font>
+                    <Font name="System Bold" size="22"/>
+                </font>
+            </Label>
+            <Label text="%title.subtitle"/>
+
+            <Separator/>
+
+            <!-- 操作区 -->
+            <HBox spacing="15" alignment="CENTER_LEFT">
+                <MFXButton fx:id="loadImageButton" text="%btn.loadFile"
+                           style="-fx-background-color: #3498db; -fx-text-fill: -theme-text-inverse; -fx-font-weight: bold;"
+                           prefWidth="120" prefHeight="40"/>
+                <MFXButton fx:id="convertEmbeddedButton" text="%btn.convertEmbedded"
+                           style="-fx-background-color: #27ae60; -fx-text-fill: -theme-text-inverse; -fx-font-weight: bold;"
+                           prefWidth="140" prefHeight="40"/>
+                <MFXButton fx:id="convertTracedButton" text="%btn.convertTraced"
+                           style="-fx-background-color: #9b59b6; -fx-text-fill: -theme-text-inverse; -fx-font-weight: bold;"
+                           prefWidth="140" prefHeight="40"/>
+                <MFXButton fx:id="saveImageButton" text="%btn.exportPng"
+                           style="-fx-background-color: #e74c3c; -fx-text-fill: -theme-text-inverse; -fx-font-weight: bold;"
+                           prefWidth="120" prefHeight="40"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <MFXButton fx:id="copySvgButton" text="%btn.copySvg"
+                           style="-fx-background-color: #95a5a6; -fx-text-fill: -theme-text-inverse;"
+                           prefWidth="100" prefHeight="40"/>
+                <MFXButton fx:id="saveSvgButton" text="%btn.saveSvg"
+                           style="-fx-background-color: #e67e22; -fx-text-fill: -theme-text-inverse;"
+                           prefWidth="100" prefHeight="40"/>
+            </HBox>
+
+            <Label fx:id="imageInfoLabel" text="%label.imageInfoPlaceholder" style="-fx-text-fill: #7f8c8d;"/>
+
+            <Separator/>
+
+            <!-- 预览区 -->
+            <HBox spacing="20" minHeight="350">
+                <!-- 原图预览 -->
+                <VBox spacing="8" HBox.hgrow="ALWAYS" maxWidth="Infinity" prefWidth="0" minWidth="0">
+                    <Label text="%label.originalPreview" style="-fx-text-fill: #2980b9;">
+                        <font>
+                            <Font name="System Bold" size="14"/>
+                        </font>
+                    </Label>
+                    <StackPane minWidth="0" minHeight="300" prefHeight="300" VBox.vgrow="ALWAYS">
+                        <ImageView fx:id="originalImageView" preserveRatio="true"/>
+                    </StackPane>
+                </VBox>
+
+                <Separator orientation="VERTICAL" />
+
+                <!-- SVG预览 -->
+                <VBox spacing="8" HBox.hgrow="ALWAYS" maxWidth="Infinity" prefWidth="0" minWidth="0">
+                    <Label text="%label.svgPreview" style="-fx-text-fill: #27ae60;">
+                        <font>
+                            <Font name="System Bold" size="14"/>
+                        </font>
+                    </Label>
+                    <WebView fx:id="svgPreviewView" minWidth="0" minHeight="300" prefHeight="300" VBox.vgrow="ALWAYS"/>
+                </VBox>
+            </HBox>
+
+            <!-- SVG代码 -->
+            <VBox spacing="8">
+                <HBox spacing="15" alignment="CENTER_LEFT">
+                    <Label text="%label.svgCode" style="-fx-text-fill: #8e44ad;">
+                        <font>
+                            <Font name="System Bold" size="14"/>
+                        </font>
+                    </Label>
+                    <MFXButton fx:id="renderSvgButton" text="%btn.renderSvg"
+                               style="-fx-background-color: #16a085; -fx-text-fill: -theme-text-inverse; -fx-font-weight: bold;"
+                               prefWidth="120" prefHeight="32"/>
+                </HBox>
+                <TextArea fx:id="svgCodeArea" wrapText="true"
+                          promptText="%prompt.svgCode"
+                          style="-fx-background-color: -theme-bg-tertiary;-fx-prompt-text-fill: -theme-text-secondary;-fx-text-fill: -theme-text-primary; -fx-control-inner-background: -theme-bg-tertiary; -fx-font-family: monospace; -fx-border-color: #bdc3c7; -fx-border-radius: 4;"/>
+            </VBox>
+        </VBox>
+    </ScrollPane>
+</StackPane>

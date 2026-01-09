@@ -13,18 +13,18 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-public class RestSender implements SendMessageService<RestRequest, RestResponse> {
+public class RestSender implements SendMessageService<RestRequest, RestResponse>, AutoCloseable {
     private final Logger logger = LoggerFactory.getLogger(RestSender.class);
+    private final OkHttpClient client = new OkHttpClient.Builder()
+            .connectTimeout(120, TimeUnit.SECONDS)
+            .readTimeout(120, TimeUnit.SECONDS)
+            .writeTimeout(120, TimeUnit.SECONDS)
+            .callTimeout(120, TimeUnit.SECONDS)
+            .build();
 
     @Override
     public RestResponse send(RestRequest restRequest) throws Exception {
         logger.info("begin rest request and the requestInfo is {}", restRequest);
-        OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(120, TimeUnit.SECONDS)
-                .readTimeout(120, TimeUnit.SECONDS)
-                .writeTimeout(120, TimeUnit.SECONDS)
-                .callTimeout(120, TimeUnit.SECONDS)
-                .build();
         Request request;
         if (RestMethodEnum.GET.equals(restRequest.getRequestMethod())) {
             String requestUrl = restRequest.getRequestUrl();
@@ -63,7 +63,16 @@ public class RestSender implements SendMessageService<RestRequest, RestResponse>
                     return RestResponse.builder().resultMsg("类型暂不支持").build();
             }
         }
-        Response response = client.newCall(request).execute();
-        return RestResponse.builder().resultCode((long) response.code()).resultMsg(Objects.requireNonNull(response.body()).string()).build();
+        try (Response response = client.newCall(request).execute()) {
+            String responseBody = response.body() == null ? "" : response.body().string();
+            return RestResponse.builder().resultCode((long) response.code()).resultMsg(responseBody).build();
+        }
+    }
+
+    @Override
+    public void close() {
+        client.dispatcher().cancelAll();
+        client.dispatcher().executorService().shutdownNow();
+        client.connectionPool().evictAll();
     }
 }

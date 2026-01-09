@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.opencgl.uuid.controller.UuidGeneratorController"
+      spacing="10" style="-fx-padding: 15;">
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="%label.count" style="-fx-text-fill: -theme-text-primary;"/>
+        <TextField fx:id="countField" prefWidth="80" promptText="1"/>
+        <Button fx:id="btnGenerate" text="%button.generate" onAction="#onGenerate"/>
+        <Button fx:id="btnCopy" text="%button.copy" onAction="#onCopy"/>
+    </HBox>
+    <Label text="%label.result" style="-fx-text-fill: -theme-text-primary;"/>
+    <TextArea fx:id="resultArea" prefRowCount="15" editable="false" VBox.vgrow="ALWAYS"
+              style="-fx-text-fill: -theme-text-primary; -fx-font-family: 'Consolas';"/>
+</VBox>

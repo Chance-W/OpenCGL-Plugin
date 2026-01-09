@@ -1,0 +1,264 @@
+/* =====================================================================
+ * CronExpBuilder 专属样式
+ * 依赖主题变量：见 ThemeColors-*.css / GlobalComponents.css
+ * ===================================================================== */
+
+/* ---------- 根容器：强制跟随主题主背景 ---------- */
+.root {
+    -fx-background-color: -theme-bg-primary;
+}
+
+/* ScrollPane 内外壳全透明，避免灰色色差 */
+.scroll-pane,
+.scroll-pane>.viewport,
+.scroll-pane>.viewport>.scroll-pane-content {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane:focused {
+    -fx-background-color: transparent;
+}
+
+/* ---------- Overview Badge Bar ---------- */
+.cron-overview-bar {
+    -fx-background-color: -theme-bg-secondary;
+    -fx-border-color: -theme-border;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.cron-field-badge {
+    -fx-alignment: CENTER;
+    -fx-cursor: hand;
+    -fx-padding: 8 12 8 12;
+    -fx-background-color: -theme-bg-primary;
+    -fx-background-radius: 6;
+    -fx-border-color: transparent;
+    -fx-border-radius: 6;
+}
+
+.cron-field-badge:hover {
+    -fx-background-color: -theme-hover-bg;
+}
+
+/* selected field badge (when its tab is active) */
+.cron-field-badge-active {
+    -fx-background-color: derive(-theme-accent, 80%);
+    -fx-border-color: -theme-accent;
+}
+
+.cron-badge-value {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -theme-accent;
+}
+
+.cron-badge-label {
+    -fx-font-size: 10px;
+    -fx-text-fill: -theme-text-secondary;
+}
+
+.cron-overview-sep {
+    -fx-padding: 0 8 0 8;
+    -fx-opacity: 0.4;
+}
+
+.cron-description-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: -theme-text-primary;
+    -fx-font-style: italic;
+    -fx-padding: 0 0 0 8;
+}
+
+/* ---------- 简单模式卡片区 ---------- */
+.cron-simple-card {
+    -fx-background-color: -theme-bg-primary;
+}
+
+/* ---------- Tab Pane ---------- */
+.cron-tab-pane {
+    -fx-tab-min-width: 70;
+    -fx-background-color: -theme-bg-primary;
+}
+
+.cron-tab-pane .tab {
+    -fx-padding: 6 16 6 16;
+    -fx-background-color: -theme-bg-secondary;
+}
+
+.cron-tab-pane .tab:selected {
+    -fx-background-color: -theme-bg-primary;
+}
+
+.cron-tab-pane .tab-header-background {
+    -fx-background-color: -theme-bg-secondary;
+}
+
+/* TabPane 内容面板背景 */
+.cron-tab-pane .tab-content-area,
+.cron-tab-pane .tab-pane-content-area {
+    -fx-background-color: -theme-bg-primary;
+}
+
+/* TabPane 内部 ScrollPane 透明 */
+.cron-tab-pane .scroll-pane,
+.cron-tab-pane .scroll-pane>.viewport {
+    -fx-background-color: transparent;
+}
+
+/* ---------- TitledPane（高级面板）---------- */
+.cron-advanced-pane {
+    -fx-background-color: -theme-bg-primary;
+}
+
+.cron-advanced-pane>.title {
+    -fx-background-color: -theme-bg-secondary;
+    -fx-text-fill: -theme-text-primary;
+}
+
+.cron-advanced-pane>.title:hover {
+    -fx-background-color: -theme-hover-bg;
+}
+
+.cron-advanced-pane>.content {
+    -fx-background-color: -theme-bg-primary;
+    -fx-border-color: -theme-border;
+}
+
+/* ---------- Chip Buttons ---------- */
+.cron-chip-pane {
+    -fx-padding: 4 0 4 0;
+}
+
+.cron-chip {
+    -fx-background-color: -theme-bg-tertiary;
+    -fx-text-fill: -theme-text-primary;
+    -fx-border-color: -theme-border;
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+    -fx-padding: 4 11 4 11;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+    -fx-min-width: 38;
+}
+
+.cron-chip:hover {
+    -fx-background-color: derive(-theme-accent, 60%);
+    -fx-border-color: -theme-accent;
+    -fx-text-fill: -theme-text-primary;
+}
+
+.cron-chip-selected {
+    -fx-background-color: -theme-accent;
+    -fx-border-color: -theme-accent;
+    -fx-text-fill: white;
+}
+
+.cron-chip-selected:hover {
+    -fx-background-color: -theme-accent-hover;
+    -fx-border-color: -theme-accent-hover;
+}
+
+/* ---------- Bottom Bar ---------- */
+.cron-bottom-bar {
+    -fx-background-color: -theme-bg-secondary;
+    -fx-border-color: -theme-divider transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}
+
+.cron-expression-field {
+    -fx-font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -theme-accent;
+    -fx-background-color: -theme-bg-primary;
+}
+
+.cron-next-runs-list {
+    -fx-background-color: -theme-bg-primary;
+    -fx-border-color: -theme-border;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-font-size: 12px;
+}
+
+.cron-next-runs-list .list-cell {
+    -fx-padding: 4 10 4 10;
+    -fx-background-color: transparent;
+    -fx-text-fill: -theme-text-secondary;
+}
+
+.cron-next-runs-list .list-cell:odd {
+    -fx-background-color: -theme-bg-tertiary;
+}
+
+.cron-next-runs-list .list-cell:hover {
+    -fx-background-color: -theme-hover-bg;
+    -fx-text-fill: -theme-text-primary;
+}
+
+/* 列表空占位符背景 */
+.cron-next-runs-list .placeholder {
+    -fx-background-color: -theme-bg-primary;
+}
+
+/* ---------- Misc Labels ---------- */
+.section-title-label {
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -theme-text-primary;
+}
+
+.section-subtitle-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: -theme-text-secondary;
+}
+
+.field-label {
+    -fx-text-fill: -theme-text-secondary;
+    -fx-font-size: 13px;
+}
+
+/* --- Preset ComboBox --- */
+.cron-preset-combo {
+    -fx-background-color: -theme-bg-tertiary;
+    -fx-border-color: -theme-border;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+}
+
+/* ---------- 高级切换按钮行 ---------- */
+.cron-advanced-toggle-row {
+    -fx-background-color: transparent;
+}
+
+.cron-advanced-toggle-btn {
+    -fx-background-color: -theme-bg-tertiary;
+    -fx-text-fill: -theme-text-secondary;
+    -fx-border-color: -theme-border;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 3 12 3 12;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+}
+
+.cron-advanced-toggle-btn:hover {
+    -fx-background-color: -theme-hover-bg;
+    -fx-text-fill: -theme-text-primary;
+}
+
+.cron-advanced-toggle-btn-active {
+    -fx-background-color: derive(-theme-accent, 70%);
+    -fx-text-fill: -theme-accent;
+    -fx-border-color: -theme-accent;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 3 12 3 12;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+}
+
+.cron-advanced-toggle-btn-active:hover {
+    -fx-background-color: derive(-theme-accent, 60%);
+}

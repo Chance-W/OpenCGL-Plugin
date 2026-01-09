@@ -3,27 +3,39 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>OpenCGL-Plugin</artifactId>
-        <groupId>OpenCGL-Plugin</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <groupId>com.opencgl</groupId>
+        <artifactId>com.opencgl.plugin</artifactId>
+        <version>1.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>DubboServiceTestPlugin</artifactId>
+    <version>1.0.0</version>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+    </properties>
 
     <dependencies>
         <dependency>
-            <groupId>OpenCGL-Base</groupId>
-            <artifactId>OpenCGL-Base</artifactId>
-            <version>1.0.0</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.11.4</version>
+            <scope>test</scope>
         </dependency>
-        <!--dubbo依赖-->
+
+        <!-- Dubbo -->
         <dependency>
             <groupId>org.apache.dubbo</groupId>
             <artifactId>dubbo</artifactId>
             <version>3.2.4</version>
         </dependency>
-        <!--zookeeper-->
+
+        <!-- Zookeeper -->
         <dependency>
             <groupId>com.101tec</groupId>
             <artifactId>zkclient</artifactId>
@@ -42,212 +54,17 @@
         <dependency>
             <groupId>org.apache.zookeeper</groupId>
             <artifactId>zookeeper</artifactId>
-            <version>3.6.3</version> <!-- 使用适当的版本 -->
+            <version>3.6.3</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.directory.studio</groupId>
             <artifactId>org.apache.commons.codec</artifactId>
             <version>1.8</version>
         </dependency>
-
     </dependencies>
-    <profiles>
-        <profile>
-            <id>plugin-mode</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>javafx-fxml</artifactId>
-                    <version>21-ea+24</version>
-                    <scope>provided</scope>
-                </dependency>
-                <dependency>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>javafx-graphics</artifactId>
-                    <version>21-ea+24</version>
-                    <scope>provided</scope>
-                </dependency>
-                <dependency>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>javafx-media</artifactId>
-                    <version>21-ea+24</version>
-                    <scope>provided</scope>
-                </dependency>
-                <dependency>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>javafx-swing</artifactId>
-                    <version>21-ea+24</version>
-                    <scope>provided</scope>
-                </dependency>
-                <dependency>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>javafx-web</artifactId>
-                    <version>21-ea+24</version>
-                    <scope>provided</scope>
-                </dependency>
-                <dependency>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>javafx-base</artifactId>
-                    <version>21-ea+24</version>
-                    <scope>provided</scope>
-                </dependency>
-                <dependency>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>javafx-controls</artifactId>
-                    <version>21-ea+24</version>
-                    <scope>provided</scope>
-                </dependency>
-                <dependency>
-                    <groupId>io.github.palexdev</groupId>
-                    <artifactId>materialfx</artifactId>
-                    <version>11.17.0</version>
-                    <scope>provided</scope>
-                </dependency>
-                <dependency>
-                    <groupId>commons-io</groupId>
-                    <artifactId>commons-io</artifactId>
-                    <version>2.6</version>
-                    <scope>provided</scope>
-                </dependency>
-                <dependency>
-                    <groupId>commons-lang</groupId>
-                    <artifactId>commons-lang</artifactId>
-                    <version>2.6</version>
-                    <scope>provided</scope>
-                </dependency>
-                <!-- slf log -->
-                <dependency>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                    <version>1.7.25</version>
-                    <scope>provided</scope>
-                </dependency>
-                <dependency>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                    <version>1.7.25</version>
-                    <scope>provided</scope>
-                </dependency>
-                <dependency>
-                    <groupId>com.alibaba</groupId>
-                    <artifactId>fastjson</artifactId>
-                    <version>2.0.32</version>
-                    <scope>provided</scope>
-                </dependency>                <dependency>
-                    <groupId>OpenCGL-Plugin</groupId>
-                    <artifactId>PluginApiModule</artifactId>
-                    <version>1.0.0</version>
-                    <scope>provided</scope>
-                </dependency>
-                <dependency>
-                    <groupId>org.projectlombok</groupId>
-                    <artifactId>lombok</artifactId>
-                    <version>1.18.30</version>
-                    <scope>provided</scope>
-                </dependency>
-            </dependencies>
-
-        </profile>
-        <profile>
-            <id>stand-alone-mode</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>javafx-fxml</artifactId>
-                    <version>21-ea+24</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>javafx-graphics</artifactId>
-                    <version>21-ea+24</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>javafx-media</artifactId>
-                    <version>21-ea+24</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>javafx-swing</artifactId>
-                    <version>21-ea+24</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>javafx-web</artifactId>
-                    <version>21-ea+24</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>javafx-base</artifactId>
-                    <version>21-ea+24</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>javafx-controls</artifactId>
-                    <version>21-ea+24</version>
-                </dependency>
-
-                <dependency>
-                    <groupId>io.github.palexdev</groupId>
-                    <artifactId>materialfx</artifactId>
-                    <version>11.17.0</version>
-                </dependency>
-                <dependency>
-                    <groupId>commons-io</groupId>
-                    <artifactId>commons-io</artifactId>
-                    <version>2.6</version>
-                </dependency>
-                <dependency>
-                    <groupId>commons-lang</groupId>
-                    <artifactId>commons-lang</artifactId>
-                    <version>2.6</version>
-                </dependency>
-
-                <!-- slf log -->
-                <dependency>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                    <version>1.7.25</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                    <version>1.7.25</version>
-                </dependency>
-                <dependency>
-                    <groupId>OpenCGL-Plugin</groupId>
-                    <artifactId>PluginApiModule</artifactId>
-                    <version>1.0.0</version>
-                </dependency>
-                <dependency>
-                    <groupId>com.alibaba</groupId>
-                    <artifactId>fastjson</artifactId>
-                    <version>2.0.32</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.projectlombok</groupId>
-                    <artifactId>lombok</artifactId>
-                    <version>1.18.30</version>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
-    </properties>
 
     <build>
-        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -274,6 +91,11 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <!-- 启用父pom配置的自动复制jar到bin目录功能 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

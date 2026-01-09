@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import io.github.palexdev.materialfx.controls.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.opencgl.regex.controller.RegexToolController"
+      spacing="10" style="-fx-padding: 15;">
+      
+    <!-- Top: Common Patterns & Flags -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="%label.commonRegex" style="-fx-font-weight: bold;"/>
+        <MFXComboBox fx:id="commonRegexCombo" prefWidth="250" floatMode="BORDER" />
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label text="%label.options" />
+        <CheckBox fx:id="caseInsensitiveCheck" text="%check.caseInsensitive" />
+        <CheckBox fx:id="multilineCheck" text="%check.multiline" />
+        <CheckBox fx:id="dotAllCheck" text="%check.dotAll" />
+    </HBox>
+    <VBox spacing="5" VBox.vgrow="NEVER">
+        <Label text="%label.regex" style="-fx-font-weight: bold;"/>
+        <HBox spacing="5">
+             <MFXTextField fx:id="regexField" floatMode="BORDER" prefHeight="35" maxWidth="Infinity" HBox.hgrow="ALWAYS" />
+             <MFXButton text="%btn.generateJava" onAction="#generateJavaCode" style="-fx-background-color: #607D8B; -fx-text-fill: -theme-text-inverse;" />
+        </HBox>
+    </VBox>
+    <SplitPane orientation="VERTICAL" VBox.vgrow="ALWAYS" dividerPositions="0.4">
+        <VBox spacing="5">
+            <Label text="%label.sourceText" style="-fx-font-style: italic;"/>
+            <TextArea fx:id="sourceTextArea" wrapText="true" VBox.vgrow="ALWAYS" />
+        </VBox>
+        <TabPane fx:id="operationTabPane">
+            <Tab text="%tab.match" closable="false">
+                <VBox spacing="5" style="-fx-padding: 10;">
+                     <HBox spacing="10" alignment="CENTER_LEFT">
+                        <MFXButton text="%btn.match" onAction="#handleMatch" style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;" prefWidth="120"/>
+                        <Label fx:id="matchStatusLabel" text="%status.ready" />
+                     </HBox>
+                     <TextArea fx:id="matchResultArea" editable="false" wrapText="true" VBox.vgrow="ALWAYS" style="-fx-font-family: monospace;" />
+                </VBox>
+            </Tab>
+            <Tab text="%tab.replace" closable="false">
+                <VBox spacing="10" style="-fx-padding: 10;">
+                     <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="%label.replaceWith" />
+                        <MFXTextField fx:id="replaceField" floatMode="BORDER" prefWidth="300" />
+                        <MFXButton text="%btn.replace" onAction="#handleReplace" style="-fx-background-color: #FF9800; -fx-text-fill: -theme-text-inverse;" />
+                     </HBox>
+                     <TextArea fx:id="replaceResultArea" editable="false" wrapText="true" VBox.vgrow="ALWAYS" />
+                </VBox>
+            </Tab>
+             <Tab text="%tab.split" closable="false">
+                <VBox spacing="10" style="-fx-padding: 10;">
+                     <MFXButton text="%btn.split" onAction="#handleSplit" style="-fx-background-color: #9C27B0; -fx-text-fill: -theme-text-inverse;" />
+                     <ListView fx:id="splitResultList" VBox.vgrow="ALWAYS" />
+                </VBox>
+            </Tab>
+        </TabPane>
+        
+    </SplitPane>
+    
+</VBox>

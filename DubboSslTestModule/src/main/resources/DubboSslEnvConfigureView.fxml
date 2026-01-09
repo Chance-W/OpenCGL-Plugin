@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXFilterComboBox?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<StackPane fx:id="envConfigRoot" prefHeight="300.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/10.0.2-internal"
+           xmlns:fx="http://javafx.com/fxml/1"
+           stylesheets="@./com/opencgl/css/DubboWidgetView.css">
+    <VBox spacing="20.0">
+        <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+        </padding>
+        <Label text="%env.title" textAlignment="CENTER">
+            <font>
+                <Font size="27.0"/>
+            </font>
+        </Label>
+        <HBox>
+            <MFXFilterComboBox fx:id="envInfo"
+                               editable="true"
+                               floatMode="DISABLED"
+                               scrollOnOpen="true"
+                               selectable="true"
+                               allowEdit="true"
+                               prefWidth="400"
+                               promptText="%prompt.selectEnv"
+                               style="-fx-prompt-text-fill: -theme-text-secondary;"
+                               HBox.hgrow="ALWAYS"/>
+        </HBox>
+        <HBox>
+            <MFXTextField fx:id="zkAddress" prefWidth="400.0" promptText="%prompt.zkAddress"
+                          style="-fx-prompt-text-fill: -theme-text-secondary;"/>
+        </HBox>
+        <HBox>
+            <MFXTextField fx:id="dubboGroup" prefWidth="400.0" promptText="%prompt.dubboGroup"
+                          style="-fx-prompt-text-fill: -theme-text-secondary;" text="GLOBAL_REGISTRY"/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT">
+            <MFXTextField fx:id="apiPackagePath" prefWidth="400.0" promptText="%prompt.apiPackage"
+                          style="-fx-prompt-text-fill: -theme-text-secondary;"/>
+            <MFXButton fx:id="chooseJar" mnemonicParsing="false" style="-fx-background-color: transparent" prefWidth="15.0" text="..."/>
+        </HBox>
+        <HBox alignment="CENTER_RIGHT" spacing="20">
+            <MFXButton fx:id="cancelButton" buttonType="RAISED" text="%btn.cancel"/>
+            <MFXButton fx:id="deleteButton" buttonType="RAISED" text="%btn.delete"/>
+            <MFXButton fx:id="testEnv" buttonType="RAISED" mnemonicParsing="false" text="%btn.test"/>
+        </HBox>
+    </VBox>
+</StackPane>

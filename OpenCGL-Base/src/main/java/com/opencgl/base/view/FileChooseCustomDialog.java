@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.opencgl.base.utils.i18n.BASE18N;
+import com.opencgl.base.utils.i18n.BaseI18N;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import io.github.palexdev.materialfx.enums.ButtonType;
@@ -37,11 +37,11 @@ import javafx.stage.Window;
 @SuppressWarnings("unused")
 public class FileChooseCustomDialog extends Dialog<String> {
 
-    private final MFXButton confirmButton = new MFXButton(BASE18N.getOrDefault("opencgl.base.button.confirm"));
+    private final MFXButton confirmButton = new MFXButton(BaseI18N.getOrDefault("opencgl.base.button.confirm"));
 
-    private final MFXButton cancelButton = new MFXButton(BASE18N.getOrDefault("opencgl.base.button.cancel"));
+    private final MFXButton cancelButton = new MFXButton(BaseI18N.getOrDefault("opencgl.base.button.cancel"));
 
-    private final MFXButton chooseFileButton = new MFXButton(BASE18N.getOrDefault("opencgl.base.button.chooseFile"));
+    private final MFXButton chooseFileButton = new MFXButton(BaseI18N.getOrDefault("opencgl.base.button.chooseFile"));
 
     private final MFXTextField textField = new MFXTextField();
 
@@ -55,13 +55,13 @@ public class FileChooseCustomDialog extends Dialog<String> {
     private void initCustomDialog() {
         initStyle(StageStyle.UNDECORATED);
         initModality(Modality.APPLICATION_MODAL);
-        getDialogPane().getStylesheets().setAll(Objects.requireNonNull(this.getClass().getResource("/com/opencgl/base/css/opencgl-dialog.css")).toExternalForm());
-        getDialogPane().getStyleClass().setAll("opencgl-dialog");
+//        getDialogPane().getStylesheets().setAll(Objects.requireNonNull(this.getClass().getResource("/com/opencgl/base/css/opencgl-dialog.css")).toExternalForm());
+//        getDialogPane().getStyleClass().setAll("opencgl-dialog");
 
-        Label label = new Label(BASE18N.getOrDefault("opencgl.base.dialog.file.labelHeader"));
+        Label label = new Label(BaseI18N.getOrDefault("opencgl.base.dialog.file.labelHeader"));
         HBox headerHBox = new HBox(label);
         textField.setFloatMode(FloatMode.ABOVE);
-        textField.setPromptText(BASE18N.getOrDefault("opencgl.base.dialog.file.labelHeader"));
+        textField.setPromptText(BaseI18N.getOrDefault("opencgl.base.dialog.file.labelHeader"));
         textField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (StringUtils.isEmpty(newValue)) {
                 textField.setStyle("-fx-border-color: red;");
@@ -125,7 +125,7 @@ public class FileChooseCustomDialog extends Dialog<String> {
         chooseFileButton.setOnAction(actionEvent -> {
             Stage fileChooseStage = new Stage();
             fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("json","*.json"));
-            fileChooser.setTitle(BASE18N.getOrDefault("opencgl.base.dialog.file.labelHeader"));
+            fileChooser.setTitle(BaseI18N.getOrDefault("opencgl.base.dialog.file.labelHeader"));
             File file = fileChooser.showOpenDialog(fileChooseStage);
             textField.setText(file.getAbsolutePath());
         });
@@ -136,7 +136,7 @@ public class FileChooseCustomDialog extends Dialog<String> {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         chooseFileButton.setOnAction(actionEvent -> {
             Stage fileChooseStage = new Stage();
-            directoryChooser.setTitle(BASE18N.getOrDefault("opencgl.base.dialog.file.labelHeader"));
+            directoryChooser.setTitle(BaseI18N.getOrDefault("opencgl.base.dialog.file.labelHeader"));
             File file = directoryChooser.showDialog(fileChooseStage);
             textField.setText(file.getAbsolutePath());
         });

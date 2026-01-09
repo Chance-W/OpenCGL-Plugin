@@ -1,0 +1,24 @@
+/* 文档转 Markdown - 进度条：绿色填充、加粗，轨道用主题色 */
+.doctomd-progress-bar {
+    -fx-min-height: 22px;
+}
+
+.doctomd-progress-bar .track {
+    -fx-background-color: -theme-bg-tertiary;
+    -fx-background-radius: 6px;
+}
+
+.doctomd-progress-bar .bar {
+    -fx-background-color: #16a34a;
+    -fx-background-radius: 6px;
+    -fx-padding: 8px 0 8px 0;
+}
+
+/* 暗色主题下轨道与填充仍保持对比 */
+.root.dark .doctomd-progress-bar .track {
+    -fx-background-color: #475569;
+}
+
+.root.dark .doctomd-progress-bar .bar {
+    -fx-background-color: #22c55e;
+}

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.opencgl.pingscan.controller.PingScanController"
+      spacing="10" style="-fx-padding: 15;">
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="%label.host" style="-fx-text-fill: -theme-text-primary;"/>
+        <TextField fx:id="hostField" promptText="%prompt.host" prefWidth="200"/>
+        <Label text="%label.count" style="-fx-text-fill: -theme-text-primary;"/>
+        <TextField fx:id="countField" prefWidth="50" text="4"/>
+        <Label text="%label.timeout" style="-fx-text-fill: -theme-text-primary;"/>
+        <TextField fx:id="timeoutField" prefWidth="50" text="5"/>
+        <Label text="%label.port" style="-fx-text-fill: -theme-text-primary;"/>
+        <TextField fx:id="portField" prefWidth="60" promptText="%prompt.port"/>
+        <Button fx:id="btnPing" text="%btn.ping" onAction="#onPing"/>
+        <Button fx:id="btnPortCheck" text="%btn.portCheck" onAction="#onPortCheck"/>
+    </HBox>
+    <Label text="%label.result" style="-fx-text-fill: -theme-text-primary;"/>
+    <TextArea fx:id="resultArea" prefRowCount="18" editable="false" VBox.vgrow="ALWAYS"
+              style="-fx-text-fill: -theme-text-primary; -fx-font-family: 'Consolas';"/>
+</VBox>

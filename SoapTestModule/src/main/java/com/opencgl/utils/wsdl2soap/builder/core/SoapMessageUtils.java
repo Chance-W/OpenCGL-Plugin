@@ -4,7 +4,8 @@ package com.opencgl.utils.wsdl2soap.builder.core;//package com.wsdl2soap.builder
 //import com.wsdl2soap.builder.SoapOperation;
 //import com.fasterxml.jackson.databind.JsonNode;
 //import com.fasterxml.jackson.databind.ObjectMapper;
-//import org.apache.log4j.Logger;
+//import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 //import org.dom4j.Document;
 //import org.dom4j.DocumentException;
 //import org.dom4j.DocumentHelper;
@@ -16,7 +17,7 @@ package com.opencgl.utils.wsdl2soap.builder.core;//package com.wsdl2soap.builder
 //
 //public class SoapMessageUtils {
 //
-//    private final static Logger log = Logger.getLogger(SoapMessageUtils.class);
+//    private final static Logger log = LoggerFactory.getLogger(SoapMessageUtils.class);
 //
 //    /**
 //     * 构建最终请求WebService的参数报文

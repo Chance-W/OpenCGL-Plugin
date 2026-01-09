@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.web.WebView?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.opencgl.diff.controller.DiffToolController"
+      spacing="10" style="-fx-padding: 15; -fx-background-color: -theme-bg-primary;">
+
+    <!-- 工具栏 -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Button text="%button.compare" onAction="#onCompare"
+                style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse; -fx-font-weight: bold;"/>
+        <Button text="%button.prev" onAction="#onPrevDiff"
+                style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;"/>
+        <Button text="%button.next" onAction="#onNextDiff"
+                style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;"/>
+        <Separator orientation="VERTICAL"/>
+        <Button text="%button.load_left" onAction="#onLoadLeftFile"
+                style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+        <Button text="%button.load_right" onAction="#onLoadRightFile"
+                style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+        <Separator orientation="VERTICAL"/>
+        <Button text="%button.swap" onAction="#onSwap"
+                style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+        <Button text="%button.clear" onAction="#onClear"
+                style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+        <Pane HBox.hgrow="ALWAYS"/>
+        <Label fx:id="statsLabel" style="-fx-text-fill: -theme-info;"/>
+    </HBox>
+
+    <HBox spacing="10">
+        <Label fx:id="leftFileLabel" text="%label.left_file"
+               HBox.hgrow="ALWAYS" style="-fx-text-fill: -theme-text-primary; -fx-font-weight: bold;"/>
+        <Label fx:id="rightFileLabel" text="%label.right_file"
+               HBox.hgrow="ALWAYS" style="-fx-text-fill: -theme-text-primary; -fx-font-weight: bold;"/>
+    </HBox>
+
+    <SplitPane dividerPositions="0.5" VBox.vgrow="ALWAYS">
+        <VBox>
+            <TextArea fx:id="leftTextArea" VBox.vgrow="ALWAYS"
+                      promptText="%prompt.left"
+                      style="-fx-control-inner-background: -theme-bg-primary; -fx-text-fill: -theme-text-primary; -fx-font-family: 'Consolas'; -fx-font-size: 13px;"/>
+        </VBox>
+        <VBox>
+            <TextArea fx:id="rightTextArea" VBox.vgrow="ALWAYS"
+                      promptText="%prompt.right"
+                      style="-fx-control-inner-background: -theme-bg-primary; -fx-text-fill: -theme-text-primary; -fx-font-family: 'Consolas'; -fx-font-size: 13px;"/>
+        </VBox>
+    </SplitPane>
+
+    <TitledPane fx:id="diffViewPane" text="%label.diff_view" expanded="true" VBox.vgrow="ALWAYS">
+        <WebView fx:id="diffWebView" prefHeight="400"/>
+    </TitledPane>
+
+</VBox>

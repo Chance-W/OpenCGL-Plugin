@@ -13,7 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opencgl.base.model.Base;
+import com.opencgl.dubbo.dao.DubboWidgetDao;
 import com.opencgl.dubbo.model.DubboConfigureDto;
+import com.opencgl.dubbo.model.DubboEnvConfig;
 
 
 /**
@@ -24,7 +26,6 @@ public class ApiCheckUtil {
     private static final Logger logger = LoggerFactory.getLogger(ApiCheckUtil.class);
 
     public static void check(String envName, String zkAdress, String dubboGroup, String jarPath) throws Exception {
-        String clientFile = Base.BASE_PATH+"/conf/dubboConfigFile/" + envName;
         String[] jarFile = jarPath.split(",");
         List<String> list = null;
         try {
@@ -34,50 +35,31 @@ public class ApiCheckUtil {
             logger.error("", ex);
         }
         List<String> listInterface = DubboConfigFileParseUtil.listInterface(jarFile, list);
-        ZkClientOperate zkClientTest = new ZkClientOperate();
+        ZkClientTestUtil zkClientTest = new ZkClientTestUtil();
         List<URL> list2 = zkClientTest.getNewProvider(zkAdress, dubboGroup, listInterface, 20000);
 
-        StringBuilder message;
-        message = new StringBuilder();
-        DubboConfigFileParseUtil.initializeFile(clientFile);
+        List<String> totalServiceInfo = new ArrayList<>();
+        
         for (URL url : list2) {
             logger.info("注册成功的接口为" + url);
             for (int j = 0; j < listInterface.size(); j++) {
                 if (url.toString().contains(listInterface.get(j).replace("interface ", ""))) {
-                    message.append(listInterface.get(j)).append("\n");
                     String service = listInterface.get(j).replace("interface ", "");
                     List<String> serviceInformation = DubboConfigFileParseUtil.getMethodAndParamer(jarFile, service);
-                    for (int k = 0; k < serviceInformation.size(); k++) {
-                        DubboConfigFileParseUtil.operClientParmeterFile(clientFile, "service[" + j + "]" + "[" + k + "]", serviceInformation.get(k));
-                    }
-
+                    totalServiceInfo.addAll(serviceInformation);
                 }
             }
         }
-    }
-
-    public static List<DubboConfigureDto> readMethodAndType(String filePath) throws Exception {
-        List<DubboConfigureDto> dubboConfigureDtos = new ArrayList<>();
-        File file = new File(filePath);
-        InputStreamReader read = new InputStreamReader(new FileInputStream(file));
-        BufferedReader bufferedReader = new BufferedReader(read);
-        String lineTxt;//读取一行
-        String info;
-        while ((lineTxt = bufferedReader.readLine()) != null) {
-            try {
-                info = lineTxt.split("=")[1];
-                if (lineTxt.contains("service[")) {
-                    DubboConfigureDto dubboConfigureDto = DubboConfigureDto.builder().envInfo(filePath)
-                            .interfaceInfo(info.split(",")[0])
-                            .methodInfo(info.split(",")[1])
-                            .requestType(info.split(",")[2])
-                            .build();
-                    dubboConfigureDtos.add(dubboConfigureDto);
-                }
-            } catch (Exception e) {
-                throw new Exception(e.getMessage());
-            }
+        
+        // Update DB
+        DubboWidgetDao dao = new DubboWidgetDao();
+        DubboEnvConfig config = dao.queryEnvConfig(envName);
+        if (config != null) {
+            config.setServiceData(com.alibaba.fastjson.JSON.toJSONString(totalServiceInfo));
+            dao.updateEnvConfig(config);
+            logger.info("Environment {} service data updated in DB", envName);
+        } else {
+            logger.warn("Environment {} not found in DB, cannot update service data", envName);
         }
-        return dubboConfigureDtos;
     }
 }

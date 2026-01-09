@@ -1,55 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import io.github.palexdev.materialfx.controls.MFXButton?>
-<?import io.github.palexdev.materialfx.controls.MFXFilterComboBox?>
-<?import io.github.palexdev.materialfx.controls.MFXTextField?>
+<?import io.github.palexdev.mfxresources.fonts.MFXFontIcon?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-<StackPane fx:id="envConfigRoot" prefHeight="300.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/10.0.2-internal"
-           xmlns:fx="http://javafx.com/fxml/1"
-           stylesheets="@./com/opencgl/css/DubboWidgetView.css">
-    <VBox spacing="20.0">
-        <padding>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
-        </padding>
-        <Label text="环境信息配置" textAlignment="CENTER">
-            <font>
-                <Font size="27.0"/>
-            </font>
-        </Label>
-        <HBox>
-            <MFXFilterComboBox fx:id="envInfo"
-                               editable="true"
-                               floatMode="DISABLED"
-                               scrollOnOpen="true"
-                               selectable="true"
-                               allowEdit="true"
-                               prefWidth="400"
-                               promptText="选择环境"
-                               style="-fx-prompt-text-fill:rgba(63,75,77,0.39)"
-                               HBox.hgrow="ALWAYS"/>
-        </HBox>
-        <HBox>
-            <MFXTextField fx:id="zkAddress" prefWidth="400.0" promptText="zk地址,格式ip:port"
-                          style="-fx-prompt-text-fill:rgba(63,75,77,0.39)"/>
-        </HBox>
-        <HBox>
-            <MFXTextField fx:id="dubboGroup" prefWidth="400.0" promptText="dubbo分组"
-                          style="-fx-prompt-text-fill:rgba(63,75,77,0.39)" text="GLOBAL_REGISTRY"/>
-        </HBox>
-        <HBox alignment="CENTER_LEFT">
-            <MFXTextField fx:id="apiPackagePath" prefWidth="400.0" promptText="选择api包"
-                          style="-fx-prompt-text-fill:rgba(63,75,77,0.39)"/>
-            <MFXButton fx:id="chooseJar" mnemonicParsing="false" style="-fx-background-color: transparent" prefWidth="15.0" text="..."/>
-        </HBox>
-        <HBox alignment="CENTER_RIGHT" spacing="20">
-            <MFXButton fx:id="cancelButton" buttonType="RAISED" text="取消"/>
-            <MFXButton fx:id="deleteButton" buttonType="RAISED" text="删除"/>
-            <MFXButton fx:id="testEnv" buttonType="RAISED" mnemonicParsing="false" text="测试"/>
-        </HBox>
-    </VBox>
+
+<StackPane fx:id="envConfigRoot" prefHeight="500.0" prefWidth="800.0" stylesheets="@./com/opencgl/css/DubboWidgetView.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+    <BorderPane>
+        <center>
+            <SplitPane dividerPositions="0.3">
+                <!-- Left: Environment List -->
+                <VBox spacing="5">
+                    <padding><Insets bottom="10" left="10" right="10" top="10" /></padding>
+                    <Label fx:id="envListLabel" style="-fx-font-weight: bold" text="%dubbo.env.dialog.list.title" />
+                    <ListView fx:id="envListView" VBox.vgrow="ALWAYS" />
+                    <HBox spacing="10">
+                        <Button fx:id="newButton" maxWidth="Infinity" styleClass="secondary-button" text="%dubbo.env.dialog.button.new" HBox.hgrow="ALWAYS">
+                             <graphic><MFXFontIcon description="fas-plus" size="14.0" /></graphic>
+                        </Button>
+                        <Button fx:id="deleteButton" maxWidth="Infinity" styleClass="secondary-button" text="%dubbo.env.dialog.button.delete" HBox.hgrow="ALWAYS">
+                             <graphic><MFXFontIcon description="fas-trash" size="14.0" /></graphic>
+                        </Button>
+                    </HBox>
+                </VBox>
+
+                <!-- Right: Configuration Form -->
+                <VBox spacing="15">
+                    <padding><Insets bottom="20" left="20" right="20" top="20" /></padding>
+                    <Label fx:id="envConfigLabel" style="-fx-font-size: 16px; -fx-font-weight: bold;" text="%dubbo.env.dialog.form.title" />
+                    
+                    <GridPane hgap="10" vgap="15">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="NEVER" minWidth="80" />
+                            <ColumnConstraints hgrow="ALWAYS" />
+                        </columnConstraints>
+
+                        <Label fx:id="envNameLabel" text="%dubbo.env.dialog.label.name" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <TextField fx:id="envNameField" promptText="%dubbo.env.dialog.prompt.name" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                        <Label fx:id="zkAddressLabel" text="%dubbo.env.dialog.label.zk_address" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <TextField fx:id="zkAddressField" promptText="%dubbo.env.dialog.prompt.zk_address" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                        <Label fx:id="zkGroupLabel" text="%dubbo.env.dialog.label.zk_group" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <TextField fx:id="groupField" promptText="%dubbo.env.dialog.prompt.zk_group" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                        <Label fx:id="apiPathLabel" text="%dubbo.env.dialog.label.api_path" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                        <HBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                            <TextField fx:id="packageField" promptText="%dubbo.env.dialog.prompt.api_path" HBox.hgrow="ALWAYS" />
+                            <Button fx:id="chooseJarButton" text="...">
+                                <tooltip><Tooltip fx:id="chooseJarTooltip" text="%dubbo.env.dialog.tooltip.choose" /></tooltip>
+                            </Button>
+                            <Button fx:id="scanButton" text="%dubbo.env.dialog.button.scan">
+                                <graphic><MFXFontIcon description="fas-magnifying-glass" size="14.0" /></graphic>
+                                <tooltip><Tooltip fx:id="scanTooltip" text="%dubbo.env.dialog.tooltip.scan" /></tooltip>
+                            </Button>
+                        </HBox>
+                    </GridPane>
+                    
+                    <VBox VBox.vgrow="ALWAYS" />
+                    
+                    <HBox alignment="CENTER_RIGHT" spacing="10">
+                         <Button fx:id="saveButton" styleClass="primary-button" text="%dubbo.env.dialog.button.save">
+                             <graphic><MFXFontIcon description="fas-check" size="14.0" /></graphic>
+                         </Button>
+                         <Button fx:id="cancelButton" styleClass="secondary-button" text="%dubbo.env.dialog.button.close" />
+                    </HBox>
+                </VBox>
+            </SplitPane>
+        </center>
+    </BorderPane>
 </StackPane>

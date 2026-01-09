@@ -2,7 +2,8 @@ package com.opencgl.utils.wsdl2soap.util;
 
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.wsdl.*;
 import javax.wsdl.extensions.ExtensibilityElement;
@@ -21,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 public class WsdlUtils {
-    private final static Logger log = Logger.getLogger(WsdlUtils.class);
+    private final static Logger log = LoggerFactory.getLogger(WsdlUtils.class);
 
     public static <T extends ExtensibilityElement> T getExtensiblityElement(List<?> list, Class<T> clazz) {
         List<T> elements = getExtensiblityElements(list, clazz);

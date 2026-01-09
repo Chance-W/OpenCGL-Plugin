@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+    <top>
+        <VBox spacing="10">
+            <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+            
+            <!-- 文件选择 -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button fx:id="selectFolderButton" text="%btn.selectFolder"/>
+                <Button fx:id="addFilesButton" text="%btn.addFiles"/>
+                <Button fx:id="clearButton" text="%btn.clearList"/>
+                <Label fx:id="fileCountLabel"/>
+            </HBox>
+            
+            <!-- 重命名规则 -->
+            <TitledPane text="%panel.rules" collapsible="false">
+                <VBox spacing="10">
+                    <padding><Insets top="5" right="5" bottom="5" left="5"/></padding>
+                    
+                    <!-- 正则替换 -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <CheckBox fx:id="regexCheckBox" text="%check.regex"/>
+                        <Label text="%label.find"/>
+                        <TextField fx:id="findField" promptText="%prompt.find" prefWidth="150"/>
+                        <Label text="%label.replace"/>
+                        <TextField fx:id="replaceField" promptText="%prompt.replace" prefWidth="150"/>
+                    </HBox>
+                    
+                    <!-- 前缀后缀 -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="%label.prefix"/>
+                        <TextField fx:id="prefixField" promptText="%prompt.prefix" prefWidth="150"/>
+                        <Label text="%label.suffix"/>
+                        <TextField fx:id="suffixField" promptText="%prompt.suffix" prefWidth="150"/>
+                    </HBox>
+                    
+                    <!-- 序号 -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <CheckBox fx:id="numberingCheckBox" text="%check.numbering"/>
+                        <Label text="%label.start"/>
+                        <Spinner fx:id="startNumberSpinner" prefWidth="80" editable="true"/>
+                        <Label text="%label.digits"/>
+                        <Spinner fx:id="digitsSpinner" prefWidth="80" editable="true"/>
+                    </HBox>
+                    
+                    <HBox spacing="10" alignment="CENTER_RIGHT">
+                        <Button fx:id="previewButton" text="%btn.preview" styleClass="primary-button"/>
+                    </HBox>
+                </VBox>
+            </TitledPane>
+        </VBox>
+    </top>
+
+    <center>
+        <!-- 文件列表 -->
+        <VBox spacing="5">
+            <padding><Insets top="0" right="10" bottom="10" left="10"/></padding>
+            
+            <Label text="%label.filePreview" style="-fx-font-weight: bold;"/>
+            <TableView fx:id="fileTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="originalNameCol" text="%col.original" prefWidth="250"/>
+                    <TableColumn fx:id="newNameCol" text="%col.newName" prefWidth="250"/>
+                    <TableColumn fx:id="statusCol" text="%col.status" prefWidth="80"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox spacing="10" alignment="CENTER" style="-fx-padding: 10;">
+            <Label fx:id="summaryLabel"/>
+            <Button fx:id="executeButton" text="%btn.execute" styleClass="primary-button" prefWidth="120"/>
+            <Button fx:id="undoButton" text="%btn.undo" disable="true"/>
+        </HBox>
+    </bottom>
+</BorderPane>

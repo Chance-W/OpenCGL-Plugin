@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXComboBox?>
+<?import io.github.palexdev.materialfx.controls.MFXCheckbox?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<StackPane fx:id="rootPane" xmlns="http://javafx.com/javafx/19"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.opencgl.rsatool.controller.RsaToolController"
+           stylesheets="@../styles/rsa-style.css">
+
+    <BorderPane fx:id="contentBorderPane">
+        <top>
+            <VBox styleClass="header-section">
+                <padding>
+                    <Insets top="12" left="20" right="20" bottom="8"/>
+                </padding>
+                <Label text="%title.tool" styleClass="title-label">
+                    <font>
+                        <Font name="System Bold" size="20"/>
+                    </font>
+                </Label>
+            </VBox>
+        </top>
+
+        <center>
+            <TabPane side="TOP" tabClosingPolicy="UNAVAILABLE" styleClass="main-tabs">
+
+                <!-- Tab 1: 密钥生成 -->
+                <Tab text="%tab.keyGen">
+                    <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="content-scroll">
+                        <VBox spacing="15">
+                            <padding>
+                                <Insets top="15" left="20" right="20" bottom="15"/>
+                            </padding>
+
+                            <VBox spacing="12" styleClass="config-section">
+                                <padding>
+                                    <Insets top="15" left="15" right="15" bottom="15"/>
+                                </padding>
+                                <Label text="%label.keyConfig" styleClass="section-title">
+                                    <font>
+                                        <Font name="System Bold" size="14"/>
+                                    </font>
+                                </Label>
+
+                                <HBox spacing="15" alignment="CENTER_LEFT">
+                                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                        <Label text="%label.keySize" styleClass="field-label"/>
+                                        <MFXComboBox fx:id="keySizeCombo" prefWidth="200"/>
+                                    </VBox>
+                                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                        <Label text="%label.algorithm" styleClass="field-label"/>
+                                        <MFXComboBox fx:id="algorithmCombo" prefWidth="200"/>
+                                    </VBox>
+                                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                        <Label text="%label.hashAlg" styleClass="field-label"/>
+                                        <MFXComboBox fx:id="hashAlgorithmCombo" prefWidth="200"/>
+                                    </VBox>
+                                </HBox>
+
+                                <HBox spacing="15" alignment="CENTER">
+                                    <MFXButton fx:id="generateButton" text="%btn.generateKey"
+                                               styleClass="generate-button" prefWidth="200" prefHeight="40"/>
+                                    <MFXCheckbox fx:id="removePemHeaderCheckbox" text="%label.removePem"/>
+                                </HBox>
+                            </VBox>
+
+                            <HBox spacing="15" VBox.vgrow="ALWAYS">
+                                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                    <HBox spacing="10" alignment="CENTER_LEFT">
+                                        <Label text="%label.publicKey" styleClass="section-title"/>
+                                        <MFXButton fx:id="savePublicKeyButton" text="💾" styleClass="small-button"
+                                                   prefWidth="40"/>
+                                        <MFXButton fx:id="copyPublicKeyButton" text="📋" styleClass="small-button"
+                                                   prefWidth="40"/>
+                                    </HBox>
+                                    <TextArea fx:id="publicKeyArea" wrapText="true" prefHeight="280"
+                                              promptText="%prompt.publicKey" VBox.vgrow="ALWAYS"
+                                              style="-fx-border-color: -theme-border;"/>
+                                    <!--styleClass="key-textarea"-->
+                                </VBox>
+                                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                    <HBox spacing="10" alignment="CENTER_LEFT">
+                                        <Label text="%label.privateKey" styleClass="section-title"/>
+                                        <MFXButton fx:id="savePrivateKeyButton" text="💾" styleClass="small-button"
+                                                   prefWidth="40"/>
+                                        <MFXButton fx:id="copyPrivateKeyButton" text="📋" styleClass="small-button"
+                                                   prefWidth="40"/>
+                                    </HBox>
+                                    <TextArea fx:id="privateKeyArea" wrapText="true" prefHeight="280"
+                                              promptText="%prompt.privateKey" VBox.vgrow="ALWAYS"
+                                              style="-fx-border-color: -theme-border;"/>
+                                    <!--                                    styleClass="key-textarea"-->
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                    </ScrollPane>
+                </Tab>
+
+                <!-- Tab 2: 加密/解密 -->
+                <Tab text="%tab.encrypt">
+                    <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="content-scroll">
+                        <VBox spacing="15">
+                            <padding>
+                                <Insets top="15" left="20" right="20" bottom="15"/>
+                            </padding>
+
+                            <HBox spacing="15">
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="%label.publicKeyEncrypt" styleClass="field-label"/>
+                                    <TextArea fx:id="encryptPublicKeyArea" wrapText="true" prefHeight="80"
+                                              promptText="%prompt.pastePublic" styleClass="key-textarea-small"/>
+                                </VBox>
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="%label.privateKeyDecrypt" styleClass="field-label"/>
+                                    <TextArea fx:id="encryptPrivateKeyArea" wrapText="true" prefHeight="80"
+                                              promptText="%prompt.pastePrivate" styleClass="key-textarea-small"/>
+                                </VBox>
+                            </HBox>
+
+                            <Separator/>
+
+                            <HBox spacing="15" VBox.vgrow="ALWAYS">
+                                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                    <Label text="%label.plaintext" styleClass="section-title"/>
+                                    <TextArea fx:id="plaintextArea" wrapText="true" prefHeight="300"
+                                              promptText="%prompt.plaintext" styleClass="crypto-textarea"
+                                              VBox.vgrow="ALWAYS"/>
+                                    <MFXButton fx:id="encryptButton" text="%btn.encrypt"
+                                               styleClass="crypto-button" prefWidth="150" prefHeight="38"/>
+                                </VBox>
+                                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                    <Label text="%label.ciphertext" styleClass="section-title"/>
+                                    <TextArea fx:id="ciphertextArea" wrapText="true" prefHeight="300"
+                                              promptText="%prompt.ciphertext" styleClass="crypto-textarea"
+                                              VBox.vgrow="ALWAYS"/>
+                                    <MFXButton fx:id="decryptButton" text="%btn.decrypt"
+                                               styleClass="crypto-button" prefWidth="150" prefHeight="38"/>
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                    </ScrollPane>
+                </Tab>
+
+                <!-- Tab 3: 签名/验签 -->
+                <Tab text="%tab.sign">
+                    <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="content-scroll">
+                        <VBox spacing="15">
+                            <padding>
+                                <Insets top="15" left="20" right="20" bottom="15"/>
+                            </padding>
+
+                            <HBox spacing="15">
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="%label.privateKeySign" styleClass="field-label"/>
+                                    <TextArea fx:id="signPrivateKeyArea" wrapText="true" prefHeight="80"
+                                              promptText="%prompt.pastePrivate" styleClass="key-textarea-small"/>
+                                </VBox>
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="%label.publicKeyVerify" styleClass="field-label"/>
+                                    <TextArea fx:id="signPublicKeyArea" wrapText="true" prefHeight="80"
+                                              promptText="%prompt.pastePublic" styleClass="key-textarea-small"/>
+                                </VBox>
+                            </HBox>
+
+                            <Separator/>
+
+                            <HBox spacing="15" VBox.vgrow="ALWAYS">
+                                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                    <Label text="%label.rawData" styleClass="section-title"/>
+                                    <TextArea fx:id="signDataArea" wrapText="true" prefHeight="250"
+                                              promptText="%prompt.inputData" styleClass="crypto-textarea"
+                                              VBox.vgrow="ALWAYS"/>
+                                    <MFXButton fx:id="signButton" text="%btn.sign"
+                                               styleClass="crypto-button" prefWidth="150" prefHeight="38"/>
+                                </VBox>
+                                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                    <Label text="%label.signature" styleClass="section-title"/>
+                                    <TextArea fx:id="signatureArea" wrapText="true" prefHeight="250"
+                                              promptText="%prompt.signature" styleClass="crypto-textarea"
+                                              VBox.vgrow="ALWAYS"/>
+                                    <MFXButton fx:id="verifyButton" text="%btn.verify"
+                                               styleClass="crypto-button" prefWidth="150" prefHeight="38"/>
+                                </VBox>
+                            </HBox>
+
+                            <HBox spacing="10" alignment="CENTER_LEFT" styleClass="verify-result-box">
+                                <padding>
+                                    <Insets top="10" left="15" right="15" bottom="10"/>
+                                </padding>
+                                <Label text="%label.verifyResult" styleClass="field-label"/>
+                                <TextField fx:id="verifyResultField" editable="false"
+                                           promptText="%prompt.verifyResult" styleClass="verify-result-field"
+                                           HBox.hgrow="ALWAYS"/>
+                            </HBox>
+                        </VBox>
+                    </ScrollPane>
+                </Tab>
+
+            </TabPane>
+        </center>
+    </BorderPane>
+</StackPane>

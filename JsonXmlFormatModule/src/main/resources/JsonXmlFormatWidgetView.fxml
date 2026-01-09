@@ -1,58 +1,97 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
 <?import javafx.collections.FXCollections?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.*?>
 <?import java.lang.String?>
 <?import io.github.palexdev.materialfx.controls.MFXComboBox?>
 <?import io.github.palexdev.materialfx.controls.MFXButton?>
-<?import com.opencgl.base.controls.CustomTextArea?>
+
 <StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.opencgl.controller.JsonXmlFormatWidgetController">
-    <BorderPane fx:id="contentBorderPane" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
-                AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+           fx:controller="com.opencgl.jsonxml.controller.JsonXmlFormatWidgetController">
+    <BorderPane fx:id="contentBorderPane">
         <top>
-            <VBox fx:id="operateTopVbox" spacing="1.0" style="-fx-background-color:WHITE" BorderPane.alignment="CENTER">
-                <HBox alignment="CENTER_RIGHT" spacing="10.0" style="-fx-background-color:WHITE">
-                    <MFXComboBox fx:id="formatTypeComboBox" prefWidth="130.0" maxHeight="40.0"
-                                 style="-fx-prompt-text-fill:rgba(63,75,77,0.39)" text="JSON">
-                        <items>
-                            <FXCollections fx:factory="observableArrayList">
-                                <String fx:value="JSON"/>
-                                <String fx:value="XML"/>
-                            </FXCollections>
-                        </items>
-                    </MFXComboBox>
-                    <MFXButton fx:id="formatButton" text="格式化" buttonType="RAISED" onMouseClicked="#formatLabelAction"
-                               prefWidth="100.0"/>
-                    <HBox.margin>
-                        <Insets right="40.0"/>
-                    </HBox.margin>
-                    <VBox.margin>
-                        <Insets bottom="5.0" top="5.0" right="10.0"/>
-                    </VBox.margin>
+            <VBox fx:id="operateTopVbox" spacing="10" 
+                  style="-fx-background-radius: 0 0 12 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+                <padding>
+                    <Insets top="15" right="20" bottom="15" left="20"/>
+                </padding>
+                <HBox alignment="CENTER" spacing="15">
+                    <!-- Title -->
+                    <Label fx:id="titleLabel" text="%label.title"
+                           style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+
+                    <Region HBox.hgrow="ALWAYS"/>
+
+                    <!-- Format -->
+                    <HBox spacing="10" alignment="CENTER">
+                        <Label text="%label.format" style="-fx-font-size: 14; -fx-text-fill: #34495e;"/>
+                        <MFXComboBox fx:id="formatTypeComboBox" prefWidth="120" maxHeight="40"
+                                     style="-fx-font-size: 14;">
+                            <items>
+                                <FXCollections fx:factory="observableArrayList">
+                                    <String fx:value="JSON"/>
+                                    <String fx:value="XML"/>
+                                    <String fx:value="SQL"/>
+                                </FXCollections>
+                            </items>
+                        </MFXComboBox>
+                    </HBox>
+                    
+                    <Separator orientation="VERTICAL" prefHeight="30"/>
+                    
+                    <!-- Buttons -->
+                    <HBox spacing="10" alignment="CENTER">
+                        <MFXButton fx:id="formatButton" text="%button.format"
+                                   prefWidth="100" prefHeight="36"
+                                   style="-fx-background-color: #27ae60; -fx-text-fill: -theme-text-inverse; -fx-font-weight: bold;"/>
+                        <MFXButton fx:id="compressButton" text="%button.compress"
+                                   prefWidth="90" prefHeight="36"
+                                   style="-fx-background-color: #3498db; -fx-text-fill: -theme-text-inverse;"/>
+                        <MFXButton fx:id="clearButton" text="%button.clear"
+                                   prefWidth="90" prefHeight="36"
+                                   style="-fx-background-color: #95a5a6; -fx-text-fill: -theme-text-inverse;"/>
+                        <MFXButton fx:id="swapButton" text="%button.swap"
+                                   prefWidth="90" prefHeight="36"
+                                   style="-fx-background-color: #9b59b6; -fx-text-fill: -theme-text-inverse;"/>
+                        <MFXButton fx:id="copyButton" text="%button.copy"
+                                   prefWidth="100" prefHeight="36"
+                                   style="-fx-background-color: #e67e22; -fx-text-fill: -theme-text-inverse;"/>
+                    </HBox>
                 </HBox>
             </VBox>
         </top>
         <center>
-            <StackPane>
+            <StackPane style="-fx-padding: 15;">
                 <SplitPane dividerPositions="0.5">
-                    <AnchorPane minHeight="0.0" minWidth="0.0">
-                        <CustomTextArea fx:id="inputTextArea"
-                                        AnchorPane.bottomAnchor="0"
-                                        AnchorPane.leftAnchor="0"
-                                        AnchorPane.rightAnchor="0"
-                                        AnchorPane.topAnchor="0">
-                        </CustomTextArea>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" 
+                                style="-fx-background-color: -theme-bg-primary; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 3);">
+                        <VBox fx:id="inputVBox" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" 
+                              AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+                            <Label fx:id="inputLabel" text="%label.input" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: -theme-text-primary; -fx-padding: 10 15; -fx-background-color: -theme-bg-primary;">
+                            </Label>
+                            <!-- CodeArea 在代码中动态添加 -->
+                        </VBox>
                     </AnchorPane>
-                    <AnchorPane minHeight="0.0" minWidth="0.0">
-                        <CustomTextArea fx:id="outputTextArea" AnchorPane.bottomAnchor="0"
-                                        AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0"/>
+                    <AnchorPane minHeight="0.0" minWidth="0.0"
+                                style="-fx-background-color: -theme-bg-primary; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 3);">
+                        <VBox fx:id="outputVBox" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" 
+                              AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+                            <Label fx:id="outputLabel" text="%label.output" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #27ae60; -fx-padding: 10 15; -fx-background-color: -theme-bg-primary;">
+                            </Label>
+                        </VBox>
                     </AnchorPane>
                 </SplitPane>
             </StackPane>
         </center>
+        <bottom>
+            <HBox alignment="CENTER" spacing="20" 
+                  style="-fx-background-color: rgba(0,0,0,0.3); -fx-padding: 8 15;">
+                <Label fx:id="statusLabel" text="%label.ready" style="-fx-text-fill: white;"/>
+            </HBox>
+        </bottom>
     </BorderPane>
 </StackPane>

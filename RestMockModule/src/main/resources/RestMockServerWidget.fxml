@@ -1,87 +1,128 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.ProgressIndicator?>
 
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.text.Text?>
-<?import io.github.palexdev.materialfx.controls.MFXTextField?>
-<?import com.opencgl.base.controls.CustomTextArea?>
-<?import io.github.palexdev.materialfx.controls.MFXButton?>
-<?import org.fxmisc.flowless.VirtualizedScrollPane?>
-<?import io.github.palexdev.materialfx.controls.MFXProgressBar?>
-<StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
+<StackPane fx:id="mainStackPane" styleClass="rest-mock-root" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="com.opencgl.controller.RestMockServerWidgetController">
-    <SplitPane dividerPositions="0.8" orientation="VERTICAL" fx:id="splitPane">
-        <AnchorPane>
-            <BorderPane layoutX="14.0" layoutY="7.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0"
-                        AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
-                <top>
-                    <VBox>
-                        <HBox alignment="CENTER_LEFT" spacing="30">
-                            <MFXTextField minWidth="100" promptText="Path(eg:/product/)" fx:id="contentPath"/>
-                            <MFXTextField minWidth="100" promptText="Response Header" fx:id="responseHeader"/>
-                            <HBox fx:id="responseContentHbox">
-                                <CustomTextArea minWidth="200" fx:id="responseContent"/>
-                                <!-- <MFXButton minWidth="100" fx:id="responseContentButton" text="点我配置返回样例"/>-->
-                            </HBox>
-                            <MFXTextField minWidth="200" promptText="接口描述" fx:id="des"/>
-                            <MFXButton fx:id="addButton" onAction="#addItemAction" text="+"/>
+
+    <VBox fx:id="mainWrap" styleClass="rest-mock-wrap" spacing="0">
+
+        <!-- 顶部工具栏 -->
+        <HBox styleClass="rest-mock-toolbar" alignment="CENTER_LEFT" spacing="12">
+            <padding><Insets top="10" right="16" bottom="10" left="16"/></padding>
+            <Label text="%label.port" styleClass="rest-mock-toolbar-label"/>
+            <TextField fx:id="portTextField" text="8080" minWidth="72" maxWidth="72" styleClass="rest-mock-port-field"/>
+            <Button fx:id="startButton" text="%btn.start" styleClass="rest-mock-btn-primary"/>
+            <Button fx:id="stopButton" text="%btn.stop" styleClass="rest-mock-btn-secondary"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <HBox fx:id="stateHbox" alignment="CENTER_RIGHT" spacing="6">
+                <Label fx:id="statusLabel" styleClass="rest-mock-status"/>
+                <ProgressIndicator fx:id="statusProcessBar" styleClass="rest-mock-progress" prefWidth="24" prefHeight="24" visible="false"/>
+            </HBox>
+        </HBox>
+
+        <!-- 主内容区: 左右分栏 -->
+        <SplitPane fx:id="mainSplitPane" dividerPositions="0.40" VBox.vgrow="ALWAYS">
+
+            <!-- ====== 左侧: 规则列表 ====== -->
+            <VBox styleClass="rest-mock-left-panel" spacing="8" SplitPane.resizableWithParent="false">
+                <padding><Insets top="12" right="10" bottom="10" left="10"/></padding>
+
+                <!-- 左侧工具栏: 添加按钮 + 搜索框 -->
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <Button fx:id="addRuleButton" text="%btn.addRule" styleClass="rest-mock-btn-primary"/>
+                    <TextField fx:id="searchField" promptText="%prompt.search" HBox.hgrow="ALWAYS" styleClass="rest-mock-search-field"/>
+                </HBox>
+
+                <!-- 规则列表表格（简化列）-->
+                <TableView fx:id="tableViewMain" editable="true" VBox.vgrow="ALWAYS" styleClass="rest-mock-table">
+                    <columns>
+                        <TableColumn fx:id="isEnabledTableColumn" prefWidth="64" text="%col.enabled"/>
+                        <TableColumn fx:id="methodTableColumn" prefWidth="60" sortable="false" text="%col.method"/>
+                        <TableColumn fx:id="contentPathTableColumn" prefWidth="160" sortable="false" text="%col.contextPath"/>
+                        <TableColumn fx:id="desTableColumn" minWidth="80" sortable="false" text="%col.desc"/>
+                    </columns>
+                    <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+                </TableView>
+            </VBox>
+
+            <!-- ====== 右侧: 动态详情面板 ====== -->
+            <StackPane fx:id="rightContentArea">
+
+                <!-- 空状态提示 -->
+                <VBox fx:id="emptyState" alignment="CENTER" spacing="20">
+                    <Label text="%message.emptyState" style="-fx-font-size: 14px; -fx-text-fill: -theme-text-secondary;"/>
+                </VBox>
+
+                <!-- 规则详情编辑面板 -->
+                <VBox fx:id="ruleDetailPane" visible="false" managed="false" spacing="12" VBox.vgrow="ALWAYS">
+                    <padding><Insets top="16" right="20" bottom="16" left="20"/></padding>
+
+                    <!-- 标题行 + 操作按钮 -->
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <Label fx:id="ruleDetailTitle" text="%label.ruleConfig" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="deleteRuleButton" text="%btn.delete" styleClass="rest-mock-btn-danger"/>
+                        <Button fx:id="saveRuleButton" text="%btn.save" styleClass="rest-mock-btn-primary"/>
+                    </HBox>
+
+                    <Separator/>
+
+                    <!-- 表单区域 -->
+                    <VBox spacing="10">
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="%label.httpMethod" prefWidth="100" alignment="CENTER_RIGHT"/>
+                            <ComboBox fx:id="httpMethodCombo" prefWidth="120"/>
+                            <Label text="%label.statusCode" prefWidth="80" alignment="CENTER_RIGHT"/>
+                            <ComboBox fx:id="statusCodeCombo" prefWidth="100"/>
+                            <Label text="%label.delayMs" prefWidth="80" alignment="CENTER_RIGHT"/>
+                            <TextField fx:id="delayMsField" prefWidth="80" text="0" alignment="CENTER"/>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="%label.path" prefWidth="100" alignment="CENTER_RIGHT"/>
+                            <TextField fx:id="contentPath" promptText="%prompt.path" HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="%label.desc" prefWidth="100" alignment="CENTER_RIGHT"/>
+                            <TextField fx:id="des" promptText="%prompt.interfaceDesc" HBox.hgrow="ALWAYS"/>
                         </HBox>
                     </VBox>
-                </top>
-                <center>
-                    <TableView fx:id="tableViewMain" editable="true" prefHeight="314.0" prefWidth="759.0"
-                               BorderPane.alignment="CENTER">
-                        <columns>
-                            <TableColumn fx:id="isEnabledTableColumn" prefWidth="50.0" text="是否启用"/>
-                            <TableColumn fx:id="contentPathTableColumn" prefWidth="180.0" sortable="false"
-                                         text="Context-Path"/>
-                            <TableColumn fx:id="responseHeaderTableColumn" prefWidth="180.0" sortable="false"
-                                         text="Response Header"/>
-                            <TableColumn fx:id="responseContentTableColumn" prefWidth="180.0" sortable="false"
-                                         text="Response Content"/>
-                            <TableColumn fx:id="desTableColumn" prefWidth="112.0" sortable="180.0" text="接口说明"/>
-                            <TableColumn fx:id="stateTableColumn" minWidth="0.0" prefWidth="20.0" sortable="false"/>
-                        </columns>
-                        <BorderPane.margin>
-                            <Insets bottom="5.0" top="5.0"/>
-                        </BorderPane.margin>
-                        <columnResizePolicy>
-                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
-                        </columnResizePolicy>
-                    </TableView>
-                </center>
-                <bottom>
-                    <HBox alignment="CENTER_LEFT" spacing="5.0" BorderPane.alignment="CENTER">
-                        <HBox fx:id="stateHbox" alignment="CENTER_LEFT" spacing="5.0">
-                            <Text text="运行状态:"/>
-                            <MFXProgressBar fx:id="statusProcessBar" styleClass="custom-jfx-progress-bar-stroke"/>
-                        </HBox>
-                        <HBox HBox.hgrow="ALWAYS" alignment="CENTER_RIGHT" spacing="5.0">
-                            <MFXTextField minWidth="20" promptText="端口:1~65535" fx:id="portTextField"/>
-                            <MFXButton fx:id="startButton" text="启动"/>
-                            <MFXButton fx:id="stopButton" text="停止"/>
-                        </HBox>
-                    </HBox>
-                </bottom>
-            </BorderPane>
-        </AnchorPane>
-        <AnchorPane minHeight="0.0" minWidth="0.0">
-            <VirtualizedScrollPane AnchorPane.bottomAnchor="0"
-                                   AnchorPane.leftAnchor="0"
-                                   AnchorPane.rightAnchor="0"
-                                   AnchorPane.topAnchor="0">
-                <content>
-                    <CustomTextArea wrapText="true" fx:id="outputTextArea"/>
-                </content>
-            </VirtualizedScrollPane>
-        </AnchorPane>
-    </SplitPane>
+
+                    <Separator/>
+
+                    <!-- Response Header -->
+                    <VBox spacing="6">
+                        <Label text="%label.responseHeaderSection" style="-fx-font-weight: bold; -fx-text-fill: -theme-text-secondary;"/>
+                        <TextField fx:id="responseHeader" promptText="%prompt.responseHeader"/>
+                    </VBox>
+
+                    <Separator/>
+
+                    <!-- Response Body -->
+                    <VBox spacing="6" VBox.vgrow="ALWAYS">
+                        <Label text="%label.responseBodySection" style="-fx-font-weight: bold; -fx-text-fill: -theme-text-secondary;"/>
+                        <TextArea fx:id="responseContent" wrapText="true" VBox.vgrow="ALWAYS" styleClass="rest-mock-body-editor"
+                                  promptText="%prompt.responseBody"/>
+                    </VBox>
+                </VBox>
+            </StackPane>
+        </SplitPane>
+
+        <!-- 底部请求日志（可折叠） -->
+        <TitledPane fx:id="logDrawerPane" text="%label.requestLog" collapsible="true" expanded="false" styleClass="rest-mock-log-drawer">
+            <TextArea fx:id="outputTextArea" wrapText="true" editable="false" styleClass="rest-mock-log-area" prefHeight="200" minHeight="120"/>
+        </TitledPane>
+    </VBox>
 </StackPane>

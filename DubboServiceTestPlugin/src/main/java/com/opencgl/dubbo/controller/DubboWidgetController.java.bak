@@ -1,0 +1,950 @@
+package com.opencgl.dubbo.controller;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.URL;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.opencgl.base.ViewControllerUtil.ThemeSwitchUtil;
+import com.opencgl.base.controls.CustomMFXFilterComboBox;
+import com.opencgl.base.controls.CustomTextArea;
+import com.opencgl.base.hook.HookContext;
+import com.opencgl.base.hook.RequestHook;
+import com.opencgl.base.hook.ScriptEngineManager;
+import com.opencgl.base.model.Base;
+import com.opencgl.base.service.SendMessageService;
+import com.opencgl.base.service.TreeOperateService;
+import com.opencgl.base.utils.DialogUtil;
+import com.opencgl.base.utils.FormatVariableUtil;
+import com.opencgl.base.utils.LoadingMask;
+import com.opencgl.base.utils.OperationHisRecord;
+import com.opencgl.base.utils.TooltipUtil;
+import com.opencgl.base.utils.tree.TreeViewBuilder;
+import com.opencgl.base.view.CustomizeTreeItem;
+import com.opencgl.dubbo.dao.DubboWidgetDao;
+import com.opencgl.dubbo.factory.DubboSendMessageFactory;
+import com.opencgl.dubbo.model.DubboEnvConfig;
+import com.opencgl.dubbo.model.DubboInfo;
+import com.opencgl.dubbo.model.DubboRequest;
+import com.opencgl.dubbo.model.DubboResponse;
+import com.opencgl.dubbo.model.DubboTreeItem;
+import com.opencgl.dubbo.utils.DubboConfigFileParseUtil;
+import com.opencgl.dubbo.utils.DubboUtil;
+import com.opencgl.dubbo.utils.ZkClientTestUtil;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.mfxresources.fonts.MFXFontIcon;
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.collections.FXCollections;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.TitledPane;
+import javafx.scene.control.Tooltip;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
+import lombok.SneakyThrows;
+
+/**
+ * @author Chance.W
+ */
+@SuppressWarnings("unused")
+public class DubboWidgetController implements Initializable, TreeOperateService<DubboTreeItem> {
+    // 保存自己的ClassLoader
+    private final ClassLoader pluginCl;
+
+    public DubboWidgetController() {
+        this.pluginCl = this.getClass().getClassLoader();
+    }
+
+    private final LoadingMask loadingMask = new LoadingMask();
+
+    @FXML
+    protected SplitPane splitPane;
+    @FXML
+    protected StackPane mainStackPane;
+    @FXML
+    protected BorderPane contentBorderPane;
+    @FXML
+    public StackPane contentInputAndOutputPane;
+    @FXML
+    protected MFXButton sendButton;
+    @FXML
+    protected MFXButton refreshButton;
+    @FXML
+    protected MFXButton saveButton;
+    @FXML
+    protected MFXButton settingButton;
+    @FXML
+    protected MFXButton copyButton;
+    @FXML
+    protected CustomMFXFilterComboBox<String> chooseEnvComboBox;
+    @FXML
+    protected CustomMFXFilterComboBox<String> chooseIntComboBox;
+    @FXML
+    protected CustomMFXFilterComboBox<String> chooseMetComboBox;
+    @FXML
+    protected CustomMFXFilterComboBox<String> chooseProvideComboBox;
+    @FXML
+    public VBox operateTopVbox;
+    @FXML
+    protected HBox extHbox;
+    @FXML
+    protected MFXTextField extRequestType;
+    @FXML
+    protected CustomTextArea outputTextArea;
+    @FXML
+    protected CustomTextArea inputTextArea;
+    @FXML
+    protected MFXTextField requestCountField;
+
+    private final Logger logger = LoggerFactory.getLogger(DubboWidgetController.class);
+    private final DubboWidgetDao dubboWidgetDao = new DubboWidgetDao();
+    private final DubboConfigFileParseUtil dubboConfigFileOperUtil = new DubboConfigFileParseUtil();
+    private final DubboEnvConfigureDialog dubboEnvConfigureController = new DubboEnvConfigureDialog();
+    private final ZkClientTestUtil zkClientTest = new ZkClientTestUtil();
+    private final String basePath = Base.BASE_PATH + "/conf/dubbo/";
+
+    private final SendMessageService<DubboRequest, DubboResponse> sendMessageService = DubboSendMessageFactory.sendDubboMessage();
+
+    private TreeView<DubboTreeItem> dubboTreeItemTreeView = null;
+
+    // Hook 扩展支持
+    private ScriptEngineManager scriptEngineManager;
+    private RequestHook currentHook;
+    @FXML
+    protected TitledPane extTitledPane;
+    @FXML
+    protected MFXComboBox<String> hookScriptCombo;
+
+    @SneakyThrows
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        init();
+        showTooltip();
+        // 使用新版TreeViewBuilder构建树
+        VBox vBox = new TreeViewBuilder<DubboTreeItem>()
+            .service(this)
+            .onTreeCreated(tree -> this.dubboTreeItemTreeView = tree)
+            .dataType(DubboTreeItem.class)
+            .enableDragDrop(true)
+            .enableSearch()
+            .searchPrompt("搜索节点。。。")
+            .build();
+        ThemeSwitchUtil.treeStyleSwitch(mainStackPane, contentBorderPane, vBox);
+        initHookScripts();
+        setupKeyboardShortcuts();
+    }
+
+    /**
+     * 初始化 Hook 脚本列表
+     */
+    private void initHookScripts() {
+        scriptEngineManager = new ScriptEngineManager();
+        if (hookScriptCombo != null) {
+            java.util.List<String> scripts = scriptEngineManager.listAvailableScripts();
+            scripts.addFirst(""); // 添加空选项
+            hookScriptCombo.getItems().addAll(scripts);
+            hookScriptCombo.getSelectionModel().selectFirst();
+            hookScriptCombo.setOnAction(e -> onHookScriptChanged());
+        }
+    }
+
+    /**
+     * Hook 脚本选择变化事件
+     */
+    private void onHookScriptChanged() {
+        String selected = hookScriptCombo.getValue();
+        if (StringUtils.isEmpty(selected)) {
+            currentHook = null;
+            return;
+        }
+        try {
+            java.nio.file.Path scriptPath = Paths.get(
+                System.getProperty("user.home"), ".opencgl", "hooks", selected
+            );
+            currentHook = scriptEngineManager.loadScript(scriptPath);
+            logger.info("已加载 Hook 脚本: {}", selected);
+        }
+        catch (Exception ex) {
+            logger.error("加载 Hook 脚本失败", ex);
+            DialogUtil.showErrorInfo("加载 Hook 脚本失败: " + ex.getMessage());
+            currentHook = null;
+        }
+    }
+
+
+    public void init() {
+        initStyle();
+        chooseEnvComboBox.setOnMouseClicked(event -> {
+            try {
+                List<DubboEnvConfig> configs = dubboWidgetDao.queryAllEnvConfig();
+                List<String> names = configs.stream().map(DubboEnvConfig::getEnvName).collect(Collectors.toList());
+                chooseEnvComboBox.setItems(FXCollections.observableArrayList(names));
+            }
+            catch (Exception e) {
+                logger.error("", e);
+            }
+        });
+
+        //noinspection unchecked,rawtypes
+        chooseEnvComboBox.getSelectionModel().selectedItemProperty().addListener((ChangeListener) (observable, oldValue, newValue) -> {
+            if (null == newValue) {
+                return;
+            }
+            chooseIntComboBox.getItems().clear();
+            chooseMetComboBox.getItems().clear();
+            try {
+                DubboEnvConfig config = dubboWidgetDao.queryEnvConfig(chooseEnvComboBox.getText());
+                if (config != null && !StringUtils.isEmpty(config.getServiceData())) {
+                    List<String> allContent = JSON.parseArray(config.getServiceData(), String.class);
+                    List<String> infs = new ArrayList<>();
+                    for (String line : allContent) {
+                        infs.add(line.split(",")[0]);
+                    }
+                    chooseIntComboBox.setItems(FXCollections.observableArrayList(infs.stream().distinct().collect(Collectors.toList())));
+                }
+            }
+            catch (Exception ex) {
+                logger.error("", ex);
+            }
+        });
+
+        //noinspection unchecked,rawtypes
+        chooseIntComboBox.getSelectionModel().selectedItemProperty().addListener((ChangeListener) (observable, oldValue, newValue) -> {
+            if (newValue == null) {
+                return;
+            }
+            chooseMetComboBox.getItems().clear();
+            try {
+                DubboEnvConfig config = dubboWidgetDao.queryEnvConfig(chooseEnvComboBox.getText());
+                if (config != null && !StringUtils.isEmpty(config.getServiceData())) {
+                    List<String> allContent = JSON.parseArray(config.getServiceData(), String.class);
+                    List<String> methods = new ArrayList<>();
+                    for (String line : allContent) {
+                        if (line.split(",")[0].equals(chooseIntComboBox.getText())) {
+                            methods.add(line.split(",")[1]);
+                        }
+                    }
+                    chooseMetComboBox.setItems(FXCollections.observableArrayList(methods.stream().distinct().collect(Collectors.toList())));
+                }
+            }
+            catch (Exception ex) {
+                logger.error("", ex);
+            }
+        });
+
+
+        chooseMetComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (null == newValue) {
+                return;
+            }
+            chooseProvideComboBox.getItems().clear();
+            logger.info("方法事件监控,方法选择已选中" + chooseMetComboBox.getText());
+
+            try {
+                DubboEnvConfig config = dubboWidgetDao.queryEnvConfig(chooseEnvComboBox.getText());
+                if (config == null) return;
+
+                String apiPath = config.getApiPackagePath();
+                if (StringUtils.isEmpty(apiPath)) {
+                    return;
+                }
+                String[] jarFile = apiPath.split(",");
+                String requestType = "";
+
+                if (!StringUtils.isEmpty(config.getServiceData())) {
+                    List<String> allContent = JSON.parseArray(config.getServiceData(), String.class);
+                    for (String line : allContent) {
+                        if (line.split(",")[0].equals(chooseIntComboBox.getText()) && line.split(",")[1].equals(chooseMetComboBox.getText())) {
+                            requestType = line.split(",")[2];
+                        }
+                    }
+                }
+
+                if (StringUtils.isEmpty(requestType)) {
+                    return;
+                }
+                if (requestType.startsWith("java")) {
+                    inputTextArea.setText(requestType);
+                    return;
+                }
+                inputTextArea.setText(DubboConfigFileParseUtil.jsonMessage(jarFile, requestType));
+            }
+            catch (Exception e) {
+                logger.error("", e);
+            }
+        });
+
+        chooseProvideComboBox.setOnMouseClicked(event -> {
+            chooseProvideComboBox.getItems().clear();
+            if (StringUtils.isEmpty(chooseIntComboBox.getText())) {
+                return;
+            }
+            CompletableFuture.runAsync(() -> {
+                try {
+                    DubboEnvConfig config = dubboWidgetDao.queryEnvConfig(chooseEnvComboBox.getText());
+                    if (config != null) {
+                        String zkAddress = config.getRegistryAddress();
+                        String dubboGroup = config.getRegistryGroup();
+
+                        Platform.runLater(() -> loadingMask.show(contentInputAndOutputPane));
+                        List<String> providers = DubboConfigFileParseUtil.getProviders("/" + dubboGroup + "/" + chooseIntComboBox.getText(), zkAddress);
+                        Platform.runLater(() -> chooseProvideComboBox.setItems(FXCollections.observableArrayList(providers)));
+                        chooseProvideComboBox.getItems().sorted();
+                    }
+                }
+                catch (Throwable e) {
+                    logger.error("", e);
+                    Platform.runLater(() -> DialogUtil.showErrorInfo(e.getMessage()));
+                }
+                finally {
+                    Platform.runLater(loadingMask::hide);
+                }
+            });
+        });
+    }
+
+    private void initStyle() {
+        MFXFontIcon sendButtonIcon = new MFXFontIcon("fas-play");
+        sendButton.setGraphic(sendButtonIcon);
+        sendButton.setText(null);
+    }
+
+    /**
+     * 设置键盘快捷键
+     */
+    private void setupKeyboardShortcuts() {
+        // Ctrl+Enter 发送请求
+        KeyCodeCombination sendShortcut = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.SHORTCUT_DOWN);
+        // Ctrl+S 保存
+        KeyCodeCombination saveShortcut = new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN);
+        // Ctrl+R 刷新
+        KeyCodeCombination refreshShortcut = new KeyCodeCombination(KeyCode.R, KeyCombination.SHORTCUT_DOWN);
+        // F5 刷新
+        KeyCodeCombination f5Shortcut = new KeyCodeCombination(KeyCode.F5);
+        // Ctrl+D 复制当前项
+        KeyCodeCombination copyShortcut = new KeyCodeCombination(KeyCode.D, KeyCombination.SHORTCUT_DOWN);
+
+        mainStackPane.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (sendShortcut.match(event)) {
+                sendLabelAction();
+                event.consume();
+            }
+            else if (saveShortcut.match(event)) {
+                saveLabelAction();
+                event.consume();
+            }
+            else if (refreshShortcut.match(event) || f5Shortcut.match(event)) {
+                refreshLabelAction();
+                event.consume();
+            }
+            else if (copyShortcut.match(event)) {
+                copyLabelAction();
+                event.consume();
+            }
+        });
+    }
+
+
+    @FXML
+    public void sendLabelAction() {
+        ClassLoader old = Thread.currentThread().getContextClassLoader();
+        try {
+            if (StringUtils.isEmpty(chooseIntComboBox.getText())
+                || StringUtils.isEmpty(chooseMetComboBox.getText())) {
+                DialogUtil.showErrorInfo("环境/接口/方法等关键信息不能为空!");
+                return;
+            }
+            String envName = chooseEnvComboBox.getText();
+            DubboEnvConfig config = dubboWidgetDao.queryEnvConfig(envName);
+
+            if (config == null
+                || StringUtils.isEmpty(config.getRegistryAddress())
+                || StringUtils.isEmpty(config.getRegistryGroup())) {
+                DialogUtil.showErrorInfo("环境配置文件不存在，或信息为空!");
+                return;
+            }
+            DubboInfo dubboInfo = DubboInfo.builder()
+                .zk(config.getRegistryAddress())
+                .group(config.getRegistryGroup())
+                .build();
+
+            String requestType = "";
+            boolean isExtended = extTitledPane.isExpanded();
+            if (isExtended && !StringUtils.isEmpty(extRequestType.getText())) {
+                requestType = extRequestType.getText();
+            }
+            else {
+                List<String> allContent;
+                try {
+                    if (!StringUtils.isEmpty(config.getServiceData())) {
+                        allContent = JSON.parseArray(config.getServiceData(), String.class);
+                        for (String line : allContent) {
+                            if (line.split(",")[0].equals(chooseIntComboBox.getText()) && line.split(",")[1].equals(chooseMetComboBox.getText())) {
+                                requestType = line.split(",")[2];
+                            }
+                        }
+                    }
+                }
+                catch (Exception e) {
+                    logger.error("", e);
+                }
+            }
+
+            // Hook 上下文构建
+            HookContext hookContext = new HookContext();
+            hookContext.setInterfaceName(chooseIntComboBox.getText());
+            hookContext.setMethodName(chooseMetComboBox.getText());
+            hookContext.setEnvironment(chooseEnvComboBox.getText());
+            hookContext.setProtocol("dubbo");
+
+            // 获取请求次数
+            int requestCount = 1;
+            try {
+                String countText = requestCountField.getText();
+                if (countText != null && !countText.trim().isEmpty()) {
+                    requestCount = Integer.parseInt(countText.trim());
+                    if (requestCount <= 0) {
+                        requestCount = 1;
+                    }
+                }
+            }
+            catch (NumberFormatException e) {
+                logger.warn("请求次数格式错误,使用默认值1", e);
+            }
+
+            AtomicReference<String> outResult = new AtomicReference<>("");
+            final RequestHook hookRef = currentHook;
+            final HookContext ctxRef = hookContext;
+            final int finalRequestCount = requestCount;
+            final String finalRegistryAddr = config.getRegistryAddress();
+            final String finalRegistryGroup = config.getRegistryGroup();
+
+            String finalRequestType = requestType;
+            CompletableFuture.runAsync(() -> {
+                // 清空输出并显示加载中
+                Platform.runLater(() -> {
+                    outputTextArea.setText("");  // 清空旧结果
+                    loadingMask.show(contentInputAndOutputPane);
+                });
+                
+                try {
+                    Thread.currentThread().setContextClassLoader(pluginCl);
+
+                    // 生成多个请求，每次请求都执行 Hook preProcess
+                    List<DubboRequest> requests = new ArrayList<>();
+                    for (int i = 0; i < finalRequestCount; i++) {
+                        // 每次都重新格式化（支持动态变量如时间戳、随机数）
+                        String formattedJson = FormatVariableUtil.format(inputTextArea.getNonAnnotationText());
+                        String processedRequestJson = formattedJson;
+
+                        // 每次请求都执行 Hook 前处理（支持动态参数）
+                        if (hookRef != null) {
+                            try {
+                                logger.info("========== Hook 预处理开始 (请求 {}/{}) ==========", i + 1, finalRequestCount);
+                                logger.info("原始请求:\n{}", processedRequestJson);
+                                processedRequestJson = hookRef.preProcess(processedRequestJson, ctxRef);
+                                logger.info("处理后请求:\n{}", processedRequestJson);
+                                if (!formattedJson.equals(processedRequestJson)) {
+                                    logger.info("请求已被 Hook 修改");
+                                }
+                                logger.info("========== Hook 预处理完成 ==========");
+                            }
+                            catch (Exception e) {
+                                logger.error("Hook 预处理失败 (请求 {}/{})", i + 1, finalRequestCount, e);
+                            }
+                        }
+
+                        // 构建单个请求
+                        DubboRequest req = DubboRequest.builder()
+                            .dubboRegistryAddr(dubboInfo.getZk())
+                            .dubboRegistryGroup(dubboInfo.getGroup())
+                            .dubboProvidersUrl(chooseProvideComboBox.getText())
+                            .interfaceName(chooseIntComboBox.getText())
+                            .method(chooseMetComboBox.getText())
+                            .reqType(finalRequestType)
+                            .reqJsonMessage(processedRequestJson)
+                            .build();
+                        requests.add(req);
+                    }
+
+                    // 批量发送请求（复用连接），使用回调实现实时输出
+                    DubboUtil dubboUtil = new DubboUtil(requests.getFirst());
+                    
+                    // 实时回调：每完成一个请求就立即显示
+                    dubboUtil.sendBatch(requests, indexedResult -> {
+                        try {
+                            Integer reqIndex = (Integer) indexedResult.get("requestIndex");
+                            Integer totalReqs = (Integer) indexedResult.get("totalRequests");
+                            
+                            StringBuilder resultText = new StringBuilder();
+                            
+                            // 添加分隔符
+                            if (reqIndex > 1) {
+                                resultText.append("\n\n");
+                            }
+                            
+                            if (finalRequestCount > 1) {
+                                resultText.append("==================== 请求 ").append(reqIndex).append(" / ").append(totalReqs).append(" ====================\n\n");
+                            }
+                            
+                            if (indexedResult.containsKey("error")) {
+                                // 错误情况
+                                resultText.append("请求失败:\n");
+                                resultText.append("错误: ").append(indexedResult.get("error")).append("\n");
+                                resultText.append("类型: ").append(indexedResult.get("errorClass"));
+                                return;
+                            } else {
+                                // 成功情况
+                                Object result = indexedResult.get("result");
+                                String singleResult = JSON.toJSONString(result, SerializerFeature.PrettyFormat, SerializerFeature.WriteDateUseDateFormat);
+                                
+                                // Hook 后处理
+                                if (hookRef != null) {
+                                    try {
+                                        logger.info("========== Hook 后处理开始 (响应 {}/{}) ==========", reqIndex, totalReqs);
+                                        String originalResponse = singleResult;
+                                        singleResult = hookRef.postProcess(singleResult, ctxRef);
+                                        if (!originalResponse.equals(singleResult)) {
+                                            logger.info("响应已被 Hook 修改");
+                                        }
+                                        logger.info("========== Hook 后处理完成 ==========");
+                                    } catch (Exception e) {
+                                        logger.error("Hook 后处理失败 (响应 {}/{})", reqIndex, totalReqs, e);
+                                    }
+                                }
+
+                                resultText.append(singleResult);
+                            }
+                            
+                            // 实时更新 UI（在 JavaFX 线程中）
+                            String finalText = resultText.toString();
+                            Platform.runLater(() -> {
+                                // 追加到现有文本
+                                String currentText = outputTextArea.getText();
+                                //todo 大批量会 oom
+                                outputTextArea.setText(currentText + finalText);
+                                
+                                // 滚动到底部（CodeArea 方法）
+                                outputTextArea.moveTo(outputTextArea.getLength());
+                                outputTextArea.requestFollowCaret();
+                            });
+                            
+                        } catch (Exception e) {
+                            logger.error("处理响应失败", e);
+                        }
+                    });
+                    
+                    logger.info("所有请求已完成");
+                }
+                catch (Throwable e) {
+                    StringWriter sw = new StringWriter();
+                    e.printStackTrace(new PrintWriter(sw, true));
+                    logger.error("", e);
+                    
+                    // 显示错误到 UI
+                    final String errorMessage = "请求失败:\n" + sw.toString();
+                    Platform.runLater(() -> {
+                        outputTextArea.setText(errorMessage);
+                    });
+                }
+                finally {
+                    Platform.runLater(loadingMask::hide);
+                    
+                    // 记录第一个请求的内容作为示例
+                    String sampleInput = inputTextArea.getNonAnnotationText();
+                    if (finalRequestCount > 1) {
+                        sampleInput = "批量请求 x" + finalRequestCount + "，首个请求:\n" + sampleInput;
+                    }
+                    
+                    OperationHisRecord.record("SEND DUBBO MESSAGE:", "环境名称:" + chooseEnvComboBox.getText(),
+                        "zk地址:" + finalRegistryAddr,
+                        "dubbo分组:" + finalRegistryGroup,
+                        "接口:" + chooseIntComboBox.getText(),
+                        "方法:" + chooseMetComboBox.getText(),
+                        "提供者:" + chooseProvideComboBox.getText(),
+                        "请求次数:" + finalRequestCount,
+                        "输入:\n" + sampleInput,
+                        "输出:\n" + outputTextArea.getText());
+                }
+            });
+        }
+        catch (Exception e) {
+            logger.error("", e);
+        }
+        finally {
+            Thread.currentThread().setContextClassLoader(old);
+        }
+
+    }
+
+    @FXML
+    public void refreshLabelAction() {
+        DubboTreeItem dubboTreeItem = dubboTreeItemTreeView.getSelectionModel().getSelectedItem().getValue();
+        try {
+            dubboTreeItem = dubboWidgetDao.queryData(dubboTreeItem);
+            chooseEnvComboBox.setText(dubboTreeItem.getEnvName());
+            chooseIntComboBox.setText(dubboTreeItem.getInterfaceInfo());
+            chooseMetComboBox.setText(dubboTreeItem.getMethodInfo());
+
+            // 恢复请求次数
+            if (dubboTreeItem.getRequestCount() != null) {
+                requestCountField.setText(dubboTreeItem.getRequestCount().toString());
+            }
+            else {
+                requestCountField.setText("1");
+            }
+
+            // 恢复扩展模式状态
+            if (Boolean.TRUE.equals(dubboTreeItem.getIsSelected())) {
+                extTitledPane.setExpanded(true);
+                extRequestType.setText(dubboTreeItem.getRequestType());
+
+                // 恢复 Hook 脚本
+                String savedHookScript = dubboTreeItem.getHookScript();
+                if (savedHookScript != null && !savedHookScript.isEmpty()) {
+                    if (!hookScriptCombo.getItems().contains(savedHookScript)) {
+                        hookScriptCombo.getItems().add(savedHookScript);
+                    }
+                    hookScriptCombo.selectItem(savedHookScript);
+                }
+                else {
+                    hookScriptCombo.selectItem("");
+                }
+            }
+            else {
+                extTitledPane.setExpanded(false);
+                extRequestType.clear();
+                hookScriptCombo.selectItem("");
+            }
+            inputTextArea.setText(dubboTreeItem.getInputText());
+        }
+        catch (Exception e) {
+            logger.error("", e);
+        }
+    }
+
+    @FXML
+    public void saveLabelAction() {
+        DubboTreeItem dubboTreeItem = dubboTreeItemTreeView.getSelectionModel().getSelectedItem().getValue();
+        dubboTreeItem.setEnvName(chooseEnvComboBox.getText());
+        dubboTreeItem.setInterfaceInfo(chooseIntComboBox.getText());
+        dubboTreeItem.setMethodInfo(chooseMetComboBox.getText());
+
+        boolean isExtended = extTitledPane.isExpanded();
+        dubboTreeItem.setIsSelected(isExtended);
+
+        dubboTreeItem.setRequestType(extRequestType.getText());
+        dubboTreeItem.setInputText(inputTextArea.getText());
+
+        // 保存请求次数
+        try {
+            String countText = requestCountField.getText();
+            if (countText != null && !countText.trim().isEmpty()) {
+                dubboTreeItem.setRequestCount(Integer.parseInt(countText.trim()));
+            }
+            else {
+                dubboTreeItem.setRequestCount(1);
+            }
+        }
+        catch (NumberFormatException e) {
+            dubboTreeItem.setRequestCount(1);
+        }
+
+        // 保存 Hook 脚本
+        if (isExtended) {
+            String selectedHook = hookScriptCombo.getValue();
+            dubboTreeItem.setHookScript(StringUtils.isEmpty(selectedHook) ? null : selectedHook);
+        }
+        else {
+            dubboTreeItem.setHookScript(null);
+        }
+        try {
+            dubboWidgetDao.updateData(dubboTreeItem);
+            TooltipUtil.showToast(splitPane, "修改成功");
+            dubboTreeItemTreeView.refresh();
+        }
+        catch (Exception e) {
+            TooltipUtil.showToast(splitPane, e.getMessage());
+            logger.error("", e);
+        }
+    }
+
+    @FXML
+    public void settingLabelAction() throws IOException {
+        dubboEnvConfigureController.showAndWait();
+    }
+
+    @FXML
+    public void copyLabelAction() {
+        if (dubboTreeItemTreeView.getSelectionModel().getSelectedItem() == null
+            || !dubboTreeItemTreeView.getSelectionModel().getSelectedItem().isLeaf()) {
+            TooltipUtil.showToast(splitPane, "子节点未选中");
+            return;
+        }
+        DubboTreeItem originDubboTreeItem = dubboTreeItemTreeView.getSelectionModel().getSelectedItem().getValue();
+
+        DubboTreeItem dubboTreeItem = new DubboTreeItem();
+        dubboTreeItem.setId(originDubboTreeItem.getId());
+        dubboTreeItem.setParentId(dubboTreeItemTreeView.getSelectionModel().getSelectedItem().getParent().getValue().getId());
+        dubboTreeItem.setIsLeaf(originDubboTreeItem.getIsLeaf());
+        dubboTreeItem.setName("copy-" + originDubboTreeItem.getName() + "-" + FormatVariableUtil.getRandom(8));
+        dubboTreeItem.setEnvName(chooseEnvComboBox.getText());
+        dubboTreeItem.setInterfaceInfo(chooseIntComboBox.getText());
+        dubboTreeItem.setMethodInfo(chooseMetComboBox.getText());
+        dubboTreeItem.setIsSelected(extTitledPane.isExpanded());
+        dubboTreeItem.setRequestType(extRequestType.getText());
+        dubboTreeItem.setInputText(inputTextArea.getText());
+        dubboTreeItem.setHookScript(hookScriptCombo.getValue());
+        // 保存请求次数
+        try {
+            String countText = requestCountField.getText();
+            if (countText != null && !countText.trim().isEmpty()) {
+                dubboTreeItem.setRequestCount(Integer.parseInt(countText.trim()));
+            }
+            else {
+                dubboTreeItem.setRequestCount(1);
+            }
+        }
+        catch (NumberFormatException e) {
+            dubboTreeItem.setRequestCount(1);
+        }
+        try {
+            Long newTreeItemId = dubboWidgetDao.insertData(dubboTreeItem);
+            dubboTreeItem.setId(newTreeItemId);
+            TreeItem<DubboTreeItem> treeItem = new TreeItem<>(dubboTreeItem);
+            dubboTreeItemTreeView.getSelectionModel().getSelectedItem().getParent().getChildren().add(treeItem);
+            dubboTreeItemTreeView.getSelectionModel().select(treeItem);
+            TooltipUtil.showToast(splitPane, "成功");
+        }
+        catch (Exception e) {
+            TooltipUtil.showToast(splitPane, e.getMessage());
+            logger.error("", e);
+        }
+    }
+
+
+    public void showTooltip() {
+        chooseIntComboBox.setOnMouseEntered(event -> chooseIntComboBox.setTooltip(new Tooltip(chooseIntComboBox.getText())));
+        chooseMetComboBox.setOnMouseEntered(event -> chooseMetComboBox.setTooltip(new Tooltip(chooseMetComboBox.getText())));
+        chooseProvideComboBox.setOnMouseEntered(event -> chooseProvideComboBox.setTooltip(new Tooltip(chooseProvideComboBox.getText())));
+    }
+
+    @Override
+    public boolean supportImportAndExport() {
+        return true;
+    }
+
+    @Override
+    public CustomizeTreeItem<DubboTreeItem> add(DubboTreeItem dubboTreeItem) {
+        dubboTreeItem.setEnvName(chooseEnvComboBox.getText());
+        dubboTreeItem.setInterfaceInfo(chooseIntComboBox.getText());
+        dubboTreeItem.setMethodInfo(chooseMetComboBox.getText());
+        dubboTreeItem.setIsSelected(extTitledPane.isExpanded());
+        if (!extTitledPane.isExpanded()) {
+            extRequestType.clear();
+        }
+        dubboTreeItem.setRequestType(extRequestType.getText());
+        dubboTreeItem.setInputText(inputTextArea.getText());
+
+        // 保存请求次数
+        try {
+            String countText = requestCountField.getText();
+            if (countText != null && !countText.trim().isEmpty()) {
+                dubboTreeItem.setRequestCount(Integer.parseInt(countText.trim()));
+            }
+            else {
+                dubboTreeItem.setRequestCount(1);
+            }
+        }
+        catch (NumberFormatException e) {
+            dubboTreeItem.setRequestCount(1);
+        }
+
+        // 保存 Hook 脚本
+        if (extTitledPane.isExpanded()) {
+            String selectedHook = hookScriptCombo.getValue();
+            dubboTreeItem.setHookScript(StringUtils.isEmpty(selectedHook) ? null : selectedHook);
+        }
+        else {
+            dubboTreeItem.setHookScript(null);
+        }
+        return insertAndGetTreeItem(dubboTreeItem);
+    }
+
+    @Override
+    public CustomizeTreeItem<DubboTreeItem> importData(DubboTreeItem dubboTreeItem) {
+        logger.info("begin import data {}", dubboTreeItem);
+        return insertAndGetTreeItem(dubboTreeItem);
+    }
+
+    private CustomizeTreeItem<DubboTreeItem> insertAndGetTreeItem(DubboTreeItem dubboTreeItem) {
+        try {
+            Long newId = dubboWidgetDao.insertData(dubboTreeItem);
+            dubboTreeItem.setId(newId);
+            return new CustomizeTreeItem<>(dubboTreeItem);
+        }
+        catch (Exception e) {
+            logger.error("", e);
+            DialogUtil.showErrorInfo(e.getMessage());
+        }
+        return null;
+    }
+
+    @Override
+    public CustomizeTreeItem<DubboTreeItem> delete(DubboTreeItem dubboTreeItem) {
+        try {
+            dubboWidgetDao.delLevelData(dubboTreeItem);
+            return new CustomizeTreeItem<>(dubboTreeItem);
+        }
+        catch (Exception e) {
+            logger.error("", e);
+            DialogUtil.showErrorInfo(e.getMessage());
+        }
+        return null;
+    }
+
+    @Override
+    public CustomizeTreeItem<DubboTreeItem> update(DubboTreeItem dubboTreeItem) {
+        try {
+            dubboTreeItem.setName(dubboTreeItem.getName());
+            dubboTreeItem.setEnvName(chooseEnvComboBox.getText());
+            dubboTreeItem.setInterfaceInfo(chooseIntComboBox.getText());
+            dubboTreeItem.setMethodInfo(chooseMetComboBox.getText());
+            dubboTreeItem.setIsSelected(extTitledPane.isExpanded());
+            dubboTreeItem.setRequestType(extRequestType.getText());
+            dubboTreeItem.setInputText(inputTextArea.getText());
+
+            // 保存请求次数
+            try {
+                String countText = requestCountField.getText();
+                if (countText != null && !countText.trim().isEmpty()) {
+                    dubboTreeItem.setRequestCount(Integer.parseInt(countText.trim()));
+                }
+                else {
+                    dubboTreeItem.setRequestCount(1);
+                }
+            }
+            catch (NumberFormatException e) {
+                dubboTreeItem.setRequestCount(1);
+            }
+
+            // 保存 Hook 脚本
+            if (extTitledPane.isExpanded()) {
+                String selectedHook = hookScriptCombo.getValue();
+                dubboTreeItem.setHookScript(StringUtils.isEmpty(selectedHook) ? null : selectedHook);
+            }
+            else {
+                dubboTreeItem.setHookScript(null);
+            }
+            dubboWidgetDao.updateData(dubboTreeItem);
+            return new CustomizeTreeItem<>(dubboTreeItem);
+        }
+        catch (Exception e) {
+            logger.error("", e);
+            DialogUtil.showErrorInfo(e.getMessage());
+        }
+        return null;
+    }
+
+    @Override
+    public void changeToDisplay(DubboTreeItem dubboTreeItem) {
+        try {
+            chooseEnvComboBox.getItems().forEach(s -> {
+                if (s.equals(dubboTreeItem.getEnvName())) {
+                    chooseEnvComboBox.selectItem(s);
+                }
+            });
+            chooseEnvComboBox.setText(dubboTreeItem.getEnvName());
+            chooseIntComboBox.setText(dubboTreeItem.getInterfaceInfo());
+            chooseMetComboBox.setText(dubboTreeItem.getMethodInfo());
+            chooseProvideComboBox.clear();
+
+            // 恢复请求次数
+            if (dubboTreeItem.getRequestCount() != null) {
+                requestCountField.setText(dubboTreeItem.getRequestCount().toString());
+            }
+            else {
+                requestCountField.setText("1");
+            }
+
+            if (dubboTreeItem.getIsSelected()) {
+                extTitledPane.setExpanded(true);
+                extRequestType.setText(dubboTreeItem.getRequestType());
+            }
+            else {
+                extTitledPane.setExpanded(false);
+            }
+            inputTextArea.setText(dubboTreeItem.getInputText());
+
+            // 恢复 Hook 脚本
+            if (dubboTreeItem.getIsSelected()) {
+                String savedHookScript = dubboTreeItem.getHookScript();
+                if (savedHookScript != null && !savedHookScript.isEmpty()) {
+                    if (!hookScriptCombo.getItems().contains(savedHookScript)) {
+                        hookScriptCombo.getItems().add(savedHookScript);
+                    }
+                    hookScriptCombo.selectItem(savedHookScript);
+                }
+                else {
+                    hookScriptCombo.selectItem("");
+                }
+            }
+            else {
+                hookScriptCombo.selectItem("");
+            }
+        }
+        catch (Exception e) {
+            logger.error("", e);
+            DialogUtil.showErrorInfo(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<DubboTreeItem> queryAll() {
+        try {
+            return dubboWidgetDao.queryAllData();
+        }
+        catch (Exception e) {
+            logger.error("", e);
+            DialogUtil.showErrorInfo(e.getMessage());
+        }
+        return null;
+    }
+
+    @Override
+    public void updatePositionOnly(DubboTreeItem dto) {
+        try {
+            dubboWidgetDao.updatePositionOnly(dto);
+        }
+        catch (Exception e) {
+            logger.error("更新位置失败", e);
+        }
+    }
+}
+
+

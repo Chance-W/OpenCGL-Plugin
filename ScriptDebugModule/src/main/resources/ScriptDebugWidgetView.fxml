@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import org.fxmisc.flowless.VirtualizedScrollPane?>
+<?import com.opencgl.base.controls.CustomTextArea?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXComboBox?>
+<?import io.github.palexdev.mfxresources.fonts.MFXFontIcon?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.opencgl.scriptdebug.controller.ScriptDebugWidgetController">
+    <BorderPane fx:id="contentBorderPane">
+        
+        <center>
+            <VBox fx:id="mainContentVbox" spacing="5.0">
+                <!-- Toolbar -->
+                <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-padding: 5;">
+                    <MFXButton fx:id="runButton" buttonType="RAISED" onAction="#runScriptAction" text="">
+                        <graphic>
+                            <MFXFontIcon description="fas-play" size="16.0" color="GREEN"/>
+                        </graphic>
+                    </MFXButton>
+                    
+                    <MFXButton fx:id="saveButton" buttonType="RAISED" onAction="#saveScriptAction" text="">
+                        <graphic>
+                            <MFXFontIcon description="fas-floppy-disk" size="16.0" color="BLUE"/>
+                        </graphic>
+                    </MFXButton>
+                    
+                    <MFXComboBox fx:id="languageCombo" floatMode="BORDER" floatingText="%label.language" prefWidth="120" />
+                    
+                    <MFXButton fx:id="clearButton" buttonType="RAISED" onAction="#clearAction" text="">
+                        <graphic>
+                            <MFXFontIcon description="fas-eraser" size="16.0"/>
+                        </graphic>
+                    </MFXButton>
+                </HBox>
+                
+                <SplitPane dividerPositions="0.6" orientation="VERTICAL" VBox.vgrow="ALWAYS">
+                    <!-- Script Editor -->
+                    <VBox>
+                        <Label text="%label.scriptCode" style="-fx-font-weight: bold; -fx-padding: 3;"/>
+                        <VirtualizedScrollPane VBox.vgrow="ALWAYS">
+                            <content>
+                                <CustomTextArea fx:id="scriptEditor" style="-fx-font-family: 'Monospaced'; -fx-font-size: 14;"/>
+                            </content>
+                        </VirtualizedScrollPane>
+                    </VBox>
+                    
+                    <!-- Bottom Pane: Input/Output -->
+                    <SplitPane dividerPositions="0.4">
+                        <!-- Context Variables -->
+                        <VBox>
+                            <Label text="%label.contextVars" style="-fx-font-weight: bold; -fx-padding: 3;"/>
+                            <VirtualizedScrollPane VBox.vgrow="ALWAYS">
+                                <content>
+                                    <CustomTextArea fx:id="contextEditor" wrapText="true"/>
+                                </content>
+                            </VirtualizedScrollPane>
+                        </VBox>
+                        
+                        <!-- Output -->
+                        <VBox>
+                            <Label text="%label.output" style="-fx-font-weight: bold; -fx-padding: 3;"/>
+                            <VirtualizedScrollPane VBox.vgrow="ALWAYS">
+                                <content>
+                                    <CustomTextArea fx:id="outputConsole" editable="false" wrapText="true" style="-fx-background-color: -theme-bg-tertiary;"/>
+                                </content>
+                            </VirtualizedScrollPane>
+                        </VBox>
+                    </SplitPane>
+                </SplitPane>
+            </VBox>
+        </center>
+    </BorderPane>
+</StackPane>

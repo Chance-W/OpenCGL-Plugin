@@ -15,27 +15,27 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 
-<AnchorPane fx:id="mainAnchorPane" prefHeight="475.0" prefWidth="813.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.opencgl.controller.FtpServerController">
+<AnchorPane fx:id="mainAnchorPane" prefHeight="475.0" prefWidth="813.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.opencgl.ftp.controller.FtpServerController">
    <children>
       <BorderPane layoutX="14.0" layoutY="7.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
          <top>
             <HBox alignment="CENTER" spacing="2.0" BorderPane.alignment="CENTER">
                <children>
-                  <Label text="用户名：" />
+                  <Label text="%label.username" />
                   <TextField fx:id="userNameTextField" prefHeight="23.0" prefWidth="72.0" />
-                  <Label text="密码：" />
+                  <Label text="%label.password" />
                   <TextField fx:id="passwordTextField" prefHeight="23.0" prefWidth="88.0" />
-                  <Label text="共享目录：" />
-                  <TextField fx:id="homeDirectoryTextField" promptText="共享目录" />
-                  <Button fx:id="chooseHomeDirectoryButton" mnemonicParsing="false" onAction="#chooseHomeDirectoryAction" text="选择" />
-                  <CheckBox fx:id="downFileCheckBox" mnemonicParsing="false" selected="true" text="下载文件" />
-                  <CheckBox fx:id="upFileCheckBox" mnemonicParsing="false" selected="true" text="上传文件" />
-                  <CheckBox fx:id="deleteFileCheckBox" mnemonicParsing="false" selected="true" text="读写权限">
+                  <Label text="%label.shared_dir" />
+                  <TextField fx:id="homeDirectoryTextField" promptText="%prompt.shared_dir" />
+                  <Button fx:id="chooseHomeDirectoryButton" mnemonicParsing="false" onAction="#chooseHomeDirectoryAction" text="%button.choose" />
+                  <CheckBox fx:id="downFileCheckBox" mnemonicParsing="false" selected="true" text="%check.download" />
+                  <CheckBox fx:id="upFileCheckBox" mnemonicParsing="false" selected="true" text="%check.upload" />
+                  <CheckBox fx:id="deleteFileCheckBox" mnemonicParsing="false" selected="true" text="%check.readwrite">
                      <tooltip>
-                        <Tooltip text="在名称后加随机数防止文件重复" />
+                        <Tooltip text="%tooltip.readwrite" />
                      </tooltip>
                   </CheckBox>
-                  <Button fx:id="buttonAddItem" mnemonicParsing="false" onAction="#addItemAction" text="添加" />
+                  <Button fx:id="buttonAddItem" mnemonicParsing="false" onAction="#addItemAction" text="%button.add" />
                </children>
                <opaqueInsets>
                   <Insets />
@@ -48,20 +48,20 @@
          <bottom>
             <HBox alignment="CENTER" spacing="5.0" BorderPane.alignment="CENTER">
                <children>
-                  <SplitMenuButton mnemonicParsing="false" onAction="#saveConfigure" popupSide="TOP" text="保存配置">
+                  <SplitMenuButton mnemonicParsing="false" onAction="#saveConfigure" popupSide="TOP" text="%button.save_config">
                     <items>
-                      <MenuItem mnemonicParsing="false" onAction="#otherSaveConfigureAction" text="配置另存为" />
-                      <MenuItem mnemonicParsing="false" onAction="#loadingConfigureAction" text="加载配置" />
+                      <MenuItem mnemonicParsing="false" onAction="#otherSaveConfigureAction" text="%menu.save_as" />
+                      <MenuItem mnemonicParsing="false" onAction="#loadingConfigureAction" text="%menu.load_config" />
                     </items>
                   </SplitMenuButton>
-                  <Label text="服务器端口：" />
+                  <Label text="%label.server_port" />
                   <TextField fx:id="portTextField" prefHeight="23.0" prefWidth="61.0" text="21" />
-                  <CheckBox fx:id="anonymousLoginEnabledCheckBox" mnemonicParsing="false" text="允许匿名用户" />
-                  <TextField fx:id="anonymousLoginEnabledTextField" disable="true" promptText="匿名共享目录" />
-                  <Button fx:id="anonymousLoginEnabledButton" disable="true" mnemonicParsing="false" onAction="#anonymousLoginEnabledAction" text="选择" />
-                  <Label text="最大连接数：" />
+                  <CheckBox fx:id="anonymousLoginEnabledCheckBox" mnemonicParsing="false" text="%check.anonymous" />
+                  <TextField fx:id="anonymousLoginEnabledTextField" disable="true" promptText="%prompt.anonymous_dir" />
+                  <Button fx:id="anonymousLoginEnabledButton" disable="true" mnemonicParsing="false" onAction="#anonymousLoginEnabledAction" text="%button.choose" />
+                  <Label text="%label.max_connections" />
                   <Spinner fx:id="maxConnectCountSpinner" editable="true" prefHeight="23.0" prefWidth="77.0" />
-                  <Button fx:id="startButton" mnemonicParsing="false" onAction="#startAction" text="启动" />
+                  <Button fx:id="startButton" mnemonicParsing="false" onAction="#startAction" text="%button.start" />
                </children>
                <BorderPane.margin>
                   <Insets />
@@ -71,13 +71,13 @@
          <center>
             <TableView fx:id="tableViewMain" editable="true" prefHeight="314.0" prefWidth="759.0" BorderPane.alignment="CENTER">
               <columns>
-                  <TableColumn fx:id="isEnabledTableColumn" prefWidth="75.0" text="是否启用" />
-                <TableColumn fx:id="userNameTableColumn" prefWidth="102.0" sortable="false" text="用户名" />
-                <TableColumn fx:id="passwordTableColumn" prefWidth="150.0" sortable="false" text="密码" />
-                  <TableColumn fx:id="homeDirectoryTableColumn" prefWidth="112.0" sortable="false" text="共享目录" />
-                  <TableColumn fx:id="downFIleTableColumn" prefWidth="112.0" sortable="false" text="下载文件" />
-                  <TableColumn fx:id="upFileTableColumn" minWidth="0.0" prefWidth="160.0" sortable="false" text="上传文件" />
-                  <TableColumn fx:id="deleteFileTableColumn" prefWidth="122.0" sortable="false" text="读写权限" />
+                  <TableColumn fx:id="isEnabledTableColumn" prefWidth="75.0" text="%column.enabled" />
+                <TableColumn fx:id="userNameTableColumn" prefWidth="102.0" sortable="false" text="%column.username" />
+                <TableColumn fx:id="passwordTableColumn" prefWidth="150.0" sortable="false" text="%column.password" />
+                  <TableColumn fx:id="homeDirectoryTableColumn" prefWidth="112.0" sortable="false" text="%column.shared_dir" />
+                  <TableColumn fx:id="downFIleTableColumn" prefWidth="112.0" sortable="false" text="%column.download" />
+                  <TableColumn fx:id="upFileTableColumn" minWidth="0.0" prefWidth="160.0" sortable="false" text="%column.upload" />
+                  <TableColumn fx:id="deleteFileTableColumn" prefWidth="122.0" sortable="false" text="%column.readwrite" />
               </columns>
                <BorderPane.margin>
                   <Insets bottom="5.0" top="5.0" />

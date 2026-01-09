@@ -1,0 +1,116 @@
+/**
+ * OpenCGL 默认主题 (Light Theme)
+ * 纯变量定义文件 (Configuration Layer)
+ */
+.root {
+    /* =========================================================================
+     * 1. 背景层级 (Backgrounds)
+     * ========================================================================= */
+    -theme-bg-primary: #F5F7FA;
+    /* 主窗口背景，核心内容区 */
+    -theme-bg-secondary: #FFFFFF;
+    /* 侧边栏，面板，标题栏 */
+    -theme-bg-tertiary: #F8FAFC;
+    /* 卡片，嵌套容器，输入框背景 */
+    -theme-bg-modal: #ffffff;
+    /* 对话框，弹窗背景 */
+    -theme-bg-overlay: rgba(0, 0, 0, 0.4);
+    /* 模态遮罩层 */
+
+    /* =========================================================================
+     * 2. 文本层级 (Text)
+     * ========================================================================= */
+    -theme-text-primary: #172033;
+    /* 主要内容文字 */
+    -theme-text-secondary: #667085;
+    /* 副标题，描述 */
+    -theme-text-disabled: #98A2B3;
+    /* 禁用状态 */
+    -theme-text-inverse: #ffffff;
+    /* 反色文本 (强调色背景上) */
+    -theme-text-link: #0F9D8A;
+    /* 链接文字 */
+
+    /* 侧边栏专用 */
+    -theme-sidebar-bg: #FFFFFF;
+    -theme-sidebar-text: #344054;
+    -theme-sidebar-icon: #667085;
+    -theme-sidebar-selected-bg: #E5F5F2;
+    -theme-sidebar-selected-text: #087568;
+    -theme-sidebar-selected-icon: #0F9D8A;
+
+    /* =========================================================================
+     * 3. 强调色与状态色 (Accents & Status)
+     * ========================================================================= */
+    -theme-accent: #0F9D8A;
+    /* Teal */
+    -theme-accent-hover: #0B8979;
+    -theme-accent-pressed: #087568;
+
+    -theme-success: #2E7D32;
+    /* Green */
+    -theme-warning: #ED6C02;
+    /* Orange */
+    -theme-danger: #D32F2F;
+    /* Red */
+    -theme-info: #0288D1;
+    /* Blue */
+
+    /* =========================================================================
+     * 4. 边框与分割线 (Borders)
+     * ========================================================================= */
+    -theme-border: #DDE3EA;
+    -theme-divider: #E9EDF2;
+
+    /* =========================================================================
+     * 5. 交互状态 (Interactive States)
+     * ========================================================================= */
+    -theme-hover-bg: #F0F3F7;
+    /* 列表/树悬停 */
+    -theme-selected-bg: #E5F5F2;
+    /* 列表/树选中 (非强调色) */
+    -theme-selected-text: #172033;
+    -theme-focus-ring: rgba(15, 157, 138, 0.28);
+
+    /* Hover & Active specific for Cards/Buttons */
+    -theme-card-hover-bg: #F0F3F7;
+    -theme-card-hover-text: #172033;
+
+    /* =========================================================================
+     * 6. 阴影系统 (Shadows)
+     * ========================================================================= */
+    -theme-shadow-sm: dropshadow(gaussian, rgba(16, 24, 40, 0.06), 4, 0, 0, 1);
+    -theme-shadow-md: dropshadow(gaussian, rgba(16, 24, 40, 0.10), 10, 0, 0, 2);
+    -theme-shadow-lg: dropshadow(gaussian, rgba(16, 24, 40, 0.14), 16, 0, 0, 4);
+
+    /* =========================================================================
+     * 7. 兼容性映射 (Compatibility Mappings)
+     * ========================================================================= */
+    /* Native JavaFX */
+    -fx-base: -theme-bg-secondary;
+    -fx-accent: -theme-accent;
+    -fx-control-inner-background: -theme-bg-primary;
+    -fx-control-inner-background-alt: -theme-bg-tertiary;
+    -fx-text-base-color: -theme-text-primary;
+    -fx-text-inner-color: -theme-text-primary;
+    -fx-text-background-color: -theme-text-primary;
+    -theme-scrollbar-thumb: #98A2B3;
+
+    /* MaterialFX */
+    -mfx-base: -theme-bg-secondary;
+    -mfx-surface: -theme-bg-tertiary;
+    -mfx-text-he: -theme-text-primary;
+    -mfx-text-me: -theme-text-secondary;
+    -mfx-text-disabled: -theme-text-disabled;
+    -mfx-main: -theme-accent;
+
+    /* Code Editor - IntelliJ IDEA Light 风格 */
+    -code-keyword: #000080;
+    -code-string: #008000;
+    -code-comment: #808080;
+    -code-paren: #000000;
+    -code-brace: #000000;
+    -code-bracket: #000000;
+    -code-semicolon: #000080;
+    -code-text: #000000;
+}

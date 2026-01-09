@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane fx:id="rootPane" style="-fx-background-color: #F8FAFC;" xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.opencgl.plugin.ragingestion.controller.RagIngestionWidgetController">
+    <BorderPane fx:id="mainBorderPane">
+        
+        <!-- 顶部高颜值品牌卡片导览 与 知识库工作空间节点条 -->
+        <top>
+            <VBox style="-fx-background-color: #0F172A;">
+                <HBox spacing="15" style="-fx-padding: 12 22 10 22; -fx-alignment: center-left;">
+                    <VBox spacing="2">
+                        <Label text="OpenCGL 智能 RAG 知识工程与 FAQ 问答全生命周期中心" style="-fx-text-fill: white; -fx-font-size: 17px; -fx-font-weight: bold;"/>
+                        <Label text="Dify 交互级分段管线 · 多套工作空间节点树 · FAISS/Milvus 集成 · 在库知识回改运维" style="-fx-text-fill: #94A3B8; -fx-font-size: 12px;"/>
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="statusBadge" text="系统引擎就绪" style="-fx-background-color: #059669; -fx-text-fill: white; -fx-padding: 5 14; -fx-background-radius: 12; -fx-font-weight: bold; -fx-font-size: 11px;"/>
+                </HBox>
+                
+                <!-- 知识库配置节点栏 (KB Workspaces Profile Selector) -->
+                <HBox spacing="10" style="-fx-background-color: #1E293B; -fx-padding: 8 22; -fx-alignment: center-left;">
+                    <Label text="当前知识库工作空间节点:" style="-fx-text-fill: #E2E8F0; -fx-font-weight: bold; -fx-font-size: 12px;"/>
+                    <ComboBox fx:id="kbProfileCombo" prefWidth="260" style="-fx-font-size: 11px;"/>
+                    <Button fx:id="saveProfileBtn" text="+ 另存当前为新工作节点" style="-fx-background-color: #3B82F6; -fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: bold;" onAction="#onSaveProfile"/>
+                    <Button fx:id="deleteProfileBtn" text="删除选中节点" style="-fx-background-color: #EF4444; -fx-text-fill: white; -fx-font-size: 11px;" onAction="#onDeleteProfile"/>
+                </HBox>
+            </VBox>
+        </top>
+
+        <center>
+            <TabPane fx:id="mainTabPane" tabClosingPolicy="UNAVAILABLE" style="-fx-background-color: white;">
+                <!-- 页签 1: 分段调优 & 人工校对工作空间 -->
+                <Tab text="1. 知识分段管线 &amp; Q/A 双列人工校对控制台">
+                    <SplitPane dividerPositions="0.32" style="-fx-background-color: #F8FAFC;">
+                        
+                        <!-- 左侧边栏：加入 ScrollPane 滚动视图防超出截断 -->
+                        <ScrollPane fitToWidth="true" fitToHeight="true" style="-fx-background-color: transparent; -fx-border-color: transparent;">
+                            <VBox spacing="10" style="-fx-background-color: #FFFFFF; -fx-padding: 10; -fx-border-color: #E2E8F0; -fx-border-width: 0 1 0 0;">
+                                <!-- 手风琴分层折叠面板 -->
+                                <Accordion VBox.vgrow="ALWAYS">
+                                    <panes>
+                                        <!-- 折叠窗 1: 文档源与切片策略 -->
+                                        <TitledPane text="1. 文档源扫描与切片策略配置" animated="true">
+                                            <VBox spacing="8" style="-fx-padding: 8;">
+                                                <Label text="文档与目录路径:" style="-fx-font-weight: bold; -fx-font-size: 11px;"/>
+                                                <HBox spacing="6" alignment="CENTER_LEFT">
+                                                    <TextField fx:id="filePathField" promptText="选择文档或目录..." HBox.hgrow="ALWAYS"/>
+                                                    <Button fx:id="browseFileBtn" text="文件" style="-fx-background-color: #3B82F6; -fx-text-fill: white; -fx-font-size: 11px;" onAction="#onBrowseFile"/>
+                                                    <Button fx:id="browseDirBtn" text="目录" style="-fx-background-color: #0284C7; -fx-text-fill: white; -fx-font-size: 11px;" onAction="#onBrowseDirectory"/>
+                                                </HBox>
+                                                <TextField fx:id="fileFilterField" promptText="通配白名单 (如 *.md, *.faq 留空全扫)" style="-fx-font-size: 11px;"/>
+                                                <CheckBox fx:id="autoStrategyCheck" text="自动按扩展名路由分段 (.faq走问答/.md走章节)" selected="true" style="-fx-font-size: 11px; -fx-text-fill: #2563EB;"/>
+                                                <VBox spacing="4" style="-fx-background-color: #F8FAFC; -fx-padding: 6; -fx-background-radius: 4;">
+                                                    <CheckBox fx:id="foldBlankCheck" text="折叠连续多余空行" selected="true" style="-fx-font-size: 11px;"/>
+                                                    <CheckBox fx:id="trimSpaceCheck" text="修整首尾空白字符" selected="true" style="-fx-font-size: 11px;"/>
+                                                    <TextField fx:id="excludeRegexField" promptText="可选正则: 过滤页眉页脚" style="-fx-font-size: 11px;"/>
+                                                </VBox>
+                                                <Label text="默认基础切分策略:" style="-fx-font-weight: bold; -fx-font-size: 11px;"/>
+                                                <ComboBox fx:id="strategyCombo" prefWidth="260"/>
+                                                <TextField fx:id="customDelimiterField" promptText="自定义分隔符/正则 (如 --- 或 \n\n)" style="-fx-font-size: 11px;"/>
+                                                <GridPane hgap="6" vgap="4">
+                                                    <Label text="字符上限:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                                                    <TextField fx:id="chunkSizeField" text="500" prefWidth="60" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                                                    <Label text="重叠字数:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                                                    <TextField fx:id="overlapField" text="60" prefWidth="60" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                                </GridPane>
+                                            </VBox>
+                                        </TitledPane>
+
+                                        <!-- 折叠窗 2: 向量计算模型 -->
+                                        <TitledPane text="2. 向量计算模型 (Embedding)" animated="true">
+                                            <VBox spacing="8" style="-fx-padding: 8;">
+                                                <HBox spacing="10">
+                                                    <RadioButton fx:id="modeApiRadio" text="API 模式" selected="true"/>
+                                                    <RadioButton fx:id="modeLocalRadio" text="离线小模型"/>
+                                                </HBox>
+                                                <HBox spacing="6" alignment="CENTER_LEFT">
+                                                    <TextField fx:id="modelNameField" text="text-embedding-3-small" promptText="远程模型或离线权重" HBox.hgrow="ALWAYS"/>
+                                                    <Button fx:id="localModelBrowseBtn" text="选模型📁" style="-fx-font-size: 11px; -fx-background-color: #475569; -fx-text-fill: white;" onAction="#onBrowseLocalModel" visible="false" managed="false"/>
+                                                    <TextField fx:id="dimensionField" text="768" prefWidth="55" promptText="维度"/>
+                                                </HBox>
+                                                <HBox fx:id="apiUrlBox" spacing="4">
+                                                    <TextField fx:id="apiUrlField" text="http://localhost:11434/v1/embeddings" promptText="API URL" HBox.hgrow="ALWAYS" style="-fx-font-size: 11px;"/>
+                                                </HBox>
+                                            </VBox>
+                                        </TitledPane>
+
+                                        <!-- 折叠窗 3: 目标向量库与增量对账 -->
+                                        <TitledPane text="3. 目标向量库与增量对账" animated="true">
+                                            <VBox spacing="8" style="-fx-padding: 8;">
+                                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                                    <ComboBox fx:id="storageTypeCombo" prefWidth="120"/>
+                                                    <TextField fx:id="targetNameField" text="kb_chunks" promptText="目标表名" HBox.hgrow="ALWAYS"/>
+                                                </HBox>
+                                                <HBox spacing="4" alignment="CENTER_LEFT">
+                                                    <TextField fx:id="dbConnStringField" text="rag_kb.db" promptText="本地路径 / IP:端口" HBox.hgrow="ALWAYS" style="-fx-font-size: 11px;"/>
+                                                    <Button fx:id="browseDbPathBtn" text="文件" style="-fx-font-size: 11px; -fx-background-color: #64748B; -fx-text-fill: white;" onAction="#onBrowseDbPath"/>
+                                                    <Button fx:id="browseDbDirBtn" text="目录" style="-fx-font-size: 11px; -fx-background-color: #475569; -fx-text-fill: white;" onAction="#onBrowseDbDir"/>
+                                                </HBox>
+                                                <CheckBox fx:id="enableIncrementalCheck" text="开启 SHA-256 增量比对 (跳过已存记录)" selected="true" style="-fx-font-weight: bold; -fx-text-fill: #059669;"/>
+                                            </VBox>
+                                        </TitledPane>
+                                    </panes>
+                                </Accordion>
+
+                                <Separator/>
+
+                                <!-- 固定底栏：执行向导核心操作按钮 -->
+                                <VBox spacing="8" style="-fx-padding: 4 0 0 0;">
+                                    <HBox spacing="8">
+                                        <Button fx:id="previewChunksBtn" text="1. 智能分段预览" style="-fx-background-color: #2563EB; -fx-text-fill: white; -fx-font-weight: bold;" HBox.hgrow="ALWAYS" onAction="#onPreviewChunks"/>
+                                        <Button fx:id="startIngestBtn" text="2. 批量计算入库" style="-fx-background-color: #10B981; -fx-text-fill: white; -fx-font-weight: bold;" HBox.hgrow="ALWAYS" onAction="#onStartIngest"/>
+                                    </HBox>
+                                    <Button fx:id="toggleRestBtn" text="启动本地 REST API 服务 (端口 18088)" style="-fx-background-color: #64748B; -fx-text-fill: white;" onAction="#onToggleRestGateway"/>
+                                </VBox>
+                            </VBox>
+                        </ScrollPane>
+
+                        <!-- 右侧主工作区：Q/A 分栏列表 + 全视野模态校对操作区 -->
+                        <VBox spacing="10" style="-fx-padding: 12 16;">
+                            <HBox spacing="8" alignment="CENTER_LEFT">
+                                <Label fx:id="tableSubtitleLabel" text="分段清单预览 (支持双击行直接开启大视图弹框精修)" style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #1E293B;"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Button fx:id="openEditDialogBtn" text="✏️ 弹框校对选中行" style="-fx-background-color: #2563EB; -fx-text-fill: white; -fx-font-weight: bold;" onAction="#onOpenEditDialog"/>
+                                <Button fx:id="addNewQaBtn" text="+ 手工新增段落/问答" style="-fx-background-color: #7C3AED; -fx-text-fill: white; -fx-font-weight: bold;" onAction="#onAddNewQa"/>
+                                <Button fx:id="deleteSelectedBtn" text="✖ 移除选中行" style="-fx-background-color: #EF4444; -fx-text-fill: white; -fx-font-weight: bold;" onAction="#onDeleteSelected"/>
+                                <Label fx:id="chunkCountLabel" text="共 0 块" style="-fx-text-fill: #64748B; -fx-font-weight: bold;"/>
+                            </HBox>
+
+                            <!-- 动态响应式 TableView (自适应伸展占满剩余空间) -->
+                            <TableView fx:id="chunkTableView" VBox.vgrow="ALWAYS" prefHeight="380">
+                                <columns>
+                                    <TableColumn fx:id="colIndex" text="序号" prefWidth="48"/>
+                                    <TableColumn fx:id="colRuleMatched" text="命中切分策略" prefWidth="120"/>
+                                    <TableColumn fx:id="colDiffStatus" text="增量判定" prefWidth="78"/>
+                                    <TableColumn fx:id="colProcessStatus" text="状态" prefWidth="70"/>
+                                    <TableColumn fx:id="colQuestion" text="提问 Q (参与Embedding计算标的)" prefWidth="220"/>
+                                    <TableColumn fx:id="colAnswer" text="完整切片正文 / 解答 A" prefWidth="380"/>
+                                    <TableColumn fx:id="colLength" text="字数" prefWidth="55"/>
+                                    <TableColumn fx:id="colChunkId" text="SHA-256 指纹" prefWidth="120"/>
+                                </columns>
+                            </TableView>
+
+                            <!-- 进度条与终端输出 -->
+                            <VBox spacing="4">
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <ProgressBar fx:id="progressBar" progress="0.0" HBox.hgrow="ALWAYS"/>
+                                    <Label fx:id="progressStatusLabel" text="就绪" style="-fx-font-weight: bold; -fx-text-fill: #475569;"/>
+                                </HBox>
+                                <TextArea fx:id="consoleArea" editable="false" prefHeight="65" wrapText="true" style="-fx-font-family: monospace; -fx-font-size: 11px;"/>
+                            </VBox>
+                        </VBox>
+                    </SplitPane>
+                </Tab>
+
+                <!-- 页签 2: 相似度在线联调 (Hit Testing) 与多语言导出 -->
+                <Tab text="2. 召回匹配测试台 (Hit Testing) &amp; 多语言客户端 SDK">
+                    <VBox spacing="12">
+                        <padding>
+                            <Insets top="14" right="16" bottom="14" left="16"/>
+                        </padding>
+                        <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-background-color: #F1F5F9; -fx-padding: 12; -fx-background-radius: 8;">
+                            <Label text="检索关键词/提问:" style="-fx-font-weight: bold;"/>
+                            <TextField fx:id="searchQueryField" promptText="如: 如何重置密码? 或产品性能要求..." HBox.hgrow="ALWAYS"/>
+                            <Label text="Top K:"/>
+                            <TextField fx:id="topKField" prefWidth="50" text="5"/>
+                            <Label text="分值阈值:"/>
+                            <TextField fx:id="minScoreField" prefWidth="60" text="0.50"/>
+                            <Button fx:id="executeSearchBtn" text="立即执行 Hit Testing 召回" style="-fx-background-color: #2563EB; -fx-text-fill: white; -fx-font-weight: bold;" onAction="#onExecuteSearch"/>
+                        </HBox>
+
+                        <SplitPane dividerPositions="0.55" VBox.vgrow="ALWAYS">
+                            <VBox spacing="6">
+                                <Label text="Top K 召回问答/段落匹配列表:" style="-fx-font-weight: bold; -fx-text-fill: #1E293B;"/>
+                                <TableView fx:id="searchTableView" VBox.vgrow="ALWAYS">
+                                    <columns>
+                                        <TableColumn fx:id="colRank" text="排位" prefWidth="50"/>
+                                        <TableColumn fx:id="colScore" text="匹配相似度" prefWidth="95"/>
+                                        <TableColumn fx:id="colSearchFile" text="来源" prefWidth="120"/>
+                                        <TableColumn fx:id="colSearchContent" text="问答对 / 匹配段落原文 (回执全文)" prefWidth="400"/>
+                                    </columns>
+                                </TableView>
+                            </VBox>
+
+                            <VBox spacing="6">
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <Label text="客户端应用快速接入代码生成:" style="-fx-font-weight: bold; -fx-text-fill: #1E293B;"/>
+                                    <ComboBox fx:id="exportLangCombo" prefWidth="130"/>
+                                    <Button fx:id="exportCodeBtn" text="同步生成代码" onAction="#onGenerateExportCode"/>
+                                </HBox>
+                                <TextArea fx:id="codeExportArea" editable="false" VBox.vgrow="ALWAYS" style="-fx-font-family: monospace; -fx-font-size: 12px;"/>
+                            </VBox>
+                        </SplitPane>
+                    </VBox>
+                </Tab>
+
+
+                <!-- 页签 3: 目标库已入库切片资产看板 (DB Explorer) -->
+                <Tab text="3. 目标库已入库切片资产看板 (DB Explorer)">
+                    <VBox spacing="10" style="-fx-padding: 12 16;">
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <Label text="查询与维护当前目标数据库 (SQLite / Vector) 内已入库的全部数据切片" style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #1E293B;"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <TextField fx:id="dbSearchField" promptText="关键词/指纹过滤查询..." prefWidth="200" style="-fx-font-size: 11px;"/>
+                            <Button fx:id="refreshDbBtn" text="📥 刷新加载已存库" style="-fx-background-color: #0284C7; -fx-text-fill: white; -fx-font-weight: bold;" onAction="#onRefreshDbExplorer"/>
+                            <Button fx:id="dbEditRowBtn" text="✏️ 弹窗修整选中切片" style="-fx-background-color: #2563EB; -fx-text-fill: white; -fx-font-weight: bold;" onAction="#onOpenDbEditDialog"/>
+                            <Button fx:id="deleteDbRowBtn" text="🗑️ 彻底删除选中记录" style="-fx-background-color: #EF4444; -fx-text-fill: white; -fx-font-weight: bold;" onAction="#onDeleteDbRow"/>
+                        </HBox>
+
+                        <TableView fx:id="dbExplorerTableView" VBox.vgrow="ALWAYS" prefHeight="420">
+                            <columns>
+                                <TableColumn fx:id="colDbIndex" text="序号" prefWidth="50"/>
+                                <TableColumn fx:id="colDbId" text="SHA-256 存量指纹" prefWidth="130"/>
+                                <TableColumn fx:id="colDbSource" text="来源文档" prefWidth="130"/>
+                                <TableColumn fx:id="colDbQuestion" text="提问 Q (FAQ/主标题)" prefWidth="220"/>
+                                <TableColumn fx:id="colDbAnswer" text="解答 A / 切片完整正文" prefWidth="420"/>
+                            </columns>
+                        </TableView>
+
+                        <Label fx:id="dbStatusLabel" text="就绪：点击【📥 刷新加载已存库】读取当前目标表所有已存切片数据" style="-fx-font-weight: bold; -fx-text-fill: #64748B;"/>
+                    </VBox>
+                </Tab>
+            </TabPane>
+        </center>
+    </BorderPane>
+</StackPane>

@@ -1,6 +1,21 @@
+/* ProgressIndicator - 主题化版本 */
+
 .progress-indicator:indeterminate .segment {
-    -fx-background-color: purple;
+    -fx-background-color: -theme-accent;
     -fx-background-radius: 50em;
-    -fx-progress-color: #00ff00;
+    -fx-progress-color: -theme-accent;
     -fx-font-size: 2em;
+}
+
+.mfx-progress-bar .track {
+    -fx-fill: -theme-accent;
+    -fx-stroke: -theme-accent;
+    -fx-stroke-width: 2;
+}
+
+.mfx-progress-bar .bar1,
+.mfx-progress-bar .bar2 {
+    -fx-stroke: -theme-accent;
+    -fx-stroke-width: 1;
+    -fx-fill: -theme-text-primary;
 }

@@ -1,0 +1,116 @@
+/**
+ * OpenCGL 深色主题 (Dark Theme)
+ * 纯变量定义文件 (Configuration Layer)
+ */
+.root {
+    /* =========================================================================
+     * 1. 背景层级 (Backgrounds)
+     * ========================================================================= */
+    -theme-bg-primary: #1e1e1e;
+    /* 主窗口背景，核心内容区 */
+    -theme-bg-secondary: #252526;
+    /* 侧边栏，面板，标题栏 */
+    -theme-bg-tertiary: #333333;
+    /* 卡片，嵌套容器，输入框背景 */
+    -theme-bg-modal: #2d2d2d;
+    /* 对话框，弹窗背景 */
+    -theme-bg-overlay: rgba(0, 0, 0, 0.6);
+    /* 模态遮罩层 */
+
+    /* =========================================================================
+     * 2. 文本层级 (Text)
+     * ========================================================================= */
+    -theme-text-primary: rgba(255, 255, 255, 0.90);
+    /* 主要内容文字 */
+    -theme-text-secondary: rgba(255, 255, 255, 0.60);
+    /* 副标题，描述 */
+    -theme-text-disabled: rgba(255, 255, 255, 0.38);
+    /* 禁用状态 */
+    -theme-text-inverse: #ffffff;
+    /* 反色文本 (强调色背景上) */
+    -theme-text-link: #3794ff;
+    /* 链接文字 */
+
+    /* 侧边栏专用 */
+    -theme-sidebar-bg: -theme-bg-secondary;
+    -theme-sidebar-text: rgba(255, 255, 255, 0.85);
+    -theme-sidebar-icon: rgba(255, 255, 255, 0.85);
+    -theme-sidebar-selected-bg: #37373d;
+    -theme-sidebar-selected-text: #ffffff;
+    -theme-sidebar-selected-icon: #569cd6;
+
+    /* =========================================================================
+     * 3. 强调色与状态色 (Accents & Status)
+     * ========================================================================= */
+    -theme-accent: #0e639c;
+    /* VSCode Blue */
+    -theme-accent-hover: #1177bb;
+    -theme-accent-pressed: #094770;
+
+    -theme-success: #4EC9B0;
+    /* Green */
+    -theme-warning: #CCA700;
+    /* Orange/Yellow */
+    -theme-danger: #F14C4C;
+    /* Red */
+    -theme-info: #3794ff;
+    /* Blue */
+
+    /* =========================================================================
+     * 4. 边框与分割线 (Borders)
+     * ========================================================================= */
+    -theme-border: #3c3c3c;
+    -theme-divider: #2b2b2b;
+
+    /* =========================================================================
+     * 5. 交互状态 (Interactive States)
+     * ========================================================================= */
+    -theme-hover-bg: #2a2d2e;
+    /* 列表/树悬停 */
+    -theme-selected-bg: #094771;
+    /* 列表/树选中 (非强调色) */
+    -theme-selected-text: #ffffff;
+    -theme-focus-ring: rgba(14, 99, 156, 0.4);
+
+    /* Hover & Active specific for Cards/Buttons */
+    -theme-card-hover-bg: #4c4c4c;
+    -theme-card-hover-text: #ffffff;
+
+    /* =========================================================================
+     * 6. 阴影系统 (Shadows)
+     * ========================================================================= */
+    -theme-shadow-sm: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 4, 0, 0, 1);
+    -theme-shadow-md: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 8, 0, 0, 2);
+    -theme-shadow-lg: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 15, 0, 0, 4);
+
+    /* =========================================================================
+     * 7. 兼容性映射 (Compatibility Mappings)
+     * ========================================================================= */
+    /* Native JavaFX */
+    -fx-base: -theme-bg-secondary;
+    -fx-accent: -theme-accent;
+    -fx-control-inner-background: -theme-bg-primary;
+    -fx-control-inner-background-alt: -theme-bg-tertiary;
+    -fx-text-base-color: -theme-text-primary;
+    -fx-text-inner-color: -theme-text-primary;
+    -fx-text-background-color: -theme-text-primary;
+    -theme-scrollbar-thumb: #424242;
+
+    /* MaterialFX */
+    -mfx-base: -theme-bg-secondary;
+    -mfx-surface: -theme-bg-tertiary;
+    -mfx-text-he: -theme-text-primary;
+    -mfx-text-me: -theme-text-secondary;
+    -mfx-text-disabled: -theme-text-disabled;
+    -mfx-main: -theme-accent;
+
+    /* Code Editor - IntelliJ IDEA Darcula 风格 */
+    -code-keyword: #CC7832;
+    -code-string: #6A8759;
+    -code-comment: #808080;
+    -code-paren: #A9B7C6;
+    -code-brace: #A9B7C6;
+    -code-bracket: #A9B7C6;
+    -code-semicolon: #CC7832;
+    -code-text: #A9B7C6;
+}

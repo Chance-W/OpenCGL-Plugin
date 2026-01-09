@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXComboBox?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.ScrollPane?>
+<StackPane fx:id="rootPane" xmlns="http://javafx.com/javafx/19"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.opencgl.codegen.controller.CodeGenController"
+           stylesheets="@../styles/codegen-style.css">
+
+    <ScrollPane fitToWidth="true" fitToHeight="true" style="-fx-background-color: -theme-bg-primary;">
+        <content>
+            <VBox spacing="15" style="-fx-background-color: -theme-bg-primary;">
+                <padding>
+                    <Insets top="20" left="25" right="25" bottom="20"/>
+                </padding>
+                <Label text="%title.subtitle" style="-fx-text-fill: -theme-text-secondary;"/>
+
+                <Separator/>
+
+                <!-- 配置区 -->
+                <HBox spacing="20" alignment="BOTTOM_LEFT">
+                    <VBox spacing="5">
+                        <Label text="%label.conversionDirection"/>
+                        <MFXComboBox fx:id="conversionModeCombo" prefWidth="160" prefHeight="36"
+                                  style="-fx-border-radius: 4;"/>
+                    </VBox>
+                    <VBox spacing="5">
+                        <Label text="%label.format"/>
+                        <MFXComboBox fx:id="sourceTypeCombo" prefWidth="100" prefHeight="36"
+                                  style="-fx-border-radius: 4;"/>
+                    </VBox>
+                    <VBox fx:id="dbTypeBox" spacing="5" managed="false" visible="false">
+                        <Label text="%label.dbType"/>
+                        <MFXComboBox fx:id="dbTypeCombo" prefWidth="120" prefHeight="36"
+                                  style="-fx-background-color: -theme-bg-tertiary; -fx-border-color: #bdc3c7; -fx-border-radius: 4;"/>
+                    </VBox>
+                    <VBox spacing="5">
+                        <Label text="%label.packageName"/>
+                        <TextField fx:id="packageNameField" promptText="%prompt.package" prefWidth="200" prefHeight="36"
+                                   style="-fx-background-color: -theme-bg-tertiary;-fx-border-color: #bdc3c7; -fx-border-radius: 4;"/>
+                    </VBox>
+                    <VBox spacing="5">
+                        <Label text="%label.className"/>
+                        <TextField fx:id="classNameField" promptText="%prompt.className" prefWidth="150" prefHeight="36"
+                                   style="-fx-background-color: -theme-bg-tertiary;-fx-border-color: #bdc3c7; -fx-border-radius: 4;"/>
+                    </VBox>
+                    <VBox spacing="5">
+                        <Label text="%label.options"/>
+                        <CheckBox fx:id="lombokCheckbox" text="%label.useLombok" style="-fx-font-weight: bold;"/>
+                    </VBox>
+                    <VBox fx:id="annotationTypeBox" spacing="5" managed="false" visible="false">
+                        <Label text="%label.annotationType"/>
+                        <MFXComboBox fx:id="annotationTypeCombo" prefWidth="130" prefHeight="36"
+                                  style="-fx-background-color: -theme-bg-tertiary; -fx-border-color: #bdc3c7; -fx-border-radius: 4;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- 命名风格 -->
+                <HBox spacing="20" alignment="CENTER_LEFT">
+                    <VBox spacing="5">
+                        <Label text="%label.classStyle"/>
+                        <MFXComboBox fx:id="classStyleCombo" prefWidth="180"/>
+                    </VBox>
+                    <VBox spacing="5">
+                        <Label text="%label.fieldStyle"/>
+                        <MFXComboBox fx:id="fieldStyleCombo" prefWidth="180"/>
+                    </VBox>
+                    <VBox spacing="5">
+                        <Label text="%label.methodStyle"/>
+                        <MFXComboBox fx:id="methodStyleCombo" prefWidth="180"/>
+                    </VBox>
+                </HBox>
+
+                <Separator/>
+
+                <VBox VBox.vgrow="ALWAYS">
+                    <!-- 输入输出区 -->
+                    <HBox spacing="20" VBox.vgrow="ALWAYS">
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Label text="%label.input" style="-fx-text-fill: #27ae60;">
+                                    <font>
+                                        <Font name="System Bold" size="14"/>
+                                    </font>
+                                </Label>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <MFXButton fx:id="formatButton" text="%btn.format"
+                                           style="-fx-background-color: #3498db; -fx-text-fill: -theme-text-inverse;"
+                                           prefWidth="90" prefHeight="28"/>
+                            </HBox>
+                            <TextArea fx:id="inputArea" wrapText="true"
+                                      promptText="%prompt.input"
+                                      style="-fx-border-color: -theme-border;"
+                                      VBox.vgrow="ALWAYS"/>
+                        </VBox>
+
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Label text="%label.output" style="-fx-text-fill: #2980b9;">
+                                    <font>
+                                        <Font name="System Bold" size="14"/>
+                                    </font>
+                                </Label>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <MFXButton fx:id="copyButton" text="%btn.copy"
+                                           style="-fx-background-color: #95a5a6; -fx-text-fill: -theme-text-inverse;"
+                                           prefWidth="80" prefHeight="28"/>
+                            </HBox>
+                            <TextArea fx:id="outputArea" wrapText="true" editable="false"
+                                      promptText="%prompt.output"
+                                      style="-fx-border-color: -theme-border;"
+                                      VBox.vgrow="ALWAYS"/>
+
+                        </VBox>
+                    </HBox>
+
+                    <!-- 按钮区 -->
+                    <HBox spacing="15" alignment="CENTER">
+                        <VBox.margin>
+                            <Insets top="15.0"/>
+                        </VBox.margin>
+                        <MFXButton fx:id="generateButton" text="%btn.generate"
+                                   style="-fx-background-color: #27ae60; -fx-text-fill: -theme-text-inverse; -fx-font-weight: bold;"
+                                   prefWidth="180" prefHeight="45"/>
+                        <MFXButton fx:id="clearButton" text="%btn.clear"
+                                   style="-fx-background-color: #95a5a6; -fx-text-fill: -theme-text-inverse;"
+                                   prefWidth="100" prefHeight="45"/>
+                    </HBox>
+                </VBox>
+
+            </VBox>
+        </content>
+    </ScrollPane>
+</StackPane>

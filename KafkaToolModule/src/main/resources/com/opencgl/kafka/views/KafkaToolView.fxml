@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.opencgl.kafka.controller.KafkaToolController"
+      spacing="10" style="-fx-padding: 15; -fx-background-color: -theme-bg-primary;">
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label fx:id="bootstrapServersLabel" text="%label.bootstrap_servers" style="-fx-text-fill: -theme-text-primary;"/>
+        <TextField fx:id="bootstrapServersField" HBox.hgrow="ALWAYS"
+                   style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+        <Button fx:id="connectBtn" text="%label.connect" onAction="#onConnect"
+                style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
+        <Label fx:id="connectionStatusLabel" style="-fx-text-fill: -theme-text-primary;"/>
+    </HBox>
+
+    <SplitPane dividerPositions="0.25" VBox.vgrow="ALWAYS">
+        <VBox spacing="5" style="-fx-padding: 5;">
+            <HBox spacing="5" alignment="CENTER_LEFT">
+                <Label fx:id="topicsLabel" text="%label.topics" style="-fx-text-fill: -theme-text-primary; -fx-font-weight: bold;"/>
+                <Button fx:id="refreshBtn" text="%label.refresh" onAction="#onRefreshTopics" style="-fx-font-size: 10px;"/>
+            </HBox>
+            <ListView fx:id="topicListView" VBox.vgrow="ALWAYS"
+                      style="-fx-control-inner-background: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+            <Label fx:id="topicInfoLabel" wrapText="true" style="-fx-text-fill: -theme-info; -fx-font-size: 11px;"/>
+        </VBox>
+
+        <TabPane>
+            <Tab fx:id="producerTab" text="%label.produce" closable="false">
+                <VBox spacing="10" style="-fx-padding: 10;">
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label fx:id="producerTopicLabel" text="%label.topic" style="-fx-text-fill: -theme-text-primary;"/>
+                        <ComboBox fx:id="producerTopicCombo" prefWidth="200"/>
+                        <Label fx:id="messageKeyLabel" text="%label.key" style="-fx-text-fill: -theme-text-primary;"/>
+                        <TextField fx:id="messageKeyField" prefWidth="150"
+                                   style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                    </HBox>
+
+                    <VBox spacing="5" VBox.vgrow="ALWAYS">
+                        <Label fx:id="messageContentLabel" text="%label.message_content" style="-fx-text-fill: -theme-text-primary;"/>
+                        <TextArea fx:id="messageValueArea" VBox.vgrow="ALWAYS"
+                                  promptText="%prompt.message_content"
+                                  style="-fx-control-inner-background: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                    </VBox>
+
+                    <VBox spacing="5">
+                        <Label fx:id="headersLabel" text="%label.headers" style="-fx-text-fill: -theme-text-primary;"/>
+                        <TextArea fx:id="headersArea" prefHeight="60"
+                                  style="-fx-control-inner-background: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                    </VBox>
+
+                    <HBox spacing="10" alignment="CENTER">
+                        <Button fx:id="sendMessageBtn" text="%label.send_message" onAction="#onSendMessage" prefWidth="120"
+                                style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse; -fx-font-weight: bold;"/>
+                        <Label fx:id="sendStatusLabel"/>
+                    </HBox>
+                </VBox>
+            </Tab>
+
+            <Tab fx:id="consumerTab" text="%label.consume" closable="false">
+                <VBox spacing="10" style="-fx-padding: 10;">
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label fx:id="consumerTopicLabel" text="%label.topic" style="-fx-text-fill: -theme-text-primary;"/>
+                        <ComboBox fx:id="consumerTopicCombo" prefWidth="200"/>
+                        <Label fx:id="consumerGroupLabel" text="%label.consumer_group" style="-fx-text-fill: -theme-text-primary;"/>
+                        <TextField fx:id="consumerGroupField" prefWidth="200"
+                                   style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                    </HBox>
+
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Button fx:id="startConsumeBtn" text="%label.start_consume" onAction="#onStartConsume"
+                                style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
+                        <Button fx:id="stopConsumeBtn" text="%label.stop" onAction="#onStopConsume"
+                                style="-fx-background-color: -theme-danger; -fx-text-fill: -theme-text-inverse;"/>
+                        <Button fx:id="clearBtn" text="%label.clear" onAction="#onClearMessages"
+                                style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-inverse;"/>
+                    </HBox>
+
+                    <VBox spacing="5" VBox.vgrow="ALWAYS">
+                        <Label fx:id="messagesLabel" text="%label.messages" style="-fx-text-fill: -theme-text-primary;"/>
+                        <TextArea fx:id="messagesArea" VBox.vgrow="ALWAYS" editable="false"
+                                  style="-fx-control-inner-background: -theme-bg-primary; -fx-text-fill: -theme-success; -fx-font-family: 'Consolas';"/>
+                    </VBox>
+                </VBox>
+            </Tab>
+        </TabPane>
+    </SplitPane>
+
+</VBox>

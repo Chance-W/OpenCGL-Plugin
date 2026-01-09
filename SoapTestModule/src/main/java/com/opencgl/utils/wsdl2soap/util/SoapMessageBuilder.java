@@ -6,7 +6,8 @@ import com.opencgl.utils.wsdl2soap.ws.SoapBuilderException;
 import com.opencgl.utils.wsdl2soap.ws.SoapContext;
 import com.opencgl.utils.wsdl2soap.ws.annotation.ThreadSafe;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.xmlbeans.SchemaGlobalElement;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlCursor;
@@ -29,7 +30,7 @@ import java.util.List;
 @ThreadSafe
 @SuppressWarnings("unchecked")
 public class SoapMessageBuilder {
-    private final static Logger log = Logger.getLogger(SoapMessageBuilder.class);
+    private final static Logger log = LoggerFactory.getLogger(SoapMessageBuilder.class);
 
     // should be thread safe it not modified after it has been initialized
     private Definition definition;

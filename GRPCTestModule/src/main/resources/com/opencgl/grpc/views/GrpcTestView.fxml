@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.opencgl.grpc.controller.GrpcTestController"
+      spacing="10" style="-fx-padding: 15; -fx-background-color: -theme-bg-primary;">
+
+    <!-- 连接配置 -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="%label.host" style="-fx-text-fill: -theme-text-primary;"/>
+        <TextField fx:id="hostField" prefWidth="150"
+                   style="-fx-text-fill: -theme-text-primary;"/>
+        <Label text="%label.port" style="-fx-text-fill: -theme-text-primary;"/>
+        <TextField fx:id="portField" prefWidth="80"
+                   style="-fx-text-fill: -theme-text-primary;"/>
+        <CheckBox fx:id="plaintextCheckBox" text="%check.plaintext" style="-fx-text-fill: -theme-text-primary;"/>
+        <Button fx:id="connectBtn" text="%button.connect" onAction="#onConnect"
+                style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
+        <Button text="%button.loadProto" onAction="#onLoadProto"
+                style="-fx-background-color: -theme-info; -fx-text-fill: -theme-text-inverse;"/>
+        <Label fx:id="connectionStatusLabel"/>
+    </HBox>
+
+    <SplitPane dividerPositions="0.25, 0.5" VBox.vgrow="ALWAYS">
+        <!-- 左侧：服务/方法列表 -->
+        <VBox spacing="5" style="-fx-padding: 5;">
+            <Label text="%label.services" style="-fx-text-fill: -theme-text-primary; -fx-font-weight: bold;"/>
+            <ListView fx:id="serviceListView" VBox.vgrow="ALWAYS" prefHeight="150"/>
+            <Label text="%label.methods" style="-fx-text-fill: -theme-text-primary; -fx-font-weight: bold;"/>
+            <ListView fx:id="methodListView" VBox.vgrow="ALWAYS" prefHeight="150"/>
+            <Label fx:id="methodInfoLabel" wrapText="true" 
+                   style="-fx-text-fill: -theme-info; -fx-font-size: 11px;"/>
+        </VBox>
+
+        <!-- 中间：请求 -->
+        <VBox spacing="10" style="-fx-padding: 10;">
+            <Label text="%label.request" style="-fx-text-fill: -theme-text-primary; -fx-font-weight: bold;"/>
+            <TextArea fx:id="requestArea" VBox.vgrow="ALWAYS" promptText="%prompt.request"
+                      style="-fx-text-fill: -theme-text-primary; -fx-font-family: 'Consolas';"/>
+            
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="%label.timeout" style="-fx-text-fill: -theme-text-primary;"/>
+                <TextField fx:id="timeoutField" prefWidth="60"
+                           style="-fx-text-fill: -theme-text-primary;"/>
+                <Button text="%button.call" onAction="#onCall" prefWidth="80"
+                        style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse; -fx-font-weight: bold;"/>
+                <Button text="%button.clear" onAction="#onClear"
+                        style="-fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary;"/>
+                <Label fx:id="callStatusLabel"/>
+            </HBox>
+        </VBox>
+
+        <!-- 右侧：响应 -->
+        <VBox spacing="5" style="-fx-padding: 10;">
+            <Label text="%label.response" style="-fx-text-fill: -theme-text-primary; -fx-font-weight: bold;"/>
+            <TextArea fx:id="responseArea" VBox.vgrow="ALWAYS" editable="false"
+                      style="-fx-text-fill: -theme-success; -fx-font-family: 'Consolas';"/>
+        </VBox>
+    </SplitPane>
+
+</VBox>
