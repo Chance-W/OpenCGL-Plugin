@@ -5,8 +5,16 @@
 <?import javafx.scene.layout.*?>
 <AnchorPane fx:id="mainAnchorPane" prefHeight="517.0" prefWidth="859.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.opencgl.plugin.zookeeper.controller.ZookeeperToolController">
    <children>
-      <BorderPane AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
+      <SplitPane dividerPositions="0.22" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
+      <items>
+      <VBox fx:id="connectionSidebar" minWidth="200" prefWidth="250" />
+      <BorderPane minWidth="500">
          <top>
+          <VBox spacing="6">
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <TextField fx:id="connectionNameField" HBox.hgrow="ALWAYS" />
+                <Button fx:id="saveConnectionButton" onAction="#saveConnectionOnAction" />
+            </HBox>
             <HBox alignment="CENTER_LEFT" prefWidth="200.0" spacing="10.0" BorderPane.alignment="CENTER">
                <children>
                   <Label fx:id="zkServersLabel" text="%label.zk_servers" />
@@ -21,11 +29,22 @@
                   <Insets bottom="10.0" />
                </BorderPane.margin>
             </HBox>
+          </VBox>
          </top>
          <center>
             <SplitPane dividerPositions="0.34560906515580736" BorderPane.alignment="CENTER">
               <items>
-                  <TreeView fx:id="nodeTreeView" />
+                  <VBox spacing="6" minWidth="200">
+                      <TextField fx:id="nodeSearchField" />
+                      <HBox spacing="6" alignment="CENTER_LEFT">
+                          <Button fx:id="searchAllButton" />
+                          <Button fx:id="cancelSearchButton" />
+                          <Button fx:id="clearSearchButton" />
+                          <ProgressIndicator fx:id="searchProgress" prefWidth="18" prefHeight="18" maxWidth="18" maxHeight="18" />
+                      </HBox>
+                      <Label fx:id="searchStatus" wrapText="true" />
+                      <TreeView fx:id="nodeTreeView" VBox.vgrow="ALWAYS" />
+                  </VBox>
                   <TabPane tabClosingPolicy="UNAVAILABLE">
                       <Tab fx:id="nodeDataTab" text="%tab.node_data">
                           <content>
@@ -130,5 +149,7 @@
             </SplitPane>
          </center>
       </BorderPane>
+      </items>
+      </SplitPane>
    </children>
 </AnchorPane>

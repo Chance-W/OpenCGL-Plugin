@@ -96,6 +96,10 @@ public class DecompilerService {
                     return new Sink<T>() {
                         @Override
                         public void write(T sinkable) {
+                            if (sinkType != SinkType.JAVA) {
+                                logger.debug("CFR诊断: {}", sinkable);
+                                return;
+                            }
                             // 捕获反编译结果
                             if (sinkable instanceof String) {
                                 String content = (String) sinkable;

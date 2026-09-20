@@ -19,6 +19,8 @@ public class DecompilerView {
     @FXML public MFXButton exportButton;
     @FXML public MFXButton exportAllButton;
     @FXML public TextField searchField;
+    @FXML public Button navigationBackButton;
+    @FXML public Button navigationForwardButton;
     
     // 文件树
     @FXML public TreeView<ClassNode> fileTreeView;
@@ -27,8 +29,15 @@ public class DecompilerView {
     @FXML public Label classNameLabel;
     @FXML public Label lineCountLabel;
     @FXML public CodeArea codeArea;
+    @FXML public TabPane codeTabPane;
+    @FXML public TextField codeSearchField;
+    @FXML public Button codeSearchPrevButton;
+    @FXML public Button codeSearchNextButton;
+    @FXML public javafx.scene.layout.HBox codeSearchBar;
     
     // 状态栏
     @FXML public Label statusLabel;
     @FXML public Label fileInfoLabel;
+    @FXML public javafx.scene.control.ProgressBar symbolIndexProgress;
+    @FXML public Label symbolIndexLabel;
 }

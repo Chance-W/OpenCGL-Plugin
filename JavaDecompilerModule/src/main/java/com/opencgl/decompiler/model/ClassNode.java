@@ -8,13 +8,22 @@ public class ClassNode {
     private final String fullPath;
     private final boolean isClass;
     private final boolean isDirectory;
+    private final String sourcePath;
+    private final String entryPath;
     private byte[] classBytes;
 
     public ClassNode(String name, String fullPath, boolean isClass, boolean isDirectory) {
+        this(name, fullPath, isClass, isDirectory, null, null);
+    }
+
+    public ClassNode(String name, String fullPath, boolean isClass, boolean isDirectory,
+                     String sourcePath, String entryPath) {
         this.name = name;
         this.fullPath = fullPath;
         this.isClass = isClass;
         this.isDirectory = isDirectory;
+        this.sourcePath = sourcePath;
+        this.entryPath = entryPath;
     }
 
     public String getName() {
@@ -40,6 +49,9 @@ public class ClassNode {
     public void setClassBytes(byte[] classBytes) {
         this.classBytes = classBytes;
     }
+
+    public String getSourcePath() { return sourcePath; }
+    public String getEntryPath() { return entryPath; }
 
     @Override
     public String toString() {

@@ -7,6 +7,10 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TreeView?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
@@ -27,9 +31,14 @@
                        style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
             <MFXButton fx:id="exportAllButton" text="%button.export_all"
                        style="-fx-background-color: -theme-success; -fx-text-fill: -theme-text-inverse;"/>
+            <Separator orientation="VERTICAL"/>
+            <Button fx:id="navigationBackButton" text="←" disable="true" accessibleText="导航后退">
+                <tooltip><Tooltip text="导航后退 (Alt+←)"/></tooltip>
+            </Button>
+            <Button fx:id="navigationForwardButton" text="→" disable="true" accessibleText="导航前进">
+                <tooltip><Tooltip text="导航前进 (Alt+→)"/></tooltip>
+            </Button>
             <Region HBox.hgrow="ALWAYS"/>
-            <TextField fx:id="searchField" promptText="%prompt.search_class"
-                       prefWidth="200"/>
         </HBox>
 
         <!-- 主内容区 -->
@@ -38,21 +47,21 @@
             <VBox spacing="5" style="-fx-padding: 10;">
                 <Label text="%label.file_browser" 
                        style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+                <TextField fx:id="searchField" promptText="%prompt.search_class"/>
                 <TreeView fx:id="fileTreeView" VBox.vgrow="ALWAYS"/>
             </VBox>
 
             <!-- 右侧：代码显示区 -->
             <VBox spacing="5" style="-fx-padding: 10;">
-                <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Label fx:id="classNameLabel" text="%label.select_class_hint" 
-                           style="-fx-font-size: 14; -fx-font-weight: bold;"
-                           HBox.hgrow="ALWAYS"/>
-                    <Label fx:id="lineCountLabel" text=""
-                           style="-fx-text-fill: #888;"/>
-                </HBox>
-                
-                <CodeArea fx:id="codeArea" VBox.vgrow="ALWAYS"
-                          style="-fx-font-family: 'Consolas', 'Monaco', monospace; -fx-font-size: 12;"/>
+                <fx:define>
+                    <HBox fx:id="codeSearchBar" alignment="CENTER_RIGHT" spacing="3" maxWidth="-Infinity" maxHeight="-Infinity"
+                          style="-fx-padding: 8; -fx-background-color: -theme-bg-secondary;">
+                        <TextField fx:id="codeSearchField" promptText="搜索当前 class…" prefWidth="220"/>
+                        <Button fx:id="codeSearchPrevButton" text="↑" mnemonicParsing="false" accessibleText="上一个"/>
+                        <Button fx:id="codeSearchNextButton" text="↓" mnemonicParsing="false" accessibleText="下一个"/>
+                    </HBox>
+                </fx:define>
+                <TabPane fx:id="codeTabPane" tabClosingPolicy="ALL_TABS" VBox.vgrow="ALWAYS"/>
             </VBox>
         </SplitPane>
 
@@ -64,6 +73,8 @@
             <Region HBox.hgrow="ALWAYS"/>
             <Label fx:id="fileInfoLabel" text="" 
                    style="-fx-text-fill: white;"/>
+            <ProgressBar fx:id="symbolIndexProgress" styleClass="symbol-index-progress" prefWidth="140" visible="false" managed="false"/>
+            <Label fx:id="symbolIndexLabel" text="" style="-fx-text-fill: white;"/>
         </HBox>
     </VBox>
 </StackPane>

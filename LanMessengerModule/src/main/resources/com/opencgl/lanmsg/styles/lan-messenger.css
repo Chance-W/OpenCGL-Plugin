@@ -1,0 +1,14 @@
+.lan-messenger { -fx-background-color: -theme-bg-primary; }
+.lan-messenger .label, .lan-messenger .check-box { -fx-text-fill: -theme-text-primary; }
+.lan-messenger .text-field, .lan-messenger .text-area { -fx-text-fill: -theme-text-primary; -fx-prompt-text-fill: -theme-text-secondary; -fx-background-color: -theme-bg-tertiary; }
+.lan-messenger .text-area .content { -fx-background-color: -theme-bg-tertiary; }
+.lan-messenger .list-view, .lan-messenger .list-cell { -fx-background-color: -theme-bg-primary; -fx-text-fill: -theme-text-primary; }
+.lan-messenger .list-cell:selected { -fx-background-color: -theme-bg-tertiary; }
+.lan-messenger .button { -fx-background-color: -theme-bg-tertiary; -fx-text-fill: -theme-text-primary; -fx-padding: 7 12; }
+.lan-messenger .button.primary { -fx-background-color: -theme-accent; -fx-text-fill: -theme-text-inverse; }
+.lan-messenger .progress-bar { -fx-accent: -theme-accent; }
+.lan-messenger .progress-bar .bar { -fx-background-color: -theme-accent; }
+.lan-messenger .message-card { -fx-background-color: -theme-bg-secondary; -fx-background-radius: 8; -fx-padding: 10; }
+.lan-messenger .muted { -fx-text-fill: -theme-text-secondary; }
+.lan-messenger .title { -fx-font-size: 17; -fx-font-weight: bold; }
+.lan-messenger.dialog-pane { -fx-background-color: -theme-bg-primary; -fx-padding: 16; }

@@ -2,11 +2,13 @@
     -oc-accent: #0F9D8A;
     -oc-accent-hover: #0B8979;
     -oc-accent-pressed: #087568;
-    -oc-selection: #CDEBE6;
+    -theme-selection-light: #CDEBE6;
+    -theme-selection-dark: #173F3B;
+    -oc-selection: -theme-selection-surface;
     -theme-accent: #0F9D8A;
     -theme-accent-hover: #0B8979;
     -theme-accent-pressed: #087568;
     /* 兼容仍读取旧主题变量的 TreeView/ListView 选中态。 */
-    -theme-selected-bg: #CDEBE6;
-    -theme-sidebar-selected-bg: #CDEBE6;
+    -theme-selected-bg: -theme-selection-surface;
+    -theme-sidebar-selected-bg: -theme-selection-surface;
 }

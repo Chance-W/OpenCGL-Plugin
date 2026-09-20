@@ -17,6 +17,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public abstract class ZookeeperToolView implements Initializable {
+    @FXML protected javafx.scene.layout.VBox connectionSidebar;
+    @FXML protected TextField connectionNameField;
+    @FXML protected Button saveConnectionButton;
     @FXML
     private AnchorPane mainAnchorPane;
     @FXML
@@ -43,6 +46,12 @@ public abstract class ZookeeperToolView implements Initializable {
     protected Button refreshButton;
     @FXML
     protected TreeView<String> nodeTreeView;
+    @FXML protected TextField nodeSearchField;
+    @FXML protected Button searchAllButton;
+    @FXML protected Button cancelSearchButton;
+    @FXML protected Button clearSearchButton;
+    @FXML protected Label searchStatus;
+    @FXML protected ProgressIndicator searchProgress;
 
     @FXML
     protected Button nodeDataSaveButton;

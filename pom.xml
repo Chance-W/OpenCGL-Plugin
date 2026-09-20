@@ -52,6 +52,7 @@
         <module>HashToolModule</module>
         <module>JWTToolModule</module>
         <module>KafkaToolModule</module>
+        <module>SolaceToolModule</module>
         <module>MqTraceModule</module>
         <module>MongoDBModule</module>
         <module>ElasticsearchModule</module>

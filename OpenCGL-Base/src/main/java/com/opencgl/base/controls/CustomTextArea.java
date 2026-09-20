@@ -56,7 +56,8 @@ public class CustomTextArea extends CodeArea {
     private static final String COMMENT_PATTERN = "//[^\n]*" + "|" + "/\\*(.|\\R)*?\\*/";
 
     private final ToggleButton wrapTextToggle;
-    private final ToggleButton formatButton;
+    /** One-shot action; unlike Wrap this must not retain a pressed state. */
+    private final Button formatButton;
     private boolean wrapLayoutRefreshPending;
     private javafx.beans.value.ChangeListener<Number> parentWidthListener;
 
@@ -141,7 +142,7 @@ public class CustomTextArea extends CodeArea {
         getChildren().add(wrapTextToggle);
 
         // Initialize Format Button
-        formatButton = new ToggleButton("Format");
+        formatButton = new Button("Format");
         formatButton.getStyleClass().add("format-button");
         formatButton.setTooltip(new Tooltip("Format JSON/XML"));
         formatButton.setStyle("-fx-font-size: 10px; -fx-padding: 2 5;");

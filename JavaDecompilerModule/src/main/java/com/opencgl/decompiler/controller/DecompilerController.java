@@ -6,10 +6,17 @@ import com.opencgl.decompiler.model.DecompileResult;
 import com.opencgl.decompiler.service.DecompilerService;
 import com.opencgl.decompiler.service.JarLoaderService;
 import com.opencgl.decompiler.service.SyntaxHighlightService;
+import com.opencgl.decompiler.service.SymbolIndexService;
+import com.opencgl.decompiler.service.SymbolNavigationService;
 import com.opencgl.decompiler.views.DecompilerView;
 import javafx.application.Platform;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TreeCell;
+import javafx.scene.Node;
+import org.fxmisc.richtext.CodeArea;
+import org.fxmisc.richtext.LineNumberFactory;
 import javafx.stage.FileChooser;
 import javafx.stage.DirectoryChooser;
 import org.slf4j.Logger;
@@ -22,9 +29,13 @@ import java.net.URL;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ResourceBundle;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.HashMap;
 
 /**
  * 反编译器控制器
@@ -35,6 +46,7 @@ public class DecompilerController extends DecompilerView implements Initializabl
     private DecompilerService decompilerService;
     private JarLoaderService jarLoaderService;
     private SyntaxHighlightService syntaxHighlightService;
+    private SymbolIndexService symbolIndexService;
     private TreeItem<ClassNode> fullTreeRoot; // 保存完整树用于搜索
     private final ExecutorService executor = Executors.newCachedThreadPool(runnable -> {
         Thread thread = new Thread(runnable, "opencgl-decompiler");
@@ -42,6 +54,26 @@ public class DecompilerController extends DecompilerView implements Initializabl
         return thread;
     });
     private volatile boolean disposed;
+    private final Map<String, TreeItem<ClassNode>> archiveTrees = new LinkedHashMap<>();
+    private TreeItem<ClassNode> workspaceRoot;
+    private final Map<String, CodeArea> openEditors = new HashMap<>();
+    private final Map<String, Tab> openTabs = new HashMap<>();
+    private String lastSearchQuery = "";
+    private int lastSearchPosition = -1;
+    private final ExecutorService navigationExecutor = Executors.newSingleThreadExecutor(r -> {
+        Thread thread = new Thread(r, "opencgl-symbol-navigation"); thread.setDaemon(true); return thread;
+    });
+    private SymbolNavigationService navigationService;
+    private final Map<String, ClassNode> indexedNodes = new HashMap<>();
+    private final Map<CodeArea, EditorNavigation> editorNavigation = new HashMap<>();
+    private volatile Map<String, String> sourceCache = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<String, ClassNode> editorNodes = new HashMap<>();
+    private final java.util.Deque<NavigationLocation> backLocations = new java.util.ArrayDeque<>();
+    private final java.util.Deque<NavigationLocation> forwardLocations = new java.util.ArrayDeque<>();
+    private record NavigationLocation(String key, int start, int end) {}
+    private long indexGeneration, navigationGeneration, workspaceGeneration;
+    private java.util.concurrent.Future<?> indexTask;
+    private final javafx.scene.control.ContextMenu navigationChoices = new javafx.scene.control.ContextMenu();
 
     private CompletableFuture<Void> runAsync(Runnable action) {
         return CompletableFuture.runAsync(() -> {
@@ -55,6 +87,7 @@ public class DecompilerController extends DecompilerView implements Initializabl
         decompilerService = new DecompilerService();
         jarLoaderService = new JarLoaderService();
         syntaxHighlightService = new SyntaxHighlightService();
+        symbolIndexService = new SymbolIndexService();
         
         setupUI();
         bindEvents();
@@ -71,15 +104,13 @@ public class DecompilerController extends DecompilerView implements Initializabl
     }
 
     private void setupUI() {
+        rootPane.getStylesheets().add(getClass().getResource("/com/opencgl/decompiler/styles/navigation.css").toExternalForm());
         // 初始化代码区域
-        codeArea.setEditable(false);
-        
-        // 加载语法高亮CSS
-        String css = getClass().getResource("/com/opencgl/decompiler/styles/java-highlighting.css").toExternalForm();
-        codeArea.getStylesheets().add(css);
+        // 编辑器在首次打开 class 时按 Tab 创建，避免多个 class 共享同一个编辑区。
         
         // 初始化树视图
         fileTreeView.setShowRoot(true);
+        fileTreeView.setContextMenu(new javafx.scene.control.ContextMenu());
         
         // 初始禁用导出按钮
         exportButton.setDisable(true);
@@ -91,6 +122,8 @@ public class DecompilerController extends DecompilerView implements Initializabl
         openFolderButton.setOnAction(e -> onOpenFolder());
         exportButton.setOnAction(e -> onExport());
         exportAllButton.setOnAction(e -> onExportAll());
+        navigationBackButton.setOnAction(e -> navigateHistory(true));
+        navigationForwardButton.setOnAction(e -> navigateHistory(false));
         
         // 树节点选择事件
         fileTreeView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
@@ -101,9 +134,21 @@ public class DecompilerController extends DecompilerView implements Initializabl
         
         // 双击jar文件展开
         fileTreeView.setOnMouseClicked(event -> {
+            if (event.getButton() == javafx.scene.input.MouseButton.SECONDARY) {
+                Node target = (Node) event.getTarget();
+                while (target != null && !(target instanceof TreeCell<?>)) target = target.getParent();
+                if (target instanceof TreeCell<?> cell && cell.getTreeItem() != null) fileTreeView.getSelectionModel().select((TreeItem<ClassNode>) cell.getTreeItem());
+                TreeItem<ClassNode> item = fileTreeView.getSelectionModel().getSelectedItem();
+                if (item != null && JarLoaderService.isArchive(new File(item.getValue().getFullPath()))) {
+                    javafx.scene.control.MenuItem remove = new javafx.scene.control.MenuItem("移除 JAR");
+                    remove.setOnAction(e -> removeArchiveTree(item));
+                    fileTreeView.setContextMenu(new javafx.scene.control.ContextMenu(remove));
+                } else fileTreeView.setContextMenu(new javafx.scene.control.ContextMenu());
+                return;
+            }
             if (event.getClickCount() == 2) {
                 TreeItem<ClassNode> item = fileTreeView.getSelectionModel().getSelectedItem();
-                if (item != null && item.getValue().getName().endsWith(".jar")) {
+                if (item != null && JarLoaderService.isArchive(new File(item.getValue().getFullPath()))) {
                     onExpandJar(item);
                 }
             }
@@ -112,6 +157,38 @@ public class DecompilerController extends DecompilerView implements Initializabl
         // 搜索功能
         searchField.textProperty().addListener((obs, oldVal, newVal) -> {
             filterTree(newVal);
+        });
+        codeSearchField.setOnAction(e -> searchInCurrentEditor());
+        codeSearchNextButton.setOnAction(e -> searchCurrent(true));
+        codeSearchPrevButton.setOnAction(e -> searchCurrent(false));
+        codeTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
+            navigationGeneration++;
+            navigationChoices.hide();
+            editorNavigation.values().forEach(EditorNavigation::clear);
+            if (codeSearchBar.getParent() instanceof javafx.scene.layout.StackPane previous) {
+                previous.getChildren().remove(codeSearchBar);
+            }
+            codeArea = null;
+            if (newTab != null && newTab.getContent() instanceof javafx.scene.layout.StackPane content
+                    && newTab.getUserData() instanceof CodeArea editor) {
+                codeArea = editor; lastSearchPosition = -1;
+                content.getChildren().add(codeSearchBar);
+            }
+        });
+        rootPane.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, e -> {
+            if (e.isShortcutDown() && e.getCode() == javafx.scene.input.KeyCode.F) {
+                if (codeArea == null) return;
+                if (codeArea != null && codeArea.getSelectedText() != null && !codeArea.getSelectedText().isBlank()) {
+                    codeSearchField.setText(codeArea.getSelectedText());
+                }
+                codeSearchField.requestFocus(); codeSearchField.selectAll(); e.consume();
+            } else if (e.getCode() == javafx.scene.input.KeyCode.ENTER && e.isShiftDown() && codeSearchField.isFocused()) {
+                searchCurrent(false); e.consume();
+            } else if (e.isAltDown() && e.getCode() == javafx.scene.input.KeyCode.LEFT) {
+                navigateHistory(true); e.consume();
+            } else if (e.isAltDown() && e.getCode() == javafx.scene.input.KeyCode.RIGHT) {
+                navigateHistory(false); e.consume();
+            }
         });
     }
 
@@ -123,10 +200,8 @@ public class DecompilerController extends DecompilerView implements Initializabl
             new FileChooser.ExtensionFilter(I18N.get("filter.all_files"), "*.*")
         );
         
-        File file = fileChooser.showOpenDialog(rootPane.getScene().getWindow());
-        if (file != null) {
-            loadFile(file);
-        }
+        List<File> files = fileChooser.showOpenMultipleDialog(rootPane.getScene().getWindow());
+        if (files != null) files.forEach(this::loadFile);
     }
 
     private void onOpenFolder() {
@@ -141,22 +216,25 @@ public class DecompilerController extends DecompilerView implements Initializabl
 
     private void loadFile(File file) {
         setStatus(I18N.get("msg.loading_file", file.getName()));
+        long workspace = workspaceGeneration;
         
         runAsync(() -> {
             try {
-                TreeItem<ClassNode> root;
-                if (file.getName().endsWith(".class")) {
-                    root = jarLoaderService.loadClassFile(file);
+                if (JarLoaderService.isArchive(file)) {
+                    TreeItem<ClassNode> archive = jarLoaderService.loadJarFile(file);
+                    Platform.runLater(() -> { if (!disposed && workspace == workspaceGeneration) addArchiveTree(file, archive); });
                 } else {
-                    root = jarLoaderService.loadJarFile(file);
+                    TreeItem<ClassNode> root = jarLoaderService.loadClassFile(file);
+                    Platform.runLater(() -> {
+                        if (disposed || workspace != workspaceGeneration) return;
+                        if (workspaceRoot == null) { workspaceRoot = new TreeItem<>(new ClassNode("已加载文件", "", false, true)); workspaceRoot.setExpanded(true); }
+                        workspaceRoot.getChildren().add(root);
+                        fileTreeView.setRoot(workspaceRoot); fullTreeRoot = workspaceRoot;
+                        setFileInfo(file); exportAllButton.setDisable(false); startSymbolIndex();
+                    });
                 }
-                
                 Platform.runLater(() -> {
-                    fileTreeView.setRoot(root);
-                    fullTreeRoot = root; // 保存完整树
                     setStatus(I18N.get("msg.loaded_file", file.getName()));
-                    setFileInfo(file);
-                    exportAllButton.setDisable(false);
                 });
                 
             } catch (IOException e) {
@@ -168,20 +246,32 @@ public class DecompilerController extends DecompilerView implements Initializabl
 
     private void loadDirectory(File dir) {
         setStatus(I18N.get("msg.scanning_dir", dir.getName()));
+        long workspace = ++workspaceGeneration;
+        // 文件夹打开表示切换工作区，清理上一个工作区的归档列表，避免列表与树不一致。
+        jarLoaderService.clearLoadedArchives();
+        archiveTrees.clear();
+        symbolIndexService.clear();
+        workspaceRoot = new TreeItem<>(new ClassNode(dir.getName(), dir.getAbsolutePath(), false, true));
+        workspaceRoot.setExpanded(true); fileTreeView.setRoot(workspaceRoot); fullTreeRoot = workspaceRoot;
+        TreeItem<ClassNode> directoryRoot = workspaceRoot;
+        setFileInfo(dir); startSymbolIndex();
         
         runAsync(() -> {
             try {
-                ClassNode rootNode = new ClassNode(dir.getName(), dir.getAbsolutePath(), false, true);
-                TreeItem<ClassNode> root = new TreeItem<>(rootNode);
-                root.setExpanded(true);
-                
-                // 递归扫描文件夹
-                scanDirectory(dir.toPath(), root, "");
-                
+                List<File> archives;
+                try (var stream = Files.list(dir.toPath())) {
+                    archives = stream.filter(Files::isRegularFile).map(Path::toFile)
+                            .filter(JarLoaderService::isArchive).toList();
+                }
+                for (File archive : archives) {
+                    TreeItem<ClassNode> tree = jarLoaderService.loadJarFile(archive);
+                    Platform.runLater(() -> { if (!disposed && workspace == workspaceGeneration) addArchiveTree(archive, tree); });
+                }
+                scanDirectory(dir.toPath(), directoryRoot, "");
                 Platform.runLater(() -> {
-                    fileTreeView.setRoot(root);
-                    setStatus(I18N.get("msg.scanned_dir", dir.getName()));
-                    setFileInfo(dir);
+                    if (disposed || workspace != workspaceGeneration) return;
+                    startSymbolIndex();
+                    setStatus(I18N.get("msg.scanned_dir", dir.getName()) + "（已加载 " + archives.size() + " 个 JAR）");
                 });
                 
             } catch (Exception e) {
@@ -196,7 +286,7 @@ public class DecompilerController extends DecompilerView implements Initializabl
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                 String fileName = file.getFileName().toString();
-                if (fileName.endsWith(".class") || fileName.endsWith(".jar")) {
+                if (fileName.toLowerCase(java.util.Locale.ROOT).endsWith(".class")) {
                     String relativePath = dir.relativize(file).toString();
                     ClassNode node = new ClassNode(fileName, file.toString(), fileName.endsWith(".class"), false);
                     Platform.runLater(() -> parent.getChildren().add(new TreeItem<>(node)));
@@ -206,53 +296,280 @@ public class DecompilerController extends DecompilerView implements Initializabl
         });
     }
 
+    private void addArchiveTree(File file, TreeItem<ClassNode> tree) {
+        jarLoaderService.addLoadedArchive(file);
+        if (workspaceRoot == null) { workspaceRoot = new TreeItem<>(new ClassNode("已加载文件", "", false, true)); workspaceRoot.setExpanded(true); }
+        archiveTrees.put(file.getAbsolutePath(), tree);
+        workspaceRoot.getChildren().removeIf(item -> item.getValue().getSourcePath() != null && item.getValue().getSourcePath().equals(file.getAbsolutePath()));
+        workspaceRoot.getChildren().add(tree);
+        fileTreeView.setRoot(workspaceRoot); fullTreeRoot = workspaceRoot;
+        exportAllButton.setDisable(false); setFileInfo(file);
+        startSymbolIndex();
+    }
+
+    private void removeArchiveTree(TreeItem<ClassNode> item) {
+        File file = new File(item.getValue().getSourcePath() == null ? item.getValue().getFullPath() : item.getValue().getSourcePath());
+        jarLoaderService.removeLoadedArchive(file);
+        archiveTrees.remove(file.getAbsolutePath());
+        if (workspaceRoot != null) workspaceRoot.getChildren().remove(item);
+        setStatus("已移除 " + file.getName());
+        startSymbolIndex();
+    }
+
+    private void startSymbolIndex() {
+        if (workspaceRoot == null || symbolIndexService == null) return;
+        long generation = ++indexGeneration;
+        navigationGeneration++;
+        navigationService = null;
+        indexedNodes.clear();
+        sourceCache = new java.util.concurrent.ConcurrentHashMap<>();
+        Map<String, String> cache = sourceCache;
+        if (indexTask != null) indexTask.cancel(true);
+        List<ClassNode> snapshot = SymbolIndexService.snapshot(workspaceRoot);
+        Map<String, ClassNode> liveNodes = new HashMap<>();
+        snapshot.forEach(node -> liveNodes.put(classKey(node), node));
+        for (String key : List.copyOf(openTabs.keySet())) {
+            if (liveNodes.get(key) != editorNodes.get(key)) closeEditor(key);
+        }
+        backLocations.removeIf(location -> !liveNodes.containsKey(location.key()));
+        forwardLocations.removeIf(location -> !liveNodes.containsKey(location.key()));
+        updateNavigationButtons();
+        symbolIndexProgress.setVisible(true); symbolIndexProgress.setManaged(true);
+        symbolIndexProgress.setProgress(0); symbolIndexLabel.setText("索引中…");
+        indexTask = executor.submit(() -> {
+            SymbolIndexService index = new SymbolIndexService();
+            index.index(snapshot, (done, total) -> Platform.runLater(() -> {
+                if (disposed || generation != indexGeneration) return;
+                symbolIndexProgress.setProgress(total == 0 ? 1 : (double) done / total);
+                symbolIndexLabel.setText(done == total ? "符号索引完成 " + done + "/" + total : "符号索引 " + done + "/" + total);
+            }));
+            if (Thread.currentThread().isInterrupted()) return;
+            List<SymbolNavigationService.Source> sources = index.entries().stream().map(entry ->
+                    new SymbolNavigationService.Source(classKey(entry.node()), entry.qualifiedName(),
+                            () -> decompiledSource(entry.node(), cache))).toList();
+            SymbolNavigationService service = new SymbolNavigationService(sources);
+            Platform.runLater(() -> {
+                if (disposed || generation != indexGeneration) return;
+                symbolIndexService = index;
+                index.entries().forEach(entry -> indexedNodes.put(classKey(entry.node()), entry.node()));
+                navigationService = service;
+            });
+        });
+    }
+
+    private String classKey(ClassNode node) {
+        return (node.getSourcePath() == null ? "" : node.getSourcePath()) + "!" + node.getFullPath();
+    }
+
+    private CodeArea createEditor(ClassNode node) {
+        CodeArea editor = new CodeArea();
+        editor.setEditable(false);
+        editor.getStyleClass().add("code-area");
+        editor.setStyle("-fx-font-family: 'Consolas', 'Monaco', monospace; -fx-font-size: 12;");
+        editor.setParagraphGraphicFactory(LineNumberFactory.get(editor));
+        String css = getClass().getResource("/com/opencgl/decompiler/styles/java-highlighting.css").toExternalForm();
+        editor.getStylesheets().add(css);
+        javafx.scene.layout.StackPane content = new javafx.scene.layout.StackPane(editor);
+        javafx.scene.layout.StackPane.setAlignment(codeSearchBar, javafx.geometry.Pos.TOP_RIGHT);
+        javafx.scene.layout.StackPane.setMargin(codeSearchBar, new javafx.geometry.Insets(8, 18, 0, 0));
+        Tab tab = new Tab(node.getName(), content);
+        tab.setUserData(editor);
+        tab.setClosable(true);
+        String key = classKey(node);
+        tab.setOnClosed(e -> closeEditor(key));
+        openTabs.put(key, tab);
+        openEditors.put(key, editor);
+        editorNodes.put(key, node);
+        codeTabPane.getTabs().add(tab);
+        codeTabPane.getSelectionModel().select(tab);
+        editorNavigation.put(editor, new EditorNavigation(editor,
+                (offset, callback) -> resolveSymbol(editor, node, offset, false, callback),
+                offset -> requestNavigation(editor, node, offset)));
+        return editor;
+    }
+
+    private void closeEditor(String key) {
+        Tab tab = openTabs.remove(key);
+        CodeArea editor = openEditors.remove(key);
+        editorNodes.remove(key);
+        EditorNavigation navigation = editorNavigation.remove(editor);
+        if (navigation != null) navigation.dispose();
+        if (tab != null) codeTabPane.getTabs().remove(tab);
+    }
+
+    private void searchInCurrentEditor() {
+        searchCurrent(true);
+    }
+
+    private void searchCurrent(boolean forward) {
+        if (codeArea == null || codeSearchField.getText().isBlank()) return;
+        String query = codeSearchField.getText();
+        if (!query.equals(lastSearchQuery)) { lastSearchQuery = query; lastSearchPosition = forward ? -1 : codeArea.getLength(); }
+        int found = forward ? codeArea.getText().indexOf(query, Math.min(lastSearchPosition + 1, codeArea.getLength()))
+                : codeArea.getText().lastIndexOf(query, Math.max(0, lastSearchPosition - 1));
+        if (found < 0) found = forward ? codeArea.getText().indexOf(query) : codeArea.getText().lastIndexOf(query);
+        if (found >= 0) {
+            lastSearchPosition = found; codeArea.selectRange(found, found + query.length());
+            codeArea.showParagraphAtCenter(codeArea.getText().substring(0, found).split("\\n", -1).length - 1);
+            codeSearchField.requestFocus();
+        }
+    }
+
+    private void resolveSymbol(CodeArea editor, ClassNode current, int offset, boolean usages,
+                               java.util.function.Consumer<SymbolNavigationService.Result> callback) {
+        SymbolNavigationService service = navigationService;
+        long generation = indexGeneration;
+        if (service == null) {
+            callback.accept(new SymbolNavigationService.Result(List.of(), "符号索引尚未完成，请稍后再试"));
+            return;
+        }
+        navigationExecutor.submit(() -> {
+            if (disposed) return;
+            var result = service.resolve(classKey(current), offset, usages);
+            Platform.runLater(() -> {
+                if (!disposed && generation == indexGeneration && openEditors.get(classKey(current)) == editor) callback.accept(result);
+            });
+        });
+    }
+
+    private void requestNavigation(CodeArea editor, ClassNode current, int offset) {
+        long request = ++navigationGeneration;
+        NavigationLocation origin = new NavigationLocation(classKey(current), offset, offset);
+        setStatus("正在解析符号…");
+        resolveSymbol(editor, current, offset, true, result -> {
+            if (request != navigationGeneration || codeArea != editor) return;
+            setStatus(result.message());
+            if (result.targets().isEmpty()) return;
+            if (result.targets().size() == 1) {
+                openNavigationTarget(result.targets().get(0), origin, true);
+            } else {
+                navigationChoices.getItems().clear();
+                for (var target : result.targets()) {
+                    var item = new javafx.scene.control.MenuItem(target.label());
+                    item.setOnAction(e -> openNavigationTarget(target, origin, true));
+                    navigationChoices.getItems().add(item);
+                }
+                navigationChoices.show(editor, javafx.geometry.Side.TOP, 20, 35);
+            }
+        });
+    }
+
+    private NavigationLocation currentLocation() {
+        for (var entry : openEditors.entrySet()) {
+            if (entry.getValue() == codeArea) return new NavigationLocation(entry.getKey(), codeArea.getSelection().getStart(), codeArea.getSelection().getEnd());
+        }
+        return null;
+    }
+
+    private void openNavigationTarget(SymbolNavigationService.Target target, NavigationLocation origin, boolean remember) {
+        ClassNode node = indexedNodes.get(target.sourceId());
+        SymbolNavigationService service = navigationService;
+        if (node == null || service == null) { setStatus("目标类已从工作区移除"); return; }
+        long request = ++navigationGeneration;
+        navigationExecutor.submit(() -> {
+            try {
+                String source = service.sourceText(target.sourceId());
+                var highlighting = syntaxHighlightService.computeHighlighting(source);
+                Platform.runLater(() -> {
+                    if (disposed || request != navigationGeneration || service != navigationService) return;
+                    CodeArea editor = openEditors.get(target.sourceId());
+                    if (editor == null) editor = createEditor(node);
+                    if (!editor.getText().equals(source)) {
+                        editor.replaceText(source); editor.setStyleSpans(0, highlighting);
+                    }
+                    codeTabPane.getSelectionModel().select(openTabs.get(target.sourceId()));
+                    if (remember && origin != null) {
+                        backLocations.push(origin); forwardLocations.clear();
+                        while (backLocations.size() > 100) backLocations.removeLast();
+                    }
+                    editor.selectRange(Math.min(target.start(), editor.getLength()), Math.min(target.end(), editor.getLength()));
+                    editor.showParagraphAtCenter(editor.getCurrentParagraph());
+                    editor.requestFocus();
+                    exportButton.setDisable(false);
+                    updateNavigationButtons();
+                });
+            } catch (RuntimeException ex) {
+                Platform.runLater(() -> { if (!disposed && request == navigationGeneration) setStatus("跳转失败：" + ex.getMessage()); });
+            }
+        });
+    }
+
+    private void navigateHistory(boolean back) {
+        var from = back ? backLocations : forwardLocations;
+        var to = back ? forwardLocations : backLocations;
+        while (!from.isEmpty()) {
+            NavigationLocation location = from.pop();
+            if (!indexedNodes.containsKey(location.key())) continue;
+            NavigationLocation current = currentLocation();
+            if (current != null) to.push(current);
+            openNavigationTarget(new SymbolNavigationService.Target(location.key(), location.start(), location.end(), ""), null, false);
+            break;
+        }
+        updateNavigationButtons();
+    }
+
+    private void updateNavigationButtons() {
+        navigationBackButton.setDisable(backLocations.isEmpty());
+        navigationForwardButton.setDisable(forwardLocations.isEmpty());
+    }
+
+    private String decompiledSource(ClassNode node) {
+        return decompiledSource(node, sourceCache);
+    }
+
+    private String decompiledSource(ClassNode node, Map<String, String> cache) {
+        return cache.computeIfAbsent(classKey(node), key -> {
+            try {
+                byte[] bytes = node.getClassBytes();
+                if (bytes == null) bytes = Files.readAllBytes(Path.of(node.getFullPath()));
+                String className = new javassist.bytecode.ClassFile(new java.io.DataInputStream(new java.io.ByteArrayInputStream(bytes))).getName().replace('.', '/');
+                DecompileResult result = decompilerService.decompileFromBytes(bytes, className);
+                if (!result.isSuccess()) throw new IllegalStateException(result.getErrorMessage());
+                return result.getSourceCode();
+            } catch (IOException ex) { throw new java.io.UncheckedIOException(ex); }
+        });
+    }
+
     private void decompileClass(ClassNode classNode) {
         setStatus(I18N.get("msg.decompiling", classNode.getName()));
         exportButton.setDisable(true);
+        String editorKey = classKey(classNode);
+        CodeArea existing = openEditors.get(editorKey);
+        if (existing != null) {
+            codeTabPane.getSelectionModel().select(openTabs.get(editorKey));
+            exportButton.setDisable(existing.getText().isEmpty());
+            return;
+        }
+        CodeArea editor = createEditor(classNode);
+        codeArea = editor;
+        Tab tab = openTabs.get(editorKey);
+        if (tab != null) codeTabPane.getSelectionModel().select(tab);
         
         runAsync(() -> {
             try {
-                byte[] classBytes = classNode.getClassBytes();
-                if (classBytes == null) {
-                    // 从文件读取
-                    classBytes = Files.readAllBytes(Paths.get(classNode.getFullPath()));
-                }
-                
-                // 将路径转换为类名格式 (com/opencgl/Example.class -> com/opencgl/Example)
-                String className = classNode.getFullPath();
-                if (className.endsWith(".class")) {
-                    className = className.substring(0, className.length() - 6);
-                }
-                
-                DecompileResult result = decompilerService.decompileFromBytes(classBytes, className);
+                String sourceCode = decompiledSource(classNode);
+                var highlighting = syntaxHighlightService.computeHighlighting(sourceCode);
                 
                 Platform.runLater(() -> {
-                    if (result.isSuccess()) {
-                        String sourceCode = result.getSourceCode();
-                        codeArea.clear();
-                        codeArea.replaceText(0, 0, sourceCode);
+                    if (disposed || openEditors.get(editorKey) != editor) return;
+                    if (!editor.getText().equals(sourceCode)) {
+                        editor.clear();
+                        editor.replaceText(0, 0, sourceCode);
                         
                         // 应用语法高亮
-                        codeArea.setStyleSpans(0, syntaxHighlightService.computeHighlighting(sourceCode));
-                        
-                        classNameLabel.setText("☕ " + classNode.getName());
-                        long lineCount = sourceCode.lines().count();
-                        lineCountLabel.setText(lineCount + I18N.get("label.lines"));
+                        editor.setStyleSpans(0, highlighting);
                         
                         setStatus(I18N.get("msg.decompile_success"));
                         exportButton.setDisable(false);
-                    } else {
-                        codeArea.clear();
-                        codeArea.appendText(I18N.get("msg.decompile_failed_comment") + result.getErrorMessage());
-                        setStatus(I18N.get("msg.decompile_failed"));
                     }
                 });
                 
             } catch (Exception e) {
                 logger.error("反编译失败", e);
                 Platform.runLater(() -> {
-                    codeArea.clear();
-                    codeArea.appendText(I18N.get("msg.decompile_error_comment") + e.getMessage());
+                    if (disposed || openEditors.get(editorKey) != editor) return;
+                    editor.clear();
+                    editor.appendText(I18N.get("msg.decompile_error_comment") + e.getMessage());
                     setStatus(I18N.get("msg.decompile_failed"));
                 });
             }
@@ -260,6 +577,7 @@ public class DecompilerController extends DecompilerView implements Initializabl
     }
 
     private void onExport() {
+        if (codeArea == null) return;
         String code = codeArea.getText();
         if (code.isEmpty()) {
             setStatus(I18N.get("msg.nothing_to_export"));
@@ -269,7 +587,9 @@ public class DecompilerController extends DecompilerView implements Initializabl
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(I18N.get("dialog.export_java"));
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(I18N.get("filter.java_files"), "*.java"));
-        fileChooser.setInitialFileName(classNameLabel.getText().replace("☕ ", "").replace(".class", ".java"));
+        String exportName = codeTabPane.getSelectionModel().getSelectedItem() == null ? "decompiled.java" :
+                codeTabPane.getSelectionModel().getSelectedItem().getText().replace(".class", ".java");
+        fileChooser.setInitialFileName(exportName);
         
         File file = fileChooser.showSaveDialog(rootPane.getScene().getWindow());
         if (file != null) {
@@ -496,5 +816,10 @@ public class DecompilerController extends DecompilerView implements Initializabl
         if (disposed) return;
         disposed = true;
         executor.shutdownNow();
+        navigationExecutor.shutdownNow();
+        editorNavigation.values().forEach(EditorNavigation::dispose);
+        editorNavigation.clear(); navigationChoices.hide();
+        sourceCache.clear(); navigationService = null;
+        jarLoaderService.close();
     }
 }

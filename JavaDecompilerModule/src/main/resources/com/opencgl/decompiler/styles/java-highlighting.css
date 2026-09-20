@@ -8,6 +8,12 @@
     -fx-fill: #a9b7c6;
 }
 
+.code-area .lineno {
+    -fx-fill: -theme-text-secondary;
+    -fx-background-color: -theme-bg-secondary;
+    -fx-padding: 0 8 0 8;
+}
+
 .code-area .keyword {
     -fx-fill: #cc7832;
     -fx-font-weight: bold;
@@ -34,4 +40,9 @@
 
 .code-area .semicolon {
     -fx-fill: #cc7832;
+}
+
+.code-area .text.symbol-link {
+    -fx-fill: -theme-accent;
+    -fx-underline: true;
 }

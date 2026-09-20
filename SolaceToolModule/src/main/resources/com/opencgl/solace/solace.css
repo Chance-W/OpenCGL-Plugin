@@ -1,0 +1,23 @@
+.solace-root {
+    -fx-background-color: -theme-bg-primary;
+    -fx-font-size: 14px;
+}
+.solace-title, .solace-heading {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -theme-text-primary;
+}
+.solace-heading { -fx-font-size: 20px; }
+.button-primary {
+    -fx-background-color: -theme-accent;
+    -fx-text-fill: -theme-text-inverse;
+    -fx-font-weight: bold;
+}
+.solace-toast {
+    -fx-background-color: -theme-accent;
+    -fx-text-fill: -theme-text-inverse;
+    -fx-font-weight: bold;
+    -fx-padding: 10 16;
+    -fx-background-radius: 6;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.20), 10, 0.15, 0, 3);
+}

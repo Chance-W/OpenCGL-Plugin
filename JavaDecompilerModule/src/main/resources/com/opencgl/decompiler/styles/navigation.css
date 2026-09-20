@@ -1,0 +1,7 @@
+.progress-bar.symbol-index-progress > .bar {
+    -fx-background-color: -theme-accent;
+    -fx-background-insets: 0;
+}
+.progress-bar.symbol-index-progress > .track {
+    -fx-background-color: -theme-border;
+}

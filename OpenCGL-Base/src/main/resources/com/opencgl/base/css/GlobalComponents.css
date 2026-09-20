@@ -1125,6 +1125,16 @@
     -fx-background-color: derive(-theme-selected-bg, -10%);
 }
 
+/* ComboBox 的显示单元格是直接子节点；不应继承弹出列表的选中背景。
+ * 使用 JavaFX 支持的类与子节点选择器，且覆盖通用单元格的 important 文字规则。 */
+.combo-box > .list-cell,
+.combo-box > .list-cell:filled:selected,
+.combo-box > .list-cell:filled:hover,
+.combo-box > .list-cell:filled:selected:hover {
+    -fx-background-color: transparent;
+    -fx-text-fill: -theme-text-primary !important;
+}
+
 /* --- ComboBox/ChoiceBox 按钮单元格覆盖 ---
    必须放在通用 list-cell:selected 规则之后，利用源码顺序 "后来居上" 覆盖。
    JavaFX CSS 不支持 !important，所以只能靠特殊性+顺序控制优先级。 */

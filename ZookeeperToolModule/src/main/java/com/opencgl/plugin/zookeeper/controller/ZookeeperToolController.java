@@ -22,7 +22,13 @@ import java.util.ResourceBundle;
 @Slf4j
 @SuppressWarnings("unused")
 public class ZookeeperToolController extends ZookeeperToolView {
+    private final java.nio.file.Path connectionDatabase;
+    private ZkConnectionsPane connectionsPane;
+    private com.opencgl.plugin.zookeeper.service.ZkConnection selectedConnection;
+    public ZookeeperToolController() { this(java.nio.file.Path.of(com.opencgl.base.model.Base.DB_PATH, "data.db")); }
+    public ZookeeperToolController(java.nio.file.Path database) { this.connectionDatabase = database; }
     private ZookeeperToolService zookeeperToolService = new ZookeeperToolService(this);
+    private NodeSearchController nodeSearchController;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -30,6 +36,40 @@ public class ZookeeperToolController extends ZookeeperToolView {
         initView();
         initEvent();
         initService();
+        connectionsPane = new ZkConnectionsPane(new com.opencgl.plugin.zookeeper.service.ZkConnectionRepository(connectionDatabase),
+                this::selectConnection, () -> zookeeperToolService.connectOnAction());
+        connectionSidebar.getChildren().setAll(connectionsPane);
+        javafx.scene.layout.VBox.setVgrow(connectionsPane, javafx.scene.layout.Priority.ALWAYS);
+        connectionNameField.promptTextProperty().bind(I18N.getBinding("connection.name"));
+        saveConnectionButton.textProperty().bind(I18N.getBinding("connection.save"));
+        saveConnectionButton.setDisable(true);
+        zkServersTextField.textProperty().addListener((obs, old, value) -> zookeeperToolService.disconnectOnAction());
+        connectionTimeoutSpinner.valueProperty().addListener((obs, old, value) -> zookeeperToolService.disconnectOnAction());
+    }
+
+    private void selectConnection(com.opencgl.plugin.zookeeper.service.ZkConnection profile) {
+        if (profile == null || !Boolean.TRUE.equals(profile.getIsLeaf())) {
+            zookeeperToolService.disconnectOnAction();
+            selectedConnection = null; saveConnectionButton.setDisable(true); return;
+        }
+        if (selectedConnection == null || !java.util.Objects.equals(selectedConnection.getId(), profile.getId()))
+            zookeeperToolService.disconnectOnAction();
+        selectedConnection = profile.snapshot();
+        connectionNameField.setText(profile.getName());
+        zkServersTextField.setText(profile.getServers());
+        connectionTimeoutSpinner.getValueFactory().setValue(profile.getTimeoutMs());
+        saveConnectionButton.setDisable(false);
+    }
+
+    @FXML private void saveConnectionOnAction(ActionEvent event) {
+        if (selectedConnection == null) return;
+        var updated = selectedConnection.snapshot();
+        updated.setName(connectionNameField.getText()); updated.setServers(zkServersTextField.getText());
+        updated.setTimeoutMs(connectionTimeoutSpinner.getValue());
+        try {
+            connectionsPane.saveProfile(updated);
+            com.opencgl.base.utils.TooltipUtil.showToast(getMainAnchorPane(), I18N.get("connection.saved"));
+        } catch (RuntimeException e) { com.opencgl.base.utils.DialogUtil.showErrorInfo(e.getMessage()); }
     }
 
     private void bindI18n() {
@@ -66,6 +106,11 @@ public class ZookeeperToolController extends ZookeeperToolView {
         JavaFxViewUtil.setSpinnerValueFactory(connectionTimeoutSpinner, 0, Integer.MAX_VALUE, 5000);
         TreeItem<String> treeItem = new TreeItem<String>("/");
         nodeTreeView.setRoot(treeItem);
+        nodeSearchController = new NodeSearchController(nodeTreeView, nodeSearchField, searchAllButton,
+                cancelSearchButton, clearSearchButton, searchStatus, searchProgress, () -> {
+                    var client = zookeeperToolService.getZkClient();
+                    return client == null ? null : client::getChildren;
+                }, item -> zookeeperToolService.nodeSelectionChanged(item));
     }
 
     private void initEvent() {
@@ -75,7 +120,10 @@ public class ZookeeperToolController extends ZookeeperToolView {
                 return;
             }
             if (event.getButton() == MouseButton.PRIMARY) {
-                if (event.getClickCount() == 2) {
+                if (event.getClickCount() == 2 && nodeSearchController.isSearching()) {
+                    nodeSearchController.expand(selectedItem);
+                }
+                if (event.getClickCount() == 2 && !nodeSearchController.isSearching()) {
                     // 双击加载子节点内容，并刷新右侧信息
                     zookeeperToolService.loadNodeChildren(selectedItem);
                     zookeeperToolService.nodeSelectionChanged(selectedItem);
@@ -155,7 +203,15 @@ public class ZookeeperToolController extends ZookeeperToolView {
     }
 
     public void dispose() {
+        nodeSearchController.close();
         zookeeperToolService.close();
+    }
+
+    public void refreshAfterSearchMutation() {
+        if (nodeSearchController.isSearching()) {
+            nodeSearchController.reset();
+            zookeeperToolService.refreshOnAction();
+        }
     }
 
 }

@@ -22,7 +22,7 @@ import java.util.concurrent.Executors;
 public class RedisKeyBrowser extends SplitPane {
 
     private final RedisConnectionManager connectionManager;
-    private final ExecutorService executor = Executors.newCachedThreadPool(runnable -> {
+    private final ExecutorService executor = Executors.newSingleThreadExecutor(runnable -> {
         Thread thread = new Thread(runnable, "opencgl-redis-browser");
         thread.setDaemon(true);
         return thread;
@@ -35,6 +35,9 @@ public class RedisKeyBrowser extends SplitPane {
 
     private String currentKey;
     private RedisKeyInfo.KeyType currentKeyType; // 当前选中 key 的类型
+    private final Map<String, TreeItem<String>> keyNodes = new HashMap<>();
+    private long loadGeneration;
+    private boolean disposed;
 
     public RedisKeyBrowser(RedisConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
@@ -74,6 +77,16 @@ public class RedisKeyBrowser extends SplitPane {
         keyTree.setRoot(new TreeItem<>("Keys"));
         keyTree.setShowRoot(false);
         keyTree.setCellFactory(param -> new KeyTreeCell());
+        MenuItem createKey = new MenuItem(I18N.get("newkey.title"));
+        createKey.setOnAction(e -> showNewKeyDialog());
+        keyTree.setContextMenu(new ContextMenu(createKey));
+        keyTree.setOnContextMenuRequested(e -> {
+            javafx.scene.Node node = e.getPickResult().getIntersectedNode();
+            while (node != null && !(node instanceof TreeCell<?>)) node = node.getParent();
+            if (node instanceof TreeCell<?> cell && !cell.isEmpty()) {
+                keyTree.getSelectionModel().select(cell.getIndex());
+            } else keyTree.getSelectionModel().clearSelection();
+        });
         VBox.setVgrow(keyTree, Priority.ALWAYS);
 
         keyTree.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
@@ -164,10 +177,12 @@ public class RedisKeyBrowser extends SplitPane {
 
         // 重置分页状态
         lastPattern = pattern;
+        loadGeneration++;
         lastCursor = null;
         lastClusterNodeIndex = 0;
         totalLoaded = 0;
         nodeMap.clear();
+        keyNodes.clear();
         loadMoreItem = null;
 
         // 创建新的根节点
@@ -183,6 +198,7 @@ public class RedisKeyBrowser extends SplitPane {
      * 加载下一页 Keys（懒加载核心）
      */
     private void loadNextPage() {
+        final long generation = loadGeneration;
         final String pattern = lastPattern;
         final String cursor = lastCursor;
         final int clusterIdx = lastClusterNodeIndex;
@@ -192,6 +208,7 @@ public class RedisKeyBrowser extends SplitPane {
                 connectionManager.scanKeys(pattern, cursor, clusterIdx);
 
             Platform.runLater(() -> {
+                if (disposed || generation != loadGeneration) return;
                 TreeItem<String> root = keyTree.getRoot();
 
                 // 移除旧的 "加载更多" 节点
@@ -204,7 +221,7 @@ public class RedisKeyBrowser extends SplitPane {
                 for (String key : result.getKeys()) {
                     insertKeyToTree(root, key);
                 }
-                totalLoaded += result.getKeys().size();
+                totalLoaded = keyNodes.size();
 
                 // 更新根节点文字
                 String suffix = result.hasMore() ? "+" : "";
@@ -227,22 +244,19 @@ public class RedisKeyBrowser extends SplitPane {
      * 将一个 key 插入到树中（按 : 分隔构建层级）
      */
     private void insertKeyToTree(TreeItem<String> root, String key) {
-        String[] parts = key.split(":");
+        if (keyNodes.containsKey(key)) return;
+        String[] parts = key.split(":", -1);
         TreeItem<String> parent = root;
-        StringBuilder pathBuilder = new StringBuilder();
 
         for (int i = 0; i < parts.length; i++) {
-            if (pathBuilder.length() > 0) {
-                pathBuilder.append(":");
-            }
-            pathBuilder.append(parts[i]);
-            String path = pathBuilder.toString();
+            String path = String.join(":", Arrays.copyOfRange(parts, 0, i + 1));
 
             if (i == parts.length - 1) {
                 // 真正的叶子节点（即 Key 本身）
                 TreeItem<String> leaf = new TreeItem<>(parts[i]);
                 // 设置一个特殊属性或标志，以便 CellFactory 识别它是真正的 Key
                 parent.getChildren().add(leaf);
+                keyNodes.put(key, leaf);
             } else {
                 // 中间目录节点
                 TreeItem<String> node = nodeMap.get(path);
@@ -282,6 +296,7 @@ public class RedisKeyBrowser extends SplitPane {
             Object value = connectionManager.getValue(key);
 
             Platform.runLater(() -> {
+                if (disposed || !Objects.equals(currentKey, key)) return;
                 if (info != null) {
                     currentKeyType = info.getType();
                     keyInfoLabel.setText(I18N.get("label.key_info_format",
@@ -291,6 +306,8 @@ public class RedisKeyBrowser extends SplitPane {
 
                 // 格式化显示值
                 valueArea.setText(formatValue(value, info != null ? info.getType() : null));
+                if (info != null && info.getType() == RedisKeyInfo.KeyType.STREAM)
+                    keyInfoLabel.setText(keyInfoLabel.getText() + " · " + I18N.get("newkey.stream.limit"));
             });
         });
     }
@@ -367,7 +384,35 @@ public class RedisKeyBrowser extends SplitPane {
     }
 
     public void dispose() {
+        disposed = true;
         executor.shutdownNow();
+    }
+
+    private void showNewKeyDialog() {
+        if (connectionManager == null || !connectionManager.isConnected()) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, I18N.get("newkey.disconnected"), ButtonType.OK);
+            if (getScene() != null) alert.initOwner(getScene().getWindow());
+            alert.show(); return;
+        }
+        TreeItem<String> selected = keyTree.getSelectionModel().getSelectedItem();
+        String prefix = "";
+        if (selected != null && selected != keyTree.getRoot() && selected != loadMoreItem) {
+            TreeItem<String> directory = keyNodes.containsValue(selected) ? selected.getParent() : selected;
+            if (directory != keyTree.getRoot()) prefix = getFullKey(directory) + ":";
+        }
+        NewRedisKeyDialog dialog = new NewRedisKeyDialog(connectionManager, executor, prefix);
+        if (getScene() != null) dialog.initOwner(getScene().getWindow());
+        dialog.resultProperty().addListener((o, old, key) -> {
+            if (key == null || disposed) return;
+            searchField.clear(); loadKeys("*");
+            insertKeyToTree(keyTree.getRoot(), key);
+            TreeItem<String> item = keyNodes.get(key);
+            for (TreeItem<String> p = item.getParent(); p != null; p = p.getParent()) p.setExpanded(true);
+            keyTree.getSelectionModel().select(item);
+            keyTree.scrollTo(keyTree.getRow(item));
+            keyInfoLabel.setText(I18N.get("newkey.success"));
+        });
+        dialog.show();
     }
 
     private void deleteKey() {
@@ -383,6 +428,7 @@ public class RedisKeyBrowser extends SplitPane {
             if (result == ButtonType.OK) {
                 boolean deleted = connectionManager.deleteKey(currentKey);
                 if (deleted) {
+                    keyNodes.remove(currentKey);
                     // 从树中移除当前选中节点（不重新加载整棵树）
                     TreeItem<String> selected = keyTree.getSelectionModel().getSelectedItem();
                     if (selected != null && selected.getParent() != null) {

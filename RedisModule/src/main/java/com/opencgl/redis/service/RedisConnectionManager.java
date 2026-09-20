@@ -2,6 +2,7 @@ package com.opencgl.redis.service;
 
 import com.opencgl.redis.i18n.I18N;
 import com.opencgl.redis.model.RedisKeyInfo;
+import com.opencgl.redis.model.NewRedisKey;
 import com.opencgl.redis.model.RedisWidgetDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,13 +16,54 @@ import java.util.*;
  */
 public class RedisConnectionManager {
 
+    // Single-key script: duplicate detection and creation cannot interleave with another client.
+    private static final String CREATE_KEY_SCRIPT = """
+        if redis.call('EXISTS', KEYS[1]) == 1 then return 0 end
+        local args = {ARGV[1], KEYS[1]}
+        for i = 3, #ARGV do args[#args + 1] = ARGV[i] end
+        redis.call(unpack(args))
+        if tonumber(ARGV[2]) > 0 then redis.call('EXPIRE', KEYS[1], ARGV[2]) end
+        return 1
+        """;
+
+    public synchronized boolean createKey(NewRedisKey request) {
+        if (!connected) throw new IllegalStateException(I18N.get("newkey.disconnected"));
+        return Long.valueOf(1).equals(evalKey(CREATE_KEY_SCRIPT, request.key(), request.arguments()));
+    }
+
+    private Object evalKey(String script, String key, List<String> args) {
+        if (jedis != null) return jedis.eval(script, List.of(key), args);
+        if (jedisCluster != null) return jedisCluster.eval(script, List.of(key), args);
+        if (sentinelPool != null) {
+            try (Jedis j = sentinelPool.getResource()) { return j.eval(script, List.of(key), args); }
+        }
+        throw new IllegalStateException(I18N.get("newkey.disconnected"));
+    }
+
+    private Map<String, Map<String, String>> getStream(String key) {
+        Object reply = evalKey("return redis.call('XRANGE', KEYS[1], '-', '+', 'COUNT', 200)", key, List.of());
+        Map<String, Map<String, String>> entries = new LinkedHashMap<>();
+        for (Object item : (List<?>) reply) {
+            List<?> entry = (List<?>) item;
+            List<?> fields = (List<?>) entry.get(1);
+            Map<String, String> values = new LinkedHashMap<>();
+            for (int i = 0; i < fields.size(); i += 2) values.put(redisText(fields.get(i)), redisText(fields.get(i + 1)));
+            entries.put(redisText(entry.get(0)), values);
+        }
+        return entries;
+    }
+
+    private static String redisText(Object value) {
+        return value instanceof byte[] bytes ? new String(bytes, java.nio.charset.StandardCharsets.UTF_8) : String.valueOf(value);
+    }
+
     private static final Logger logger = LoggerFactory.getLogger(RedisConnectionManager.class);
 
     private RedisWidgetDto config;
     private Jedis jedis;
     private JedisCluster jedisCluster;
     private JedisSentinelPool sentinelPool;
-    private boolean connected = false;
+    private volatile boolean connected = false;
 
     public RedisConnectionManager() {
     }
@@ -33,7 +75,7 @@ public class RedisConnectionManager {
     /**
      * 连接 Redis
      */
-    public boolean connect() {
+    public synchronized boolean connect() {
         if (config == null) {
             logger.error("Config is null");
             return false;
@@ -115,7 +157,7 @@ public class RedisConnectionManager {
     /**
      * 断开连接
      */
-    public void disconnect() {
+    public synchronized void disconnect() {
         try {
             if (jedis != null) {
                 jedis.close();
@@ -138,7 +180,7 @@ public class RedisConnectionManager {
     /**
      * 执行命令
      */
-    public String executeCommand(String command) {
+    public synchronized String executeCommand(String command) {
         if (!connected) {
             return I18N.get("message.error.not_connected");
         }
@@ -273,7 +315,7 @@ public class RedisConnectionManager {
      * @param prevClusterNodeIndex 上次集群节点索引，首次传 0
      * @return 包含本页 keys 和用于下次加载的游标信息
      */
-    public ScanKeysResult scanKeys(String pattern, String prevCursor, int prevClusterNodeIndex) {
+    public synchronized ScanKeysResult scanKeys(String pattern, String prevCursor, int prevClusterNodeIndex) {
         Set<String> keys = new TreeSet<>();
         ScanParams scanParams = new ScanParams().match(pattern).count(PAGE_SIZE);
 
@@ -362,7 +404,7 @@ public class RedisConnectionManager {
     /**
      * 获取 Key 信息
      */
-    public RedisKeyInfo getKeyInfo(String key) {
+    public synchronized RedisKeyInfo getKeyInfo(String key) {
         try {
             String type;
             long ttl;
@@ -397,7 +439,7 @@ public class RedisConnectionManager {
     /**
      * 获取值
      */
-    public Object getValue(String key) {
+    public synchronized Object getValue(String key) {
         if (!connected)
             return null;
 
@@ -417,6 +459,8 @@ public class RedisConnectionManager {
                     return getSet(key);
                 case ZSET:
                     return getZSet(key);
+                case STREAM:
+                    return getStream(key);
                 default:
                     return null;
             }
@@ -494,7 +538,7 @@ public class RedisConnectionManager {
     /**
      * 设置 String 类型的值
      */
-    public boolean setStringValue(String key, String value) {
+    public synchronized boolean setStringValue(String key, String value) {
         try {
             if (jedis != null) {
                 jedis.set(key, value);
@@ -517,7 +561,7 @@ public class RedisConnectionManager {
     /**
      * 删除 Key
      */
-    public boolean deleteKey(String key) {
+    public synchronized boolean deleteKey(String key) {
         try {
             long result;
             if (jedis != null) {
@@ -541,7 +585,7 @@ public class RedisConnectionManager {
     /**
      * 获取服务器信息
      */
-    public String getServerInfo() {
+    public synchronized String getServerInfo() {
         try {
             if (jedis != null) {
                 return jedis.info();

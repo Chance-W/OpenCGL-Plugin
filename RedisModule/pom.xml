@@ -27,6 +27,12 @@
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.2</version>
+            <scope>test</scope>
+        </dependency>
         <!-- OpenCGL-Base 基础工具类 -->
         <dependency>
             <groupId>OpenCGL-Base</groupId>
