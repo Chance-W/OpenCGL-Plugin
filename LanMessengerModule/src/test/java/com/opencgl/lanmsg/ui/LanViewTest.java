@@ -146,6 +146,22 @@ class LanViewTest {
             assertEquals("first incoming",onFx(()->controller.chatListView.getItems().get(0).text));
         }finally{controller.dispose();}
     }
+
+    @Test void refreshingSelectedPeerKeepsListSelection() throws Exception {
+        var peer=new Peer("selected-peer","Alice","127.0.0.1",2426,false);
+        seed(repo->repo.savePeer(peer));
+        var controller=onFx(()->{
+            var loader=new FXMLLoader(getClass().getResource("/com/opencgl/lanmsg/views/LanMessengerView.fxml"),I18N.getBundle(I18N.getLocale()));
+            loader.setControllerFactory(type->new LanMessengerController(dir,keys));loader.load();return (LanMessengerController)loader.getController();
+        });
+        try {
+            controller.ready().get(10,TimeUnit.SECONDS);
+            onFx(()->{controller.userListView.getSelectionModel().select(0);return null;});
+            var event=LanMessengerController.class.getDeclaredMethod("peerEvent",Peer.class);event.setAccessible(true);
+            onFx(()->{event.invoke(controller,new Peer(peer.id(),"Alice updated",peer.ip(),peer.port(),true));return null;});
+            assertEquals(peer.id(),onFx(()->controller.userListView.getSelectionModel().getSelectedItem().id()));
+        } finally { controller.dispose(); }
+    }
     @Test void fullWorkQueuePreservesDraftAndCannotBlockStop() throws Exception {
         var remoteRepo=new ChatRepository(dir.resolve("remote.db"));var peer=new Peer(remoteRepo.identity(),"Alice","127.0.0.1",2426,false);seed(repo->repo.savePeer(peer));
         var controller=onFx(()->{

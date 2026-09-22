@@ -66,6 +66,7 @@ public class ScriptEngineManager {
         String[] defaultScripts = {
             "add-timestamp.groovy",
             "json-format.js",
+            "xl-payment-confirm-sign.groovy",
         };
 
         for (String scriptName : defaultScripts) {

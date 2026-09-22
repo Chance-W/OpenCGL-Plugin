@@ -201,7 +201,11 @@ public final class LanService implements AutoCloseable {
         if(entry.attachment())return EncryptedImageCache.isReference(entry.path)?offerCached(peer,entry.path):offer(peer,Path.of(entry.path));
         return sendEntry(require(),peer,entry.copy());
     }
-    private Peer peer(String peerId) throws IOException {return repository.peers().stream().filter(p->p.id().equals(peerId)).findFirst().orElseThrow(()->new IOException("Unknown peer"));}
+    private Peer peer(String peerId) throws IOException {
+        var current=session;
+        if(current!=null){var live=current.peers.get(peerId);if(live!=null)return live;}
+        return repository.peers().stream().filter(p->p.id().equals(peerId)).findFirst().orElseThrow(()->new IOException("Unknown peer"));
+    }
     private ChatEntry sendEntry(Session s,Peer peer,ChatEntry e) throws IOException {
         return sendEntry(s,peer,e,message->{});
     }

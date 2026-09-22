@@ -3,7 +3,7 @@ package com.opencgl.lanmsg.controller;
 import com.opencgl.lanmsg.core.*;
 import com.opencgl.lanmsg.security.*;
 import com.opencgl.lanmsg.i18n.I18N;
-import com.opencgl.lanmsg.ui.MediaSupport;
+import com.opencgl.lanmsg.ui.*;
 import com.opencgl.lanmsg.views.LanMessengerView;
 import com.opencgl.base.theme.ThemeManager;
 import javafx.animation.PauseTransition;
@@ -12,6 +12,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.Initializable;
 import javafx.geometry.*;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
@@ -108,10 +109,11 @@ public class LanMessengerController extends LanMessengerView implements Initiali
         clearButton.setOnAction(e->clearHistory());
         historySearch.textProperty().addListener((o,a,b)->searchDelay.playFromStart());
         searchDelay.setOnFinished(e->loadHistory(false));
-        messageInput.setOnInputMethodTextChanged(e->composing=!e.getComposed().isEmpty());
+        messageInput.addEventHandler(InputMethodEvent.INPUT_METHOD_TEXT_CHANGED,
+            e->composing=e.getComposed()!=null&&!e.getComposed().isEmpty());
         messageInput.addEventFilter(KeyEvent.KEY_PRESSED,e->{
             if(e.isShortcutDown()&&e.getCode()==KeyCode.V&&Clipboard.getSystemClipboard().hasImage()){e.consume();pasteImage();}
-            else if(e.getCode()==KeyCode.ENTER&&!e.isShiftDown()&&!composing){e.consume();send();}
+            else if(e.getCode()==KeyCode.ENTER&&ComposerInputPolicy.shouldSendOnEnter(composing,e.isShiftDown(),messageInput.getText())){e.consume();send();}
         });
         rootPane.setOnDragOver(e->{if(e.getDragboard().hasFiles()&&selected!=null&&service!=null&&service.running())e.acceptTransferModes(TransferMode.COPY);e.consume();});
         rootPane.setOnDragDropped(e->{boolean ok=e.getDragboard().hasFiles()&&selected!=null&&service!=null&&service.running();if(ok)offerFiles(e.getDragboard().getFiles());e.setDropCompleted(ok);e.consume();});
@@ -201,16 +203,26 @@ public class LanMessengerController extends LanMessengerView implements Initiali
     }
     private void stop(){
         if(busy)return;busy=true;++serviceGeneration;updateButtons();LanService current=service;
+        String selectedId=selected==null?null:selected.id();
         // Stop must never wait behind hashing, outgoing sends, or a full worker queue.
         var thread=new Thread(()->{
-            try{if(current!=null)current.close();fx(()->{busy=false;progress.clear();userListView.getItems().replaceAll(p->new Peer(p.id(),p.name(),p.ip(),p.port(),false));updateButtons();updatePeerCount();loadHistory(false);chatListView.refresh();status(tr("服务已停止","Service stopped"));});}
+            try{if(current!=null)current.close();fx(()->{busy=false;progress.clear();userListView.getItems().replaceAll(p->new Peer(p.id(),p.name(),p.ip(),p.port(),false));restorePeerSelection(selectedId);updateButtons();updatePeerCount();loadHistory(false);chatListView.refresh();status(tr("服务已停止","Service stopped"));});}
             catch(Exception ex){fx(()->{busy=false;updateButtons();showFailure(ex);});}
         },"lan-stop");thread.setDaemon(true);thread.start();
     }
     private void peerEvent(Peer p){
+        String selectedId=selected==null?null:selected.id();
         int index=-1;for(int i=0;i<userListView.getItems().size();i++)if(userListView.getItems().get(i).id().equals(p.id())){index=i;break;}
         if(index<0)userListView.getItems().add(p);else userListView.getItems().set(index,p);
-        if(selected!=null&&selected.id().equals(p.id()))selected=p;updatePeerCount();updateButtons();
+        if(selected!=null&&selected.id().equals(p.id()))selected=p;restorePeerSelection(selectedId);updatePeerCount();updateButtons();
+    }
+    private void restorePeerSelection(String peerId){
+        if(peerId==null)return;
+        for(int i=0;i<userListView.getItems().size();i++)if(peerId.equals(userListView.getItems().get(i).id())){
+            var current=userListView.getSelectionModel().getSelectedItem();
+            if(current==null||!peerId.equals(current.id()))userListView.getSelectionModel().select(i);
+            return;
+        }
     }
     private void updatePeerCount(){userCountLabel.setText(tr("联系人","Peers")+" "+userListView.getItems().size()+" · "+tr("在线","Online")+" "+userListView.getItems().stream().filter(Peer::online).count());}
     private void manualConnect(){
@@ -347,23 +359,40 @@ public class LanMessengerController extends LanMessengerView implements Initiali
     private void preview(String reference){
         String fileName=EncryptedImageCache.isReference(reference)?"clipboard.png":Path.of(reference).getFileName().toString();
         work(()->SwingFXUtils.toFXImage(readImage(reference,2048),null),image->{
-            var view=new ImageView(image);view.setPreserveRatio(true);view.setFitWidth(Math.min(700,image.getWidth()));
-            var zoom=new Slider(.1,3,1);zoom.valueProperty().addListener((o,a,b)->view.setFitWidth(Math.min(700,image.getWidth())*b.doubleValue()));
-            var scroll=new ScrollPane(view);scroll.setPrefViewportWidth(720);scroll.setPrefViewportHeight(480);
-            var save=new Button(tr("另存为","Save as"));save.setOnAction(event->{
-                var chooser=new FileChooser();chooser.setInitialFileName(MediaSupport.safeName(fileName));var target=chooser.showSaveDialog(owner());if(target==null)return;
-                boolean replace=Files.exists(target.toPath());if(replace&&!confirm(tr("覆盖目标文件？","Replace destination?"),new Label(target.toString())))return;
-                work(()->{
-                    if(EncryptedImageCache.isReference(reference)){
-                        byte[] bytes=imageCache.read(reference);
-                        try{Files.write(target.toPath(),bytes,replace?new StandardOpenOption[]{StandardOpenOption.CREATE,StandardOpenOption.TRUNCATE_EXISTING}:new StandardOpenOption[]{StandardOpenOption.CREATE_NEW});}
-                        finally{Arrays.fill(bytes,(byte)0);}
-                    }else{Path path=Path.of(reference);if(path.toAbsolutePath().equals(target.toPath().toAbsolutePath()))return null;if(replace)Files.copy(path,target.toPath(),StandardCopyOption.REPLACE_EXISTING);else Files.copy(path,target.toPath());}
-                    return null;
-                },v->status(tr("已保存","Saved")));
-            });
-            var d=dialog(fileName,new VBox(8,new HBox(8,label("缩放","Zoom"),zoom,save),scroll));d.getDialogPane().setPrefWidth(760);d.getDialogPane().getButtonTypes().setAll(ButtonType.CLOSE);d.showAndWait();
+            showImageViewer(reference,fileName,image);
         });
+    }
+    private void showImageViewer(String reference,String fileName,Image image){
+        var stage=new Stage(StageStyle.DECORATED);if(owner()!=null)stage.initOwner(owner());stage.setTitle(fileName);
+        var zoom=new ImageZoomModel();
+        var view=new ImageView(image);view.setPreserveRatio(true);view.setSmooth(true);
+        var canvas=new StackPane(view);canvas.setMinSize(0,0);canvas.getStyleClass().add("image-canvas");
+        var scroll=new ScrollPane(canvas);scroll.setPannable(true);scroll.setFitToWidth(false);scroll.setFitToHeight(false);
+        scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        double screenWidth=Screen.getPrimary().getVisualBounds().getWidth(),screenHeight=Screen.getPrimary().getVisualBounds().getHeight();
+        double fitScale=Math.min(1,Math.min((screenWidth*.86)/Math.max(1,image.getWidth()),(screenHeight*.78)/Math.max(1,image.getHeight())));
+        zoom.setScale(fitScale);
+        Runnable applyZoom=()->{view.setFitWidth(image.getWidth()*zoom.scale());view.setFitHeight(image.getHeight()*zoom.scale());};
+        applyZoom.run();
+        var zoomLabel=new Label(Math.round(zoom.scale()*100)+"%");
+        var reset=new Button(tr("适应窗口","Fit"));reset.setOnAction(e->{zoom.setScale(fitScale);applyZoom.run();zoomLabel.setText(Math.round(zoom.scale()*100)+"%");});
+        var minus=new Button("−");minus.setOnAction(e->{zoom.setScale(zoom.scale()-.1);applyZoom.run();zoomLabel.setText(Math.round(zoom.scale()*100)+"%");});
+        var plus=new Button("+");plus.setOnAction(e->{zoom.setScale(zoom.scale()+.1);applyZoom.run();zoomLabel.setText(Math.round(zoom.scale()*100)+"%");});
+        var save=new Button(tr("另存为","Save as"));save.setOnAction(e->saveImage(reference,fileName));
+        var close=new Button(tr("关闭","Close"));close.setOnAction(e->stage.close());
+        var toolbar=new HBox(8,reset,minus,zoomLabel,plus,save,new Region(),close);HBox.setHgrow(toolbar.getChildren().get(5),Priority.ALWAYS);toolbar.getStyleClass().add("image-toolbar");
+        scroll.addEventFilter(ScrollEvent.SCROLL,e->{if(e.getDeltaY()==0)return;e.consume();zoom.wheel(e.getDeltaY());applyZoom.run();zoomLabel.setText(Math.round(zoom.scale()*100)+"%" );});
+        final double[] drag={0,0};view.setOnMousePressed(e->{drag[0]=e.getSceneX()-view.getTranslateX();drag[1]=e.getSceneY()-view.getTranslateY();});
+        view.setOnMouseDragged(e->{view.setTranslateX(e.getSceneX()-drag[0]);view.setTranslateY(e.getSceneY()-drag[1]);});
+        var root=new BorderPane(scroll);root.setTop(toolbar);root.getStyleClass().addAll("lan-messenger","image-viewer");
+        if(rootPane.getScene()!=null)root.getStylesheets().addAll(rootPane.getScene().getStylesheets());
+        var scene=new Scene(root,Math.max(900,screenWidth*.9),Math.max(650,screenHeight*.9));
+        stage.setScene(scene);ThemeManager.getInstance().registerScene(scene);stage.setOnHidden(e->ThemeManager.getInstance().unregisterScene(scene));stage.show();stage.centerOnScreen();
+    }
+    private void saveImage(String reference,String fileName){
+        var chooser=new FileChooser();chooser.setInitialFileName(MediaSupport.safeName(fileName));var target=chooser.showSaveDialog(owner());if(target==null)return;
+        boolean replace=Files.exists(target.toPath());if(replace&&!confirm(tr("覆盖目标文件？","Replace destination?"),new Label(target.toString())))return;
+        work(()->{if(EncryptedImageCache.isReference(reference)){byte[] bytes=imageCache.read(reference);try{Files.write(target.toPath(),bytes,replace?new StandardOpenOption[]{StandardOpenOption.CREATE,StandardOpenOption.TRUNCATE_EXISTING}:new StandardOpenOption[]{StandardOpenOption.CREATE_NEW});}finally{Arrays.fill(bytes,(byte)0);}}else{Path path=Path.of(reference);if(path.toAbsolutePath().equals(target.toPath().toAbsolutePath()))return null;if(replace)Files.copy(path,target.toPath(),StandardCopyOption.REPLACE_EXISTING);else Files.copy(path,target.toPath());}return null;},v->status(tr("已保存","Saved")));
     }
     private void thumbnail(ChatEntry e,ImageView view){
         String key=e.path;Image cached=thumbnails.get(key);if(cached!=null){view.setImage(cached);return;}
@@ -384,15 +413,17 @@ public class LanMessengerController extends LanMessengerView implements Initiali
         private Button action(String zh,String en,Runnable run){var button=new Button(tr(zh,en));button.setOnAction(e->run.run());return button;}
         @Override protected void updateItem(ChatEntry e,boolean empty){
             super.updateItem(e,empty);setText(null);setGraphic(null);setContextMenu(null);if(empty||e==null)return;
-            var header=new Label((e.outgoing?tr("我","Me"):e.senderName)+" · "+clock.format(Instant.ofEpochMilli(e.time))+" · "+stateText(e.status));header.getStyleClass().add("muted");
-            var box=new VBox(6,header);box.getStyleClass().add("message-card");box.setMaxWidth(Double.MAX_VALUE);box.prefWidthProperty().bind(chatListView.widthProperty().subtract(40));
+            var status=MessageStatusPolicy.showDeliveryReceipt(e.status,e.outgoing)?stateText(e.status):(!e.outgoing&&"DELIVERED".equals(e.status)?"":stateText(e.status));
+            var headerText=(e.outgoing?tr("我","Me"):e.senderName)+" · "+clock.format(Instant.ofEpochMilli(e.time));
+            var header=new Label(status.isBlank()?headerText:headerText+" · "+status);header.getStyleClass().add("muted");
+            var box=new VBox(6,header);box.getStyleClass().addAll("message-card",e.outgoing?"outgoing":"incoming");box.setMaxWidth(Double.MAX_VALUE);box.maxWidthProperty().bind(chatListView.widthProperty().multiply(.72));
             var menu=new ContextMenu();var copy=new MenuItem(tr("复制","Copy"));copy.setOnAction(event->{var c=new ClipboardContent();c.putString(e.attachment()?e.fileName:e.text);Clipboard.getSystemClipboard().setContent(c);});menu.getItems().add(copy);setContextMenu(menu);
             if(!e.attachment()){var text=new Label(e.text);text.setWrapText(true);text.setMaxWidth(Double.MAX_VALUE);box.getChildren().add(text);}
             else{
                 box.getChildren().add(new Label(e.fileName+" · "+bytes(e.size)));
                 if(e.kind.equals("IMAGE")&&!e.path.isEmpty()&&(e.outgoing||e.status.equals("COMPLETED"))){
                     if(thumbnailFailed.contains(e.path))box.getChildren().add(label("图片缺失、损坏或超过预览限制","Image missing, corrupt or exceeds preview limit"));
-                    var image=new ImageView();image.setFitWidth(240);image.setFitHeight(160);image.setPreserveRatio(true);thumbnail(e,image);box.getChildren().add(image);
+                    var image=new ImageView();image.setFitWidth(240);image.setFitHeight(160);image.setPreserveRatio(true);image.setOnMouseClicked(event->{if(event.getClickCount()>=2)preview(e.path);});thumbnail(e,image);box.getChildren().add(image);
                     box.getChildren().add(action("查看图片","Preview",()->preview(e.path)));
                 }
                 var p=progress.get(e.id);if(p!=null){var bar=new ProgressBar(p.total()==0?1:(double)p.bytes()/p.total());bar.setMaxWidth(Double.MAX_VALUE);box.getChildren().addAll(bar,new Label(bytes(p.bytes())+" / "+bytes(p.total())+" · "+bytes(p.bytes()*1000/Math.max(1,p.elapsedMillis()))+"/s"));}
@@ -405,7 +436,7 @@ public class LanMessengerController extends LanMessengerView implements Initiali
             }
             if(!e.error.isEmpty()){var error=new Label(e.error);error.setWrapText(true);box.getChildren().add(error);}
             if(e.outgoing&&Set.of("FAILED","INTERRUPTED","CANCELLED","REJECTED").contains(e.status)){var retry=action("重新发送","Retry",()->{LanService current=service;work(()->current.retry(e),v->{});});retry.setDisable(service==null||!service.running());box.getChildren().add(retry);}
-            setGraphic(box);
+            var row=new HBox(box);row.setMaxWidth(Double.MAX_VALUE);row.setAlignment(e.outgoing?Pos.CENTER_RIGHT:Pos.CENTER_LEFT);row.getStyleClass().addAll("message-row",e.outgoing?"outgoing":"incoming");row.prefWidthProperty().bind(chatListView.widthProperty().subtract(20));setGraphic(row);
         }
     }
     public synchronized void dispose(){

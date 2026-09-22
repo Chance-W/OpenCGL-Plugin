@@ -100,6 +100,57 @@ com.opencgl.TemplatePluginUI
    - SPI 文件：`src/main/resources/META-INF/services/com.opencgl.api.PluginUI` 内容改为你的 **PluginUI 实现类全限定名**（一行一个，若一个 JAR 提供多个插件可多行）。
 3. **单模块构建与加载**：在插件工程根目录执行 `mvn install`（或只构建该模块），将生成的 JAR 放入主程序「设置」里配置的插件目录，在主程序中刷新插件或重启即可加载。
 
+### 插件统一打包与部署
+
+工程根目录提供了统一打包脚本 `build/package_plugins.py`。
+
+#### 打包全部插件
+
+```bash
+JAVA_HOME=/Users/chancew./Software/Java/zulu21.44.17_aarch64/zulu-21.jdk/Contents/Home \
+python3 build/package_plugins.py
+```
+
+脚本会执行根工程的 `mvn clean package -DskipTests`，构建完成后把全部插件运行时 JAR 部署到根目录 `bin/`。同一插件的旧版本 JAR 会被替换，`bin/` 中不属于当前 Maven Reactor 的手工安装文件会保留。需要打包前同时运行测试时使用：
+
+```bash
+JAVA_HOME=/Users/chancew./Software/Java/zulu21.44.17_aarch64/zulu-21.jdk/Contents/Home \
+python3 build/package_plugins.py --with-tests
+```
+
+全量打包时 API 和 Base 会作为同一个 Maven Reactor 的前置模块自动构建，不需要先 `install` 到本地仓库。
+
+如果你需要把依赖显式安装到本地 Maven 仓库（例如在 IDE 中脱离根工程单独构建插件），可以手动执行：
+
+```bash
+mvn -pl PluginApiModule,OpenCGL-Base -am install -DskipTests
+```
+
+这不是统一打包脚本的必需步骤；脚本使用 Reactor 内部产物直接完成依赖解析。
+
+#### 只打包一个或多个插件
+
+```bash
+JAVA_HOME=/Users/chancew./Software/Java/zulu21.44.17_aarch64/zulu-21.jdk/Contents/Home \
+python3 build/package_plugins.py --module HttpDebuggerModule
+```
+
+`--module` 会自动转换为 Maven 的 `-pl HttpDebuggerModule -am`，因此会先构建 `PluginApiModule`、`OpenCGL-Base` 及其它必要依赖，但只把指定插件部署到 `bin/`。多个插件可以重复传入：
+
+```bash
+python3 build/package_plugins.py \
+  --module HttpDebuggerModule \
+  --module LanMessengerModule
+```
+
+也可以直接使用 Maven：
+
+```bash
+mvn -pl HttpDebuggerModule -am clean package -DskipTests
+```
+
+其中 `-am`（also-make）是关键，否则单独进入插件目录构建时可能找不到尚未安装到本地仓库的 API/Base 依赖。
+
 ### 开发规范建议
 
 - **推荐**：FXML + Controller + 各模块 I18N 类（I18nResolver + get/getBinding/getLocale/getBundle）；PluginUI 的 `name()`、`directoryName()` 使用 I18N，便于主程序语言切换时同步。

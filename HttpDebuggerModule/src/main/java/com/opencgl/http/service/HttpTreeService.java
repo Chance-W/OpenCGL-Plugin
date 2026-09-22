@@ -64,7 +64,21 @@ public class HttpTreeService implements TreeOperateService<HttpTreeItem> {
     
     @Override
     public List<HttpTreeItem> queryAll() {
-        return repository.findAll();
+        List<HttpTreeItem> items = repository.findAll();
+        // Older records may have an out-of-date is_leaf flag.  The HTTP
+        // module already persists an explicit node type, so normalize the
+        // display flag from that authoritative value before TreeViewBuilder
+        // creates CustomizeTreeItem (which uses is_leaf for the disclosure
+        // arrow).  This keeps the fix scoped to HTTP and works with older
+        // Base JARs that do not support a custom TreeItem factory.
+        for (HttpTreeItem item : items) {
+            if (HttpTreeItem.TYPE_REQUEST.equals(item.getNodeType())) {
+                item.setIsLeaf(true);
+            } else if (HttpTreeItem.TYPE_FOLDER.equals(item.getNodeType())) {
+                item.setIsLeaf(false);
+            }
+        }
+        return items;
     }
     
     @Override

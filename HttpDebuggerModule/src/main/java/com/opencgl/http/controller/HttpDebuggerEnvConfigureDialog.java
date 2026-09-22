@@ -4,8 +4,9 @@ import java.io.IOException;
 import java.util.ResourceBundle;
 
 import com.opencgl.base.theme.ThemeManager;
-import com.opencgl.base.utils.DialogUtil;
 import com.opencgl.base.utils.CommitOnBlurTableCell;
+import com.opencgl.base.utils.DialogUtil;
+import com.opencgl.base.utils.TooltipUtil;
 import com.opencgl.http.i18n.I18N;
 import com.opencgl.http.model.KeyValueEntry;
 import com.opencgl.http.service.EnvironmentService;
@@ -69,7 +70,10 @@ public class HttpDebuggerEnvConfigureDialog {
     private final EnvironmentService environmentService = new EnvironmentService();
     private final ObservableList<KeyValueEntry> tableData = FXCollections.observableArrayList();
 
-    /** 防止 refreshEnvList/select 引发的选择事件递归触发 autoSave */
+    /** 当前表单对应的环境名；新建未保存时为 null。切列表时必须用它做身份，不能用 ListView 的新选中项。 */
+    private String loadedEnvName;
+
+    /** 防止 refreshEnvList/select 引发的选择事件递归触发 persist */
     private boolean suppressAutoSave = false;
 
     public void init() {
@@ -82,12 +86,11 @@ public class HttpDebuggerEnvConfigureDialog {
         refreshEnvList();
 
         envList.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            if (suppressAutoSave)
+            if (suppressAutoSave) {
                 return;
-            // 切换前先保存当前表单（非新建状态且有内容时）
-            if (oldVal != null) {
-                autoSave();
             }
+            // 切走当前环境前，按「表单正在编辑的环境」落库，绝不能用已经变成 newVal 的选中项当旧名
+            persistCurrentForm(false);
             if (newVal != null) {
                 loadEnvDetails(newVal);
             } else {
@@ -96,30 +99,37 @@ public class HttpDebuggerEnvConfigureDialog {
         });
 
         newButton.setOnAction(e -> {
-            envList.getSelectionModel().clearSelection();
+            persistCurrentForm(false);
+            suppressAutoSave = true;
+            try {
+                envList.getSelectionModel().clearSelection();
+            } finally {
+                suppressAutoSave = false;
+            }
             clearForm();
             envNameField.requestFocus();
         });
 
         deleteButton.setOnAction(e -> {
             String selected = envList.getSelectionModel().getSelectedItem();
-            if (selected == null)
+            if (selected == null) {
                 return;
-            if (com.opencgl.http.service.EnvironmentService.DEFAULT_ENV_NAME.equals(selected)) {
+            }
+            if (EnvironmentService.DEFAULT_ENV_NAME.equals(selected)) {
                 DialogUtil.showErrorInfo(I18N.get("dialog.env.error.cannot_delete_default"), stage);
                 return;
             }
             environmentService.deleteEnvironment(selected);
             clearForm();
-            refreshEnvList();
+            refreshEnvListAndSelect(null);
         });
 
         addVarBtn.setOnAction(e -> tableData.add(new KeyValueEntry("", "", true)));
 
-        // envNameField 失焦时自动保存
         envNameField.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
-            if (!isNowFocused)
-                autoSave();
+            if (!isNowFocused) {
+                persistCurrentForm(false);
+            }
         });
 
         saveButton.setOnAction(e -> {
@@ -128,7 +138,9 @@ public class HttpDebuggerEnvConfigureDialog {
                 DialogUtil.showErrorInfo(I18N.get("dialog.env.error.name_required"), stage);
                 return;
             }
-            autoSave();
+            if (persistCurrentForm(true)) {
+                TooltipUtil.showToast(envConfigRoot, I18N.get("msg.save_success"));
+            }
         });
 
         cancelButton.setOnAction(e -> stage.close());
@@ -139,35 +151,37 @@ public class HttpDebuggerEnvConfigureDialog {
         // 单元格编辑提交后自动保存
         keyCol.setOnEditCommit(ev -> {
             ev.getRowValue().setKey(ev.getNewValue());
-            autoSave();
+            persistCurrentForm(false);
         });
         valueCol.setCellValueFactory(cd -> cd.getValue().valueProperty());
         valueCol.setCellFactory(CommitOnBlurTableCell.forStringColumn());
         valueCol.setOnEditCommit(ev -> {
             ev.getRowValue().setValue(ev.getNewValue());
-            autoSave();
+            persistCurrentForm(false);
         });
         varTable.setItems(tableData);
     }
 
     /**
-     * 将当前表单内容静默持久化。
-     * <p>
-     * 触发时机：envNameField 失焦、表格单元格提交、切换环境列表项。
-     * <ul>
-     * <li>环境名为空时不保存（新建但未填名称的状态）</li>
-     * <li>若环境名已被修改（重命名），先删除旧名再写入新名</li>
-     * <li>通过 {@code suppressAutoSave} 标志防止 refreshEnvList/select 触发的递归调用</li>
-     * </ul>
+     * 将当前表单持久化。身份以 {@link #loadedEnvName} 为准，而不是 ListView 当前选中项。
+     *
+     * @param syncList 为 true 时刷新左侧列表并选中刚保存的环境（仅保存按钮）；
+     *                 切列表 / 失焦时必须为 false，避免 setItems 冲掉用户正在点的那一项。
+     * @return 是否实际写入
      */
-    private void autoSave() {
-        if (suppressAutoSave)
-            return;
+    private boolean persistCurrentForm(boolean syncList) {
+        if (suppressAutoSave) {
+            return false;
+        }
         String name = envNameField.getText();
-        if (name == null || name.trim().isEmpty())
-            return;
-
+        if (name == null || name.trim().isEmpty()) {
+            return false;
+        }
         String trimmedName = name.trim();
+        if (EnvironmentService.DEFAULT_ENV_NAME.equals(trimmedName)) {
+            return false;
+        }
+
         java.util.Map<String, String> map = new java.util.HashMap<>();
         for (KeyValueEntry kv : tableData) {
             if (kv.getKey() != null && !kv.getKey().trim().isEmpty()) {
@@ -175,20 +189,36 @@ public class HttpDebuggerEnvConfigureDialog {
             }
         }
 
-        String selectedInList = envList.getSelectionModel().getSelectedItem();
-        if (selectedInList != null && !selectedInList.equals(trimmedName)) {
-            // 环境名被修改：删除旧名，以新名写入，刷新列表并重新选中
-            environmentService.deleteEnvironment(selectedInList);
-            environmentService.updateEnvironment(trimmedName, map);
-            suppressAutoSave = true;
-            try {
-                refreshEnvList();
-                envList.getSelectionModel().select(trimmedName);
-            } finally {
-                suppressAutoSave = false;
-            }
+        String previousName = loadedEnvName;
+        if (previousName != null && !previousName.equals(trimmedName)) {
+            environmentService.deleteEnvironment(previousName);
+        }
+        environmentService.updateEnvironment(trimmedName, map);
+        loadedEnvName = trimmedName;
+
+        if (syncList) {
+            refreshEnvListAndSelect(trimmedName);
         } else {
-            environmentService.updateEnvironment(trimmedName, map);
+            syncListItemsInPlace(previousName, trimmedName);
+        }
+        return true;
+    }
+
+    private void syncListItemsInPlace(String previousName, String savedName) {
+        ObservableList<String> items = envList.getItems();
+        if (items == null || savedName == null) {
+            return;
+        }
+        if (previousName != null && !previousName.equals(savedName) && items.contains(previousName)) {
+            int idx = items.indexOf(previousName);
+            items.remove(previousName);
+            if (!items.contains(savedName)) {
+                items.add(Math.min(idx, items.size()), savedName);
+            }
+            return;
+        }
+        if (!items.contains(savedName)) {
+            items.add(savedName);
         }
     }
 
@@ -196,7 +226,22 @@ public class HttpDebuggerEnvConfigureDialog {
         envList.setItems(FXCollections.observableArrayList(environmentService.getEnvironmentNames()));
     }
 
+    private void refreshEnvListAndSelect(String name) {
+        suppressAutoSave = true;
+        try {
+            refreshEnvList();
+            if (name != null) {
+                envList.getSelectionModel().select(name);
+            } else {
+                envList.getSelectionModel().clearSelection();
+            }
+        } finally {
+            suppressAutoSave = false;
+        }
+    }
+
     private void loadEnvDetails(String envName) {
+        loadedEnvName = envName;
         envNameField.setText(envName);
         tableData.clear();
         java.util.Map<String, String> vars = environmentService.getEnvironment(envName);
@@ -204,6 +249,7 @@ public class HttpDebuggerEnvConfigureDialog {
     }
 
     private void clearForm() {
+        loadedEnvName = null;
         envNameField.clear();
         tableData.clear();
     }
@@ -242,7 +288,7 @@ public class HttpDebuggerEnvConfigureDialog {
 
             init();
         }
-        refreshEnvList();
+        refreshEnvListAndSelect(loadedEnvName);
         stage.showAndWait();
     }
 }

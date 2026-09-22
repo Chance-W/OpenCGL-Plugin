@@ -1,5 +1,6 @@
 package com.opencgl.http.model;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.opencgl.base.model.HistoryItem;
 
 import java.util.Date;
@@ -46,6 +47,7 @@ public class HttpHistoryItem extends HistoryItem {
         return statusCode;
     }
 
+    @JSONField(name = "status_code")
     public void setStatusCode(Integer statusCode) {
         this.statusCode = statusCode;
     }
@@ -71,6 +73,7 @@ public class HttpHistoryItem extends HistoryItem {
         return getTimestamp();
     }
 
+    @JSONField(name = "request_time")
     public void setRequestTime(Date requestTime) {
         setTimestamp(requestTime);
     }
@@ -79,6 +82,7 @@ public class HttpHistoryItem extends HistoryItem {
         return requestSnapshot;
     }
 
+    @JSONField(name = "request_snapshot")
     public void setRequestSnapshot(String requestSnapshot) {
         this.requestSnapshot = requestSnapshot;
     }
@@ -87,6 +91,7 @@ public class HttpHistoryItem extends HistoryItem {
         return responseSnapshot;
     }
 
+    @JSONField(name = "response_snapshot")
     public void setResponseSnapshot(String responseSnapshot) {
         this.responseSnapshot = responseSnapshot;
     }

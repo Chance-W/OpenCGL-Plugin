@@ -6,6 +6,7 @@ import java.util.List;
 public interface HttpHistoryRepository {
     void initializeDatabase();
     void save(HttpHistoryItem item);
+    void delete(String id);
     List<HttpHistoryItem> findRecent(int limit);
     void clearAll();
 }

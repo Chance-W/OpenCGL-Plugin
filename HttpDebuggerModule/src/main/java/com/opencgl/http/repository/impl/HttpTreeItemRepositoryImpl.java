@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -112,49 +113,89 @@ public class HttpTreeItemRepositoryImpl implements HttpTreeItemRepository {
     
     @Override
     public List<HttpTreeItem> findAll() {
-        String sql = "SELECT * FROM http_tree_item ORDER BY sort_order";
-        try {
-            return SqliteUtil.queryForList(sql, HttpTreeItem.class);
-        } catch (Exception e) {
-            logger.error("Error finding all items", e);
-            return new ArrayList<>();
-        }
+        return queryItems("SELECT * FROM http_tree_item ORDER BY sort_order");
     }
     
     @Override
     public Optional<HttpTreeItem> findById(Long id) {
-        String sql = "SELECT * FROM http_tree_item WHERE id = ?";
-        try {
-            List<HttpTreeItem> list = SqliteUtil.queryForList(sql, HttpTreeItem.class, id);
-            return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
-        } catch (Exception e) {
-            logger.error("Error finding item by id: " + id, e);
-            return Optional.empty();
-        }
+        List<HttpTreeItem> list = queryItems("SELECT * FROM http_tree_item WHERE id = ?", id);
+        return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
     }
     
     @Override
     public List<HttpTreeItem> findByParentId(Long parentId) {
-        String sql = "SELECT * FROM http_tree_item WHERE parent_id = ? ORDER BY sort_order";
-        try {
-            if (parentId == null) {
-                return SqliteUtil.queryForList(sql, HttpTreeItem.class, 0L);
-            }
-            return SqliteUtil.queryForList(sql, HttpTreeItem.class, parentId);
-        } catch (Exception e) {
-            logger.error("Error finding items by parent_id: " + parentId, e);
-            return new ArrayList<>();
+        if (parentId == null) {
+            return queryItems("SELECT * FROM http_tree_item WHERE parent_id = ? ORDER BY sort_order", 0L);
         }
+        return queryItems("SELECT * FROM http_tree_item WHERE parent_id = ? ORDER BY sort_order", parentId);
     }
     
     public List<HttpTreeItem> findByNodeType(String nodeType) {
-        String sql = "SELECT * FROM http_tree_item WHERE node_type = ? ORDER BY sort_order";
-        try {
-            return SqliteUtil.queryForList(sql, HttpTreeItem.class, nodeType);
-        } catch (Exception e) {
-            logger.error("Error finding items by node_type: " + nodeType, e);
-            return new ArrayList<>();
+        return queryItems("SELECT * FROM http_tree_item WHERE node_type = ? ORDER BY sort_order", nodeType);
+    }
+
+    private List<HttpTreeItem> queryItems(String sql, Object... params) {
+        List<HttpTreeItem> items = new ArrayList<>();
+        String url = "jdbc:sqlite:" + Base.DB_PATH + "data.db";
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            for (int i = 0; i < params.length; i++) {
+                Object p = params[i];
+                if (p == null) {
+                    ps.setObject(i + 1, null);
+                }
+                else if (p instanceof Long) {
+                    ps.setLong(i + 1, (Long) p);
+                }
+                else if (p instanceof Integer) {
+                    ps.setInt(i + 1, (Integer) p);
+                }
+                else {
+                    ps.setString(i + 1, p.toString());
+                }
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    items.add(mapItem(rs));
+                }
+            }
         }
+        catch (Exception e) {
+            logger.error("Error querying http_tree_item", e);
+        }
+        return items;
+    }
+
+    private HttpTreeItem mapItem(ResultSet rs) throws SQLException {
+        HttpTreeItem item = new HttpTreeItem();
+        item.setId(rs.getLong("id"));
+        long parentId = rs.getLong("parent_id");
+        item.setParentId(rs.wasNull() ? null : parentId);
+        item.setName(rs.getString("name"));
+        item.setIsLeaf(rs.getBoolean("is_leaf"));
+        item.setSortOrder(rs.getInt("sort_order"));
+        item.setNodeType(rs.getString("node_type"));
+        item.setIconName(rs.getString("icon_name"));
+        item.setDescription(rs.getString("description"));
+        item.setMethod(rs.getString("method"));
+        item.setUrl(rs.getString("url"));
+        item.setHeaders(rs.getString("headers"));
+        item.setParams(rs.getString("params"));
+        item.setBody(rs.getString("body"));
+        item.setBodyType(rs.getString("body_type"));
+        item.setAuthConfig(rs.getString("auth_config"));
+        item.setHookScript(rs.getString("hook_script"));
+        int timeout = rs.getInt("timeout");
+        item.setTimeout(rs.wasNull() ? null : timeout);
+        boolean ssl = rs.getBoolean("ssl_verification");
+        item.setSslVerification(rs.wasNull() ? null : ssl);
+        boolean redirects = rs.getBoolean("follow_redirects");
+        item.setFollowRedirects(rs.wasNull() ? null : redirects);
+        item.setClientCertPath(rs.getString("client_cert_path"));
+        item.setClientCertPass(rs.getString("client_cert_pass"));
+        item.setServerCertPath(rs.getString("server_cert_path"));
+        item.setServerCertPass(rs.getString("server_cert_pass"));
+        return item;
     }
     
     @Override

@@ -11,6 +11,7 @@ import com.opencgl.base.utils.FormatVariableUtil;
 import com.opencgl.base.utils.CommitOnBlurTableCell;
 import com.opencgl.base.utils.LoadingMask;
 import com.opencgl.base.utils.tree.TreeViewBuilder;
+import com.opencgl.base.view.CustomizeTreeItem;
 import com.opencgl.base.utils.history.HistoryViewBuilder; // New Import
 import com.opencgl.base.view.RequestManagerView; // New Import
 import com.opencgl.base.utils.TooltipUtil;
@@ -29,6 +30,7 @@ import com.opencgl.http.views.HttpDebuggerView;
 import com.opencgl.http.model.HttpTreeItem;
 import com.opencgl.http.service.HttpDebuggerHistoryService;
 import com.opencgl.http.service.HttpTreeService;
+import com.opencgl.http.ui.HttpTreeItemTreeItem;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -68,13 +70,17 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.lang.reflect.Method;
+import java.util.function.Function;
 import java.util.concurrent.Future;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -386,15 +392,29 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
         }
 
         try {
-            // Use TreeViewBuilder
-            VBox treeViewContainer = new TreeViewBuilder<HttpTreeItem>()
+            // Use TreeViewBuilder. The factory API was added after older host
+            // releases; configure it reflectively so this plugin still loads
+            // with an older Base JAR and falls back to the default tree item.
+            TreeViewBuilder<HttpTreeItem> treeBuilder = new TreeViewBuilder<HttpTreeItem>()
                 .service(treeService)
                 .dataType(HttpTreeItem.class)
                 .searchPrompt("Search Requests...")
                 .enableSearch()
                 .enableDragDrop(true)
                 .enableToolbar(true) // Enable Toolbar
-                .locateTargetSupplier(() -> this.currentTreeItem) // Enable Locate
+                .locateTargetSupplier(() -> this.currentTreeItem); // Enable Locate
+
+            try {
+                Method factoryMethod = TreeViewBuilder.class.getMethod("treeItemFactory", Function.class);
+                Function<HttpTreeItem, CustomizeTreeItem<HttpTreeItem>> factory = HttpTreeItemTreeItem::new;
+                factoryMethod.invoke(treeBuilder, factory);
+            } catch (NoSuchMethodException e) {
+                logger.debug("旧版 Base 不支持 treeItemFactory，使用默认树节点渲染", e);
+            } catch (ReflectiveOperationException e) {
+                logger.warn("配置 HTTP 树节点渲染器失败，使用默认树节点", e);
+            }
+
+            VBox treeViewContainer = treeBuilder
                 .onSelect(this::onTreeNodeSelected)
                 .onTreeCreated(tree -> {
                     this.treeView = tree;
@@ -513,6 +533,7 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
         currentTreeItem = item;
 
         if (HttpTreeItem.TYPE_REQUEST.equals(item.getNodeType())) {
+            hideHistoryDetail();
             emptyState.setVisible(false);
             requestPanel.setVisible(true);
             loadRequest(item);
@@ -656,6 +677,8 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
         if (currentTreeItem == null)
             return;
 
+        flushBulkEditors();
+
         currentTreeItem.setMethod(methodComboBox.getValue());
         currentTreeItem.setUrl(urlField.getText());
         currentTreeItem.setBodyType(getSelectedBodyType());
@@ -664,12 +687,13 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
         currentTreeItem.setParams(toJSON(paramsData));
         currentTreeItem.setHeaders(toJSON(headersData));
 
-        // Save Body or Form Data
+        // Save Body or Form Data. Body 必须用 getText()，保留 // 和 /* */ 注释；
+        // 发送时才走 getNonAnnotationText()。
         if ("FORM".equals(currentTreeItem.getBodyType())) {
             currentTreeItem.setBody(toJSON(bodyFormData));
         }
         else {
-            currentTreeItem.setBody(bodyEditor.getText());
+            currentTreeItem.setBody(bodyEditor != null && bodyEditor.getText() != null ? bodyEditor.getText() : "");
         }
 
         // Save Config (Timeout s -> ms)
@@ -742,6 +766,15 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
                 obj.getBooleanValue("enabled")));
         }
         return result;
+    }
+
+    private void flushBulkEditors() {
+        if (paramsBulkEditor != null && paramsBulkEditor.isVisible()) {
+            paramsData.setAll(parseBulkText(paramsBulkEditor.getText()));
+        }
+        if (formBulkEditor != null && formBulkEditor.isVisible()) {
+            bodyFormData.setAll(parseBulkText(formBulkEditor.getText()));
+        }
     }
 
     private String toJSON(ObservableList<KeyValueEntry> data) {
@@ -1246,14 +1279,211 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
             .service(historyService)
             .cellDisplay(config -> config
                 .primaryText(item -> item.getMethod() + " " + item.getUrl())
-                .secondaryText(HttpHistoryItem::getId) // Display ID or something else? Maybe Request Time is
-                // better but cellDisplay has timestampField
+                .secondaryText(item -> item.getId() != null ? item.getId() : "")
                 .badgeText(item -> item.getStatusCode() != null ? String.valueOf(item.getStatusCode()) : "")
                 .timestampField(HttpHistoryItem::getRequestTime))
-            .restoreAction(this::restoreHistoryItem)
+            .onSelect(this::onHistorySelected)
+            .restoreAction(item -> {
+                restoreHistoryItem(item);
+                hideHistoryDetail();
+            })
             .build();
 
         requestManager.setHistoryView(historyView);
+
+        requestManager.getTabPane().getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null || requestManager.getTabPane().getTabs().isEmpty()) {
+                return;
+            }
+            if (newVal == requestManager.getTabPane().getTabs().get(0)) {
+                hideHistoryDetail();
+            }
+        });
+    }
+
+    private void onHistorySelected(HttpHistoryItem item) {
+        if (item == null || historyDetailPane == null || historyFullTextArea == null) {
+            logger.warn("History detail pane is not available");
+            return;
+        }
+        StringBuilder sb = new StringBuilder();
+        appendHistoryDetail(sb, "Method", item.getMethod());
+        appendHistoryDetail(sb, "Url", item.getUrl());
+        appendHistoryDetail(sb, "StatusCode", item.getStatusCode());
+        appendHistoryDetail(sb, "Duration", item.getDuration() != null ? item.getDuration() + "ms" : "");
+        appendHistoryDetail(sb, "Size", item.getSize());
+        appendHistoryDetail(sb, "RequestTime", item.getRequestTime());
+
+        JSONObject reqJson = parseObjectQuietly(item.getRequestSnapshot());
+        if (reqJson != null) {
+            appendHistoryDetail(sb, "BodyType", reqJson.getString("bodyType"));
+            appendHistoryDetail(sb, "Headers", formatJsonValue(reqJson.get("headers")));
+            appendHistoryDetail(sb, "Params", formatJsonValue(reqJson.get("params")));
+            appendHistoryDetail(sb, "Body", extractSnapshotField(reqJson, "body"));
+        }
+        else if (item.getRequestSnapshot() != null && !item.getRequestSnapshot().isBlank()) {
+            appendHistoryDetail(sb, "Body", prettyJsonOrRaw(item.getRequestSnapshot()));
+        }
+
+        JSONObject respJson = parseObjectQuietly(item.getResponseSnapshot());
+        if (respJson != null) {
+            appendHistoryDetail(sb, "ResponseStatus",
+                nvl(respJson.getString("statusCode")) + " " + nvl(respJson.getString("statusMessage")));
+            appendHistoryDetail(sb, "ResponseHeaders", formatJsonValue(respJson.get("headers")));
+            appendHistoryDetail(sb, "ResponseBody", extractSnapshotField(respJson, "body"));
+        }
+        else if (item.getResponseSnapshot() != null && !item.getResponseSnapshot().isBlank()) {
+            appendHistoryDetail(sb, "ResponseBody", prettyJsonOrRaw(item.getResponseSnapshot()));
+        }
+
+        historyFullTextArea.setText(sb.toString());
+        showHistoryDetailPane();
+    }
+
+    private void showHistoryDetailPane() {
+        if (historyDetailPane == null || contentArea == null) {
+            return;
+        }
+        if (emptyState != null) {
+            emptyState.setVisible(false);
+            emptyState.setManaged(false);
+        }
+        if (requestPanel != null) {
+            requestPanel.setVisible(false);
+            requestPanel.setManaged(false);
+        }
+        if (historyDetailPane.getParent() != contentArea) {
+            contentArea.getChildren().add(historyDetailPane);
+        }
+        historyDetailPane.setManaged(true);
+        historyDetailPane.setVisible(true);
+        historyDetailPane.toFront();
+    }
+
+    private void hideHistoryDetail() {
+        if (historyDetailPane != null) {
+            historyDetailPane.setVisible(false);
+            historyDetailPane.setManaged(false);
+        }
+        if (currentTreeItem != null && currentTreeItem.isRequest()) {
+            if (emptyState != null) {
+                emptyState.setVisible(false);
+                emptyState.setManaged(false);
+            }
+            if (requestPanel != null) {
+                requestPanel.setVisible(true);
+                requestPanel.setManaged(true);
+            }
+        }
+        else {
+            if (requestPanel != null) {
+                requestPanel.setVisible(false);
+                requestPanel.setManaged(false);
+            }
+            if (emptyState != null) {
+                emptyState.setVisible(true);
+                emptyState.setManaged(true);
+            }
+        }
+    }
+
+    private void appendHistoryDetail(StringBuilder sb, String key, Object value) {
+        sb.append(key).append(": ").append(value != null ? value : "").append("\n");
+    }
+
+    private String nvl(String value) {
+        return value != null ? value : "";
+    }
+
+    private JSONObject parseObjectQuietly(String json) {
+        if (json == null || json.isBlank()) {
+            return null;
+        }
+        try {
+            return JSON.parseObject(json);
+        }
+        catch (Exception e) {
+            logger.warn("Failed to parse history snapshot JSON");
+            return null;
+        }
+    }
+
+    private String extractSnapshotField(JSONObject snapshot, String field) {
+        if (snapshot == null) {
+            return "";
+        }
+        Object value = snapshot.get(field);
+        return formatJsonValue(value);
+    }
+
+    private String formatJsonValue(Object value) {
+        if (value == null) {
+            return "";
+        }
+        if (value instanceof String) {
+            return prettyJsonOrRaw((String) value);
+        }
+        try {
+            return JSON.toJSONString(value, com.alibaba.fastjson.serializer.SerializerFeature.PrettyFormat,
+                com.alibaba.fastjson.serializer.SerializerFeature.WriteMapNullValue);
+        }
+        catch (Exception e) {
+            return String.valueOf(value);
+        }
+    }
+
+    private String extractRawBody(Object value) {
+        if (value == null) {
+            return "";
+        }
+        if (value instanceof String) {
+            return (String) value;
+        }
+        try {
+            return JSON.toJSONString(value, com.alibaba.fastjson.serializer.SerializerFeature.WriteMapNullValue);
+        }
+        catch (Exception e) {
+            return String.valueOf(value);
+        }
+    }
+
+    private java.util.Map<String, String> toStringMap(Object value) {
+        java.util.Map<String, String> result = new java.util.LinkedHashMap<>();
+        if (value instanceof java.util.Map) {
+            ((java.util.Map<?, ?>) value).forEach((k, v) -> {
+                if (k != null) {
+                    result.put(String.valueOf(k), v != null ? String.valueOf(v) : "");
+                }
+            });
+        }
+        return result;
+    }
+
+    private String prettyJsonOrRaw(String text) {
+        if (text == null || text.isBlank()) {
+            return "";
+        }
+        try {
+            Object obj = JSON.parse(text);
+            return JSON.toJSONString(obj, com.alibaba.fastjson.serializer.SerializerFeature.PrettyFormat,
+                com.alibaba.fastjson.serializer.SerializerFeature.WriteMapNullValue);
+        }
+        catch (Exception e) {
+            return text;
+        }
+    }
+
+    private <T> T parseJsonQuietly(String json, Class<T> type) {
+        if (json == null || json.isBlank()) {
+            return null;
+        }
+        try {
+            return JSON.parseObject(json, type);
+        }
+        catch (Exception e) {
+            logger.warn("Failed to parse history snapshot as {}", type.getSimpleName());
+            return null;
+        }
     }
 
     private void restoreHistoryItem(HttpHistoryItem item) {
@@ -1262,7 +1492,26 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
 
         // Deserialize snapshots
         try {
-            HttpRequestModel req = JSON.parseObject(item.getRequestSnapshot(), HttpRequestModel.class);
+            HttpRequestModel req = parseJsonQuietly(item.getRequestSnapshot(), HttpRequestModel.class);
+            JSONObject reqJson = parseObjectQuietly(item.getRequestSnapshot());
+            if (req == null && reqJson != null) {
+                req = new HttpRequestModel();
+                req.setMethod(reqJson.getString("method"));
+                req.setUrl(reqJson.getString("url"));
+                req.setBodyType(reqJson.getString("bodyType"));
+            }
+            if (req == null) {
+                showError("History request snapshot is empty");
+                return;
+            }
+            if (reqJson != null) {
+                String snapshotBody = extractRawBody(reqJson.get("body"));
+                if (snapshotBody != null && !snapshotBody.isEmpty()) {
+                    req.setBody(snapshotBody);
+                }
+                req.setHeaders(toStringMap(reqJson.get("headers")));
+                req.setParams(toStringMap(reqJson.get("params")));
+            }
 
             // Restore UI fields
             methodComboBox.setValue(req.getMethod());
@@ -1320,22 +1569,29 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
             }
 
             // Switch to Request View
-            requestPanel.setVisible(true);
-            emptyState.setVisible(false);
-            // Select this history item implies we are not on a tree item?
-            // currentTreeItem = null; // Maybe keep it null to indicate detached mode
+            if (requestPanel != null) {
+                requestPanel.setVisible(true);
+                requestPanel.setManaged(true);
+            }
+            if (emptyState != null) {
+                emptyState.setVisible(false);
+                emptyState.setManaged(false);
+            }
 
             // Restore Response
-            if (item.getResponseSnapshot() != null) {
-                HttpResponseModel resp = JSON.parseObject(item.getResponseSnapshot(), HttpResponseModel.class);
-                if (resp != null) {
-                    displayResponse(resp);
+            HttpResponseModel resp = parseJsonQuietly(item.getResponseSnapshot(), HttpResponseModel.class);
+            if (resp == null) {
+                JSONObject respJson = parseObjectQuietly(item.getResponseSnapshot());
+                if (respJson != null) {
+                    resp = new HttpResponseModel();
+                    resp.setStatusCode(respJson.getIntValue("statusCode"));
+                    resp.setStatusMessage(respJson.getString("statusMessage"));
+                    resp.setBody(extractRawBody(respJson.get("body")));
+                    resp.setHeaders(toStringMap(respJson.get("headers")));
                 }
-                else {
-                    responseBodyArea.clear();
-                    currentResponseProperty.set(null);
-                    responseHeadersData.clear();
-                }
+            }
+            if (resp != null) {
+                displayResponse(resp);
             }
             else {
                 responseBodyArea.clear();
@@ -1879,15 +2135,14 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
             return;
         }
         try {
-            HookContext context = new HookContext();
-            context.setProtocol("http");
-            context.put("url", urlField != null ? urlField.getText() : "");
-            context.put("method", methodComboBox != null ? methodComboBox.getValue() : "");
-            context.put("log", org.slf4j.LoggerFactory.getLogger("HookScript"));
-            context.put("history", com.opencgl.base.utils.OperationHisRecord.class);
+            HttpRequestModel requestModel = new HttpRequestModel();
+            requestModel.setMethod(methodComboBox != null ? methodComboBox.getValue() : "");
+            requestModel.setUrl(urlField != null ? urlField.getText() : "");
+            requestModel.setBody(bodyEditor != null ? bodyEditor.getNonAnnotationText() : "");
+            HookContext context = createHookContext(requestModel);
             StringBuilder report = new StringBuilder("Hook Execution Report:\n\n");
-            String originalRequest = bodyEditor != null ? bodyEditor.getNonAnnotationText() : "";
-            if (originalRequest == null || originalRequest.trim().isEmpty()) {
+            String originalRequest = requestModel.getBody() != null ? requestModel.getBody() : "";
+            if (originalRequest.trim().isEmpty()) {
                 report.append("[Pre-Process] Skipped (Empty Request)\n");
             }
             else {
@@ -1897,6 +2152,9 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
                     long duration = System.currentTimeMillis() - start;
                     report.append("[Pre-Process] Executed in ").append(duration).append(" ms\n");
                     report.append(originalRequest.equals(processed) ? "Result: No Change\n" : "Result: Request MODIFIED\n");
+                    if (processed != null && !originalRequest.equals(processed)) {
+                        report.append("Processed Request:\n").append(processed).append("\n");
+                    }
                 }
                 catch (Exception e) {
                     report.append("[Pre-Process] Failed: ").append(e.getMessage()).append("\n");
@@ -1932,6 +2190,28 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
             logger.error("Hook test failed", e);
             showError("Hook execution failed: " + e.getMessage());
         }
+    }
+
+    private HookContext createHookContext(HttpRequestModel requestModel) {
+        HookContext context = new HookContext();
+        context.setEnvironment(environmentService.getCurrentEnvName());
+        context.setProtocol("http");
+        context.put("log", org.slf4j.LoggerFactory.getLogger("HookScript"));
+        context.put("history", com.opencgl.base.utils.OperationHisRecord.class);
+        context.put("env", environmentService);
+        Map<String, String> envVars = environmentService.getEnvironment(environmentService.getCurrentEnvName());
+        context.put("envVars", envVars != null ? new HashMap<>(envVars) : new HashMap<>());
+        if (requestModel != null) {
+            context.setInterfaceName(requestModel.getUrl());
+            context.setMethodName(requestModel.getMethod());
+            if (requestModel.getHeaders() != null) {
+                context.setHeaders(requestModel.getHeaders());
+            }
+            context.put("request", requestModel);
+            context.put("url", requestModel.getUrl());
+            context.put("method", requestModel.getMethod());
+        }
+        return context;
     }
 
     private void sendRequest() {
@@ -2027,15 +2307,7 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
             // Execute Pre-request Hook
             if (currentHook != null) {
                 try {
-                    HookContext context = new HookContext();
-                    context.setEnvironment(environmentService.getCurrentEnvName());
-                    context.setProtocol("http");
-                    context.setHeaders(requestModel.getHeaders());
-                    context.put("log", org.slf4j.LoggerFactory.getLogger("HookScript"));
-                    context.put("history", com.opencgl.base.utils.OperationHisRecord.class);
-                    // Pass full request model to script as "request"
-                    context.put("request", requestModel);
-                    context.put("env", environmentService); // Allow script to access env service if needed
+                    HookContext context = createHookContext(requestModel);
 
                     String currentBody = requestModel.getBody() == null ? "" : requestModel.getBody();
                     String newBody = currentHook.preProcess(currentBody, context);

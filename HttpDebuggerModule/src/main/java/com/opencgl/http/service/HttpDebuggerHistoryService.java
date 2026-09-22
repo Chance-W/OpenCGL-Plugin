@@ -53,9 +53,8 @@ public class HttpDebuggerHistoryService implements HistoryService {
     @Override
     public void deleteHistory(HistoryItem item) {
         if (item instanceof HttpHistoryItem) {
-            // Delete from DB not implemented in repo yet?
-            // Actually repo interface has no delete(item)
-            // But we can just remove from list for now or add it to repo
+            HttpHistoryItem httpItem = (HttpHistoryItem) item;
+            repository.delete(httpItem.getId());
             historyList.remove(item);
         }
     }
@@ -70,34 +69,33 @@ public class HttpDebuggerHistoryService implements HistoryService {
         item.setDuration(response.getResponseTime());
         item.setSize(response.getContentLength());
         item.setRequestTime(new Date());
+        item.setRequestSnapshot(JSON.toJSONString(toSnapshot(request),
+            com.alibaba.fastjson.serializer.SerializerFeature.DisableCircularReferenceDetect,
+            com.alibaba.fastjson.serializer.SerializerFeature.WriteMapNullValue));
+        item.setResponseSnapshot(JSON.toJSONString(toSnapshot(response),
+            com.alibaba.fastjson.serializer.SerializerFeature.DisableCircularReferenceDetect,
+            com.alibaba.fastjson.serializer.SerializerFeature.WriteMapNullValue));
         
-        // Snapshots
-        item.setRequestSnapshot(JSON.toJSONString(request));
-        item.setResponseSnapshot(JSON.toJSONString(response));
-        
-        // Save async
-        submit(() -> {
-            repository.save(item);
-            // Reload strictly on FX thread if needed, or just add to head?
-            // To keep sync with DB limit, maybe simpler to add to list start
-            // and reload if needed.
-            javafx.application.Platform.runLater(() -> {
-                if (disposed) return;
-                historyList.add(0, item);
-                if (historyList.size() > 100) {
-                    historyList.remove(100, historyList.size());
-                }
-            });
+        // add() is called by the HTTP request worker, so persist before
+        // publishing the item to the UI. This avoids losing the record when
+        // the plugin is closed immediately after a request completes.
+        repository.save(item);
+        javafx.application.Platform.runLater(() -> {
+            if (disposed) return;
+            historyList.add(0, item);
+            if (historyList.size() > 100) {
+                historyList.remove(100, historyList.size());
+            }
         });
     }
     
     private void loadRecent() {
-        submit(() -> {
-            List<HttpHistoryItem> recent = repository.findRecent(100);
-            javafx.application.Platform.runLater(() -> {
-                if (!disposed) historyList.setAll(recent);
-            });
-        });
+        // History is loaded while the service is constructed, before the
+        // HistoryViewBuilder binds to the observable list. This matches the
+        // synchronous loading behavior used by the Dubbo module and avoids a
+        // race where the plugin is reopened before the background read updates
+        // the newly created history view.
+        historyList.setAll(repository.findRecent(100));
     }
     
     public void clear() {
@@ -115,16 +113,43 @@ public class HttpDebuggerHistoryService implements HistoryService {
     public void close() {
         if (disposed) return;
         disposed = true;
+        // Writes are synchronous and therefore already durable before the
+        // response is displayed; only the pending initial read is cancelled.
         for (Future<?> task : tasks) {
-            try {
-                task.cancel(true);
-            } catch (Exception ignored) {
-            }
+            task.cancel(true);
         }
         tasks.clear();
         try {
             historyExecutor.shutdownNow();
         } catch (Exception ignored) {
         }
+    }
+
+    private java.util.Map<String, Object> toSnapshot(HttpRequestModel request) {
+        java.util.Map<String, Object> snap = new java.util.LinkedHashMap<>();
+        snap.put("method", request.getMethod());
+        snap.put("url", request.getUrl());
+        snap.put("headers", request.getHeaders());
+        snap.put("params", request.getParams());
+        snap.put("body", request.getBody());
+        snap.put("bodyType", request.getBodyType());
+        snap.put("timeout", request.getTimeout());
+        snap.put("sslVerification", request.isSslVerification());
+        snap.put("followRedirects", request.isFollowRedirects());
+        snap.put("clientCertPath", request.getClientCertPath());
+        snap.put("serverCertPath", request.getServerCertPath());
+        return snap;
+    }
+
+    private java.util.Map<String, Object> toSnapshot(HttpResponseModel response) {
+        java.util.Map<String, Object> snap = new java.util.LinkedHashMap<>();
+        snap.put("statusCode", response.getStatusCode());
+        snap.put("statusMessage", response.getStatusMessage());
+        snap.put("headers", response.getHeaders());
+        snap.put("body", response.getBody());
+        snap.put("responseTime", response.getResponseTime());
+        snap.put("contentLength", response.getContentLength());
+        snap.put("error", response.getError());
+        return snap;
     }
 }

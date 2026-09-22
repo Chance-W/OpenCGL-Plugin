@@ -124,4 +124,8 @@ public class HttpDebuggerView {
     @FXML public TableView<KeyValueEntry> responseHeadersTable;
     @FXML public TableColumn<KeyValueEntry, String> respHeaderKeyCol;
     @FXML public TableColumn<KeyValueEntry, String> respHeaderValueCol;
+
+    // History 详情（单击历史记录，对齐 Dubbo 测试模块）
+    @FXML public StackPane historyDetailPane;
+    @FXML public CustomTextArea historyFullTextArea;
 }
