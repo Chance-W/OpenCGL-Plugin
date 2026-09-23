@@ -12,6 +12,69 @@ import java.util.regex.Pattern;
  * 支持管理多个环境配置，并提供 {{variable}} 替换功能；持久化到 SQLite。
  */
 public class EnvironmentService {
+    private static final String EXPORT_FORMAT = "opencgl-http-environment";
+
+    public String copyEnvironment(String name) {
+        requireExisting(name);
+        return copyEnvironment(name, getEnvironment(name));
+    }
+
+    public String copyEnvironment(String name, Map<String, String> variables) {
+        requireExisting(name);
+        return createUnique(name + " 副本", new LinkedHashMap<>(variables));
+    }
+
+    public String exportEnvironment(String name) {
+        return exportEnvironment(name, getEnvironment(name));
+    }
+
+    public String exportEnvironment(String name, Map<String, String> variables) {
+        requireExisting(name);
+        var document = new LinkedHashMap<String, Object>();
+        document.put("format", EXPORT_FORMAT);
+        document.put("version", 1);
+        document.put("name", name);
+        document.put("variables", new TreeMap<>(variables));
+        return com.alibaba.fastjson.JSON.toJSONString(document, true);
+    }
+
+    public String importEnvironment(String json) {
+        if (json == null || json.length() > 5 * 1024 * 1024) throw new IllegalArgumentException("Invalid environment file");
+        Object parsed;
+        try {
+            parsed = com.alibaba.fastjson.JSON.parse(json, com.alibaba.fastjson.parser.Feature.DisableSpecialKeyDetect);
+        } catch (RuntimeException invalid) {
+            throw new IllegalArgumentException("Invalid environment JSON", invalid);
+        }
+        if (!(parsed instanceof Map<?, ?> doc)
+            || !EXPORT_FORMAT.equals(doc.get("format")) || !Integer.valueOf(1).equals(doc.get("version"))
+            || !(doc.get("name") instanceof String name) || name.isBlank() || "None".equals(name.trim())
+            || !(doc.get("variables") instanceof Map<?, ?> vars)) {
+            throw new IllegalArgumentException("Unsupported environment document");
+        }
+        var values = new LinkedHashMap<String, String>();
+        for (var entry : vars.entrySet()) {
+            if (!(entry.getKey() instanceof String key) || key.isBlank() || !(entry.getValue() instanceof String value)) {
+                throw new IllegalArgumentException("Variable names and values must be strings");
+            }
+            values.put(key, value);
+        }
+        return createUnique(name.trim(), values);
+    }
+
+    private void requireExisting(String name) {
+        if (name == null || DEFAULT_ENV_NAME.equals(name) || !getEnvironmentNames().contains(name)) {
+            throw new IllegalArgumentException("Select an existing environment");
+        }
+    }
+
+    private String createUnique(String base, Map<String, String> variables) {
+        var existing = new HashSet<>(getEnvironmentNames());
+        String name = base;
+        for (int number = 2; existing.contains(name); number++) name = base + " (" + number + ")";
+        repository.createEnvironment(name, variables);
+        return name;
+    }
     /** 默认环境名称（下拉默认显示 None，不再使用 No Environment） */
     public static final String DEFAULT_ENV_NAME = "None";
 
@@ -34,6 +97,7 @@ public class EnvironmentService {
     public void deleteEnvironment(String name) {
         if (name == null || DEFAULT_ENV_NAME.equals(name)) return;
         repository.deleteEnvironment(name);
+        if (name.equals(currentEnvName)) currentEnvName = DEFAULT_ENV_NAME;
     }
 
     public void setCurrentEnvName(String name) {

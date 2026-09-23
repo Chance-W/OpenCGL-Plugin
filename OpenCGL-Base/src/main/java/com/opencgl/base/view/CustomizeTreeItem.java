@@ -26,7 +26,8 @@ public class CustomizeTreeItem<T extends BaseDataDto> extends TreeItem<T> {
 
     @Override
     public boolean isLeaf() {
-        return getValue() != null ? getValue().getIsLeaf() : super.isLeaf();
+        Boolean leaf = getValue() == null ? null : getValue().getIsLeaf();
+        return leaf != null ? leaf : super.isLeaf();
     }
 
 }

@@ -4,6 +4,8 @@ import com.opencgl.decompiler.i18n.I18N;
 import com.opencgl.decompiler.model.ClassNode;
 import com.opencgl.decompiler.model.DecompileResult;
 import com.opencgl.decompiler.service.DecompilerService;
+import com.opencgl.decompiler.service.ClassTreeSearch;
+import com.opencgl.base.utils.tree.TreeViewState;
 import com.opencgl.decompiler.service.JarLoaderService;
 import com.opencgl.decompiler.service.SyntaxHighlightService;
 import com.opencgl.decompiler.service.SymbolIndexService;
@@ -48,6 +50,8 @@ public class DecompilerController extends DecompilerView implements Initializabl
     private SyntaxHighlightService syntaxHighlightService;
     private SymbolIndexService symbolIndexService;
     private TreeItem<ClassNode> fullTreeRoot; // 保存完整树用于搜索
+    private TreeViewState<ClassNode, java.util.List<String>> beforeTreeSearch;
+    private boolean rebuildingFileTree;
     private final ExecutorService executor = Executors.newCachedThreadPool(runnable -> {
         Thread thread = new Thread(runnable, "opencgl-decompiler");
         thread.setDaemon(true);
@@ -104,6 +108,7 @@ public class DecompilerController extends DecompilerView implements Initializabl
     }
 
     private void setupUI() {
+        com.opencgl.base.utils.tree.TreeViewPresentation.install(fileTreeView);
         rootPane.getStylesheets().add(getClass().getResource("/com/opencgl/decompiler/styles/navigation.css").toExternalForm());
         // 初始化代码区域
         // 编辑器在首次打开 class 时按 Tab 创建，避免多个 class 共享同一个编辑区。
@@ -127,6 +132,9 @@ public class DecompilerController extends DecompilerView implements Initializabl
         
         // 树节点选择事件
         fileTreeView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (rebuildingFileTree) return;
+            if (newVal != null && beforeTreeSearch != null)
+                beforeTreeSearch = beforeTreeSearch.withSelection(treeNodeKey(newVal));
             if (newVal != null && newVal.getValue().isClass()) {
                 decompileClass(newVal.getValue());
             }
@@ -746,49 +754,37 @@ public class DecompilerController extends DecompilerView implements Initializabl
             return;
         }
         
+        rebuildingFileTree = true;
+        try {
         if (searchText == null || searchText.trim().isEmpty()) {
             // 恢复完整树
             fileTreeView.setRoot(fullTreeRoot);
+            if (beforeTreeSearch != null) beforeTreeSearch.restore(fileTreeView);
+            beforeTreeSearch = null;
             setStatus(I18N.get("msg.search_cleared"));
             return;
         }
         
         // 过滤树节点
-        String lowerSearch = searchText.toLowerCase();
-        TreeItem<ClassNode> filteredRoot = filterNode(fullTreeRoot, lowerSearch);
+        var currentState = TreeViewState.capture(fileTreeView, DecompilerController::treeNodeKey);
+        if (beforeTreeSearch == null) beforeTreeSearch = currentState;
+        TreeItem<ClassNode> filteredRoot = ClassTreeSearch.filter(fullTreeRoot, searchText);
         
         if (filteredRoot != null) {
             fileTreeView.setRoot(filteredRoot);
-            expandAll(filteredRoot);
+            currentState.restoreSelection(fileTreeView);
             setStatus(I18N.get("msg.search_found", searchText));
         } else {
-            fileTreeView.setRoot(fullTreeRoot);
+            fileTreeView.setRoot(new TreeItem<>(fullTreeRoot.getValue()));
             setStatus(I18N.get("msg.search_no_match", searchText));
         }
+        } finally { rebuildingFileTree = false; }
     }
-    
-    private TreeItem<ClassNode> filterNode(TreeItem<ClassNode> node, String searchText) {
-        ClassNode value = node.getValue();
-        boolean matches = value.getName().toLowerCase().contains(searchText);
-        
-        TreeItem<ClassNode> copy = new TreeItem<>(value);
-        boolean hasChildren = false;
-        
-        for (TreeItem<ClassNode> child : node.getChildren()) {
-            TreeItem<ClassNode> filteredChild = filterNode(child, searchText);
-            if (filteredChild != null) {
-                copy.getChildren().add(filteredChild);
-                hasChildren = true;
-            }
-        }
-        
-        if (matches || hasChildren) {
-            return copy;
-        }
-        
-        return null;
+
+    private static java.util.List<String> treeNodeKey(TreeItem<ClassNode> item) {
+        ClassNode value = item.getValue();
+        return value == null ? null : java.util.Arrays.asList(value.getSourcePath(), value.getFullPath(), value.getEntryPath());
     }
-    
     private void expandAll(TreeItem<?> item) {
         if (item != null && !item.isLeaf()) {
             item.setExpanded(true);

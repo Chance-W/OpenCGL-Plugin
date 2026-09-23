@@ -1,6 +1,8 @@
 package com.opencgl.http.controller;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
 import java.util.ResourceBundle;
 
 import com.opencgl.base.theme.ThemeManager;
@@ -10,6 +12,8 @@ import com.opencgl.base.utils.TooltipUtil;
 import com.opencgl.http.i18n.I18N;
 import com.opencgl.http.model.KeyValueEntry;
 import com.opencgl.http.service.EnvironmentService;
+import com.opencgl.http.ui.EnvironmentWindowPlacement;
+import com.opencgl.base.view.CustomConfirmDialog;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -47,6 +51,9 @@ public class HttpDebuggerEnvConfigureDialog {
     private Button newButton;
     @FXML
     private Button deleteButton;
+    @FXML private Button copyEnvButton;
+    @FXML private Button exportEnvButton;
+    @FXML private Button importEnvButton;
     @FXML
     private javafx.scene.control.Label envConfigLabel;
     @FXML
@@ -84,12 +91,32 @@ public class HttpDebuggerEnvConfigureDialog {
             splitPane.setDividerPositions(0.3);
 
         refreshEnvList();
+        copyEnvButton.disableProperty().bind(envList.getSelectionModel().selectedItemProperty().isNull());
+        exportEnvButton.disableProperty().bind(envList.getSelectionModel().selectedItemProperty().isNull());
+        copyEnvButton.setOnAction(e -> transferEnvironment("copy"));
+        exportEnvButton.setOnAction(e -> transferEnvironment("export"));
+        importEnvButton.setOnAction(e -> transferEnvironment("import"));
+        envList.setContextMenu(environmentMenu(false));
+        envList.setCellFactory(list -> new javafx.scene.control.ListCell<>() {
+            @Override protected void updateItem(String name, boolean empty) {
+                super.updateItem(name, empty);
+                setText(empty ? null : name);
+                setContextMenu(environmentMenu(!empty));
+            }
+            {
+                setOnContextMenuRequested(event -> {
+                    varTable.edit(-1, null);
+                    if (!isEmpty()) envList.getSelectionModel().select(getItem());
+                });
+            }
+        });
 
         envList.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             if (suppressAutoSave) {
                 return;
             }
             // 切走当前环境前，按「表单正在编辑的环境」落库，绝不能用已经变成 newVal 的选中项当旧名
+            varTable.edit(-1, null);
             persistCurrentForm(false);
             if (newVal != null) {
                 loadEnvDetails(newVal);
@@ -119,7 +146,12 @@ public class HttpDebuggerEnvConfigureDialog {
                 DialogUtil.showErrorInfo(I18N.get("dialog.env.error.cannot_delete_default"), stage);
                 return;
             }
-            environmentService.deleteEnvironment(selected);
+            try {
+                environmentService.deleteEnvironment(selected);
+            } catch (Exception failure) {
+                DialogUtil.showErrorInfo(I18N.get("msg.environment_delete_failed"), stage);
+                return;
+            }
             clearForm();
             refreshEnvListAndSelect(null);
         });
@@ -162,6 +194,86 @@ public class HttpDebuggerEnvConfigureDialog {
         varTable.setItems(tableData);
     }
 
+    private javafx.scene.control.ContextMenu environmentMenu(boolean hasItem) {
+        var menu = new javafx.scene.control.ContextMenu();
+        for (String action : java.util.List.of("copy", "export", "import")) {
+            var item = new javafx.scene.control.MenuItem(I18N.get("dialog.env.button." + action));
+            item.setDisable(!hasItem && !"import".equals(action));
+            item.setOnAction(event -> transferEnvironment(action));
+            menu.getItems().add(item);
+        }
+        return menu;
+    }
+
+    private void transferEnvironment(String action) {
+        try {
+            varTable.edit(-1, null);
+            if ("import".equals(action)) {
+                var file = environmentChooser().showOpenDialog(fileDialogOwner());
+                if (file == null) return;
+                if (Files.size(file.toPath()) > 5 * 1024 * 1024) throw new IllegalArgumentException("File too large");
+                String name = environmentService.importEnvironment(Files.readString(file.toPath(), StandardCharsets.UTF_8));
+                refreshEnvListAndSelect(name);
+                loadEnvDetails(name);
+            } else {
+                if (envList.getSelectionModel().getSelectedItem() == null) return;
+                String source = envList.getSelectionModel().getSelectedItem();
+                var snapshot = currentVariables();
+                if ("copy".equals(action)) {
+                    String name = environmentService.copyEnvironment(source, snapshot);
+                    refreshEnvListAndSelect(name);
+                    loadEnvDetails(name);
+                } else {
+                    if (!exportConfirmation().showAndWait().orElse(false)) return;
+                    var chooser = environmentChooser();
+                    chooser.setInitialFileName("http-environment.json");
+                    var file = chooser.showSaveDialog(fileDialogOwner());
+                    if (file == null) return;
+                    Files.writeString(file.toPath(), environmentService.exportEnvironment(source, snapshot), StandardCharsets.UTF_8);
+                }
+            }
+            TooltipUtil.showToast(envConfigRoot, I18N.get("dialog.env.transfer_success"));
+        } catch (Exception failure) {
+            DialogUtil.showErrorInfo(I18N.get("dialog.env.transfer_failed"), stage);
+        }
+    }
+
+    private javafx.stage.FileChooser environmentChooser() {
+        var chooser = new javafx.stage.FileChooser();
+        chooser.setTitle(I18N.get("dialog.env.list.title"));
+        chooser.getExtensionFilters().add(new javafx.stage.FileChooser.ExtensionFilter("OpenCGL HTTP Environment (*.json)", "*.json"));
+        return chooser;
+    }
+
+    private Window fileDialogOwner() {
+        Window owner = envConfigRoot.getScene().getWindow();
+        if (owner instanceof Stage current) current.toFront();
+        owner.requestFocus();
+        return owner;
+    }
+
+    private CustomConfirmDialog exportConfirmation() {
+        Window owner = fileDialogOwner();
+        var dialog = new CustomConfirmDialog();
+        dialog.initOwner(owner);
+        dialog.setCustomHeaderText(I18N.get("dialog.env.button.export"));
+        dialog.setLabelText(I18N.get("dialog.env.export_warning"));
+        dialog.setOnShowing(event -> {
+            var pane = dialog.getDialogPane();
+            double width = Math.max(400, pane.prefWidth(-1));
+            double height = Math.max(150, pane.prefHeight(width));
+            var point = EnvironmentWindowPlacement.position(owner, width, height);
+            dialog.setX(point.getX()); dialog.setY(point.getY());
+        });
+        // Replace the shared component's active-window guessing, retaining theme registration.
+        dialog.setOnShown(event -> {
+            ThemeManager.getInstance().registerScene(dialog.getDialogPane().getScene());
+            var point = EnvironmentWindowPlacement.position(owner, dialog.getWidth(), dialog.getHeight());
+            dialog.setX(point.getX()); dialog.setY(point.getY());
+        });
+        return dialog;
+    }
+
     /**
      * 将当前表单持久化。身份以 {@link #loadedEnvName} 为准，而不是 ListView 当前选中项。
      *
@@ -182,12 +294,12 @@ public class HttpDebuggerEnvConfigureDialog {
             return false;
         }
 
-        java.util.Map<String, String> map = new java.util.HashMap<>();
-        for (KeyValueEntry kv : tableData) {
-            if (kv.getKey() != null && !kv.getKey().trim().isEmpty()) {
-                map.put(kv.getKey().trim(), kv.getValue() != null ? kv.getValue() : "");
-            }
+        if (!trimmedName.equals(loadedEnvName) && environmentService.getEnvironmentNames().contains(trimmedName)) {
+            if (syncList) DialogUtil.showErrorInfo(I18N.get("dialog.env.name_exists"), stage);
+            return false;
         }
+
+        java.util.Map<String, String> map = currentVariables();
 
         String previousName = loadedEnvName;
         if (previousName != null && !previousName.equals(trimmedName)) {
@@ -202,6 +314,16 @@ public class HttpDebuggerEnvConfigureDialog {
             syncListItemsInPlace(previousName, trimmedName);
         }
         return true;
+    }
+
+    private java.util.Map<String, String> currentVariables() {
+        var values = new java.util.LinkedHashMap<String, String>();
+        for (KeyValueEntry kv : tableData) {
+            if (kv.getKey() != null && !kv.getKey().trim().isEmpty()) {
+                values.put(kv.getKey().trim(), kv.getValue() == null ? "" : kv.getValue());
+            }
+        }
+        return values;
     }
 
     private void syncListItemsInPlace(String previousName, String savedName) {
@@ -282,13 +404,13 @@ public class HttpDebuggerEnvConfigureDialog {
             stage.setScene(scene);
             stage.setOnShown(event -> {
                 ThemeManager.getInstance().registerScene(stage.getScene());
-                if (owner != null) com.opencgl.base.utils.DialogUtil.centerStageOnOwner(stage, owner);
             });
             stage.setOnHidden(event -> ThemeManager.getInstance().unregisterScene(stage.getScene()));
 
             init();
         }
         refreshEnvListAndSelect(loadedEnvName);
+        EnvironmentWindowPlacement.placeBeforeShow(stage, owner);
         stage.showAndWait();
     }
 }

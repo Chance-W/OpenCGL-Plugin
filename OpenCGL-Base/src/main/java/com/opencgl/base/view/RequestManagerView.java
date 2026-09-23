@@ -45,6 +45,7 @@ public class RequestManagerView extends VBox {
     }
 
     public void setCollectionView(Node view) {
+        com.opencgl.base.utils.tree.TreeViewState.transferCollections(collectionTab.getContent(), view);
         collectionTab.setContent(view);
     }
 

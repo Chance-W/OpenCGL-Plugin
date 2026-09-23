@@ -102,6 +102,7 @@ public final class SolaceToolView implements AutoCloseable {
     private final SolaceListenerService listener = new SolaceListenerService(new JcsmpRuntimeFactory(), 2_000);
     private final StackPane root = new StackPane();
     private TreeView<SolaceTreeNode> tree;
+    private TreeViewBuilder<SolaceTreeNode> treeBuilder;
     private final TextField treeSearch = new TextField();
     private final SolaceTreeService treeService;
     private final BorderPane editor = new BorderPane();
@@ -144,7 +145,7 @@ public final class SolaceToolView implements AutoCloseable {
     }
 
     private Node buildNavigation() {
-        VBox treeViewContainer = new TreeViewBuilder<SolaceTreeNode>()
+        treeBuilder = new TreeViewBuilder<SolaceTreeNode>()
             .service(treeService)
             .dataType(SolaceTreeNode.class)
             .data(treeService.queryAll())
@@ -157,14 +158,14 @@ public final class SolaceToolView implements AutoCloseable {
                 if (value.getId() == null || value.getId() == 0L) return;
                 selected = value;
                 showSelected();
-            })
-            .build();
+            });
+        VBox treeViewContainer = treeBuilder.build();
 
         treeSearch.setPromptText("搜索节点。。。");
         treeSearch.getStyleClass().add("tree-search-field");
         treeSearch.setMaxWidth(Double.MAX_VALUE);
         treeSearch.setPrefHeight(30);
-        treeSearch.textProperty().addListener((observable, oldValue, newValue) -> rebuildTree());
+        treeSearch.textProperty().addListener((observable, oldValue, newValue) -> treeBuilder.search(newValue));
         VBox collections = new VBox(5, buildTreeToolbar(), treeSearch, treeViewContainer);
         VBox.setVgrow(treeViewContainer, Priority.ALWAYS);
         RequestManagerView requestManager = new RequestManagerView();
@@ -238,16 +239,16 @@ public final class SolaceToolView implements AutoCloseable {
         return toolbar;
     }
 
-    private Button iconButton(String icon, String tooltip, javafx.event.EventHandler<javafx.scene.input.MouseEvent> action) {
+    private Button iconButton(String icon, String tooltip, javafx.event.EventHandler<javafx.event.ActionEvent> action) {
         Button button = new Button();
         button.setGraphic(new MFXFontIcon(icon, 16));
         button.setTooltip(new Tooltip(tooltip));
         button.getStyleClass().add("icon-button");
-        button.setOnMouseClicked(action);
+        button.setOnAction(action);
         return button;
     }
 
-    private Button addSource(javafx.scene.input.MouseEvent event) { return (Button) event.getSource(); }
+    private Button addSource(javafx.event.ActionEvent event) { return (Button) event.getSource(); }
 
     private void showAddMenu(Button owner) {
         ContextMenu menu = new ContextMenu();
@@ -422,27 +423,7 @@ public final class SolaceToolView implements AutoCloseable {
 
     private void rebuildTree() {
         if (tree == null) return;
-        SolaceTreeNode rootNode = new SolaceTreeNode();
-        rootNode.setId(0L);
-        rootNode.setParentId(-1L);
-        rootNode.setName("数据列表");
-        rootNode.setNodeType(SolaceNodeType.DIRECTORY);
-        rootNode.setIsLeaf(false);
-        TreeItem<SolaceTreeNode> rootItem = new CustomizeTreeItem<>(rootNode);
-        List<SolaceTreeNode> visibleNodes = treeService.query(treeSearch.getText());
-        Map<Long, TreeItem<SolaceTreeNode>> items = new LinkedHashMap<>();
-        for (SolaceTreeNode node : visibleNodes) items.put(node.getId(), new CustomizeTreeItem<>(node));
-        for (SolaceTreeNode node : visibleNodes) {
-            TreeItem<SolaceTreeNode> item = items.get(node.getId());
-            TreeItem<SolaceTreeNode> parent = node.getParentId() == null || node.getParentId() == 0L
-                ? rootItem : items.get(node.getParentId());
-            (parent == null ? rootItem : parent).getChildren().add(item);
-        }
-        rootItem.setExpanded(true);
-        rootItem.getChildren().forEach(item -> item.setExpanded(true));
-        tree.setRoot(rootItem);
-        tree.refresh();
-        tree.requestLayout();
+        treeBuilder.refresh();
         Long selectedId = selected == null ? null : selected.getId();
         if (selectedId != null) Platform.runLater(() -> select(selectedId));
     }

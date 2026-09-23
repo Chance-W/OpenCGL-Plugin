@@ -36,6 +36,7 @@ public final class NodeSearchController implements AutoCloseable {
                                 Button clear, Label status, ProgressIndicator progress,
                                 Supplier<NodeSearch.ChildrenReader> reader, Consumer<TreeItem<String>> open) {
         this.tree = tree; this.input = input; this.all = all; this.cancel = cancel;
+        com.opencgl.base.utils.tree.TreeViewPresentation.install(tree);
         this.status = status; this.progress = progress; this.reader = reader; this.open = open;
         input.promptTextProperty().bind(I18N.getBinding("search.placeholder"));
         all.textProperty().bind(I18N.getBinding("search.all"));

@@ -13,7 +13,28 @@
     <name>HTTP请求调试器</name>
     <description>类似Postman的HTTP请求调试工具</description>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration><systemPropertyVariables><user.home>${project.build.directory}/test-home</user.home></systemPropertyVariables></configuration>
+            </plugin>
+        </plugins>
+    </build>
     <dependencies>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.14.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.2</version>
+            <scope>test</scope>
+        </dependency>
         <!-- 插件API -->
         <dependency>
             <groupId>com.opencgl</groupId>

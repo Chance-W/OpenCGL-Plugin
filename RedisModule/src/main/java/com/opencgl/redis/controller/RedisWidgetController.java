@@ -42,6 +42,7 @@ public class RedisWidgetController extends RedisWidgetView
 
     // 使用 TreeViewBuilder 构建的 TreeView
     private TreeView<RedisWidgetDto> redisTreeView;
+    private TreeViewBuilder<RedisWidgetDto> connectionTreeBuilder;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -90,22 +91,26 @@ public class RedisWidgetController extends RedisWidgetView
     }
 
     private void loadConnections() {
+        if (connectionTreeBuilder != null) {
+            connectionTreeBuilder.refresh();
+            return;
+        }
         // 使用 TreeViewBuilder 构建 TreeView（参考 DubboWidgetController）
-        VBox redisVbox = new TreeViewBuilder<RedisWidgetDto>()
+        connectionTreeBuilder = new TreeViewBuilder<RedisWidgetDto>()
                 .onTreeCreated(tree -> this.redisTreeView = tree)
                 .service(this)
                 .dataType(RedisWidgetDto.class)
                 .enableDragDrop(true)
                 .showRoot(false)
-                .contextMenuFactory(dto -> buildContextMenu(dto))
-                .build();
+                .contextMenuFactory(dto -> buildContextMenu(dto));
+        VBox redisVbox = connectionTreeBuilder.build();
 
         // 替换 FXML 中的 connectionTree
         if (connectionTree.getParent() instanceof VBox parentVBox) {
             int index = parentVBox.getChildren().indexOf(connectionTree);
             if (index >= 0) {
                 parentVBox.getChildren().set(index, redisTreeView);
-                javafx.scene.layout.VBox.setVgrow(redisVbox, javafx.scene.layout.Priority.ALWAYS);
+                javafx.scene.layout.VBox.setVgrow(redisTreeView, javafx.scene.layout.Priority.ALWAYS);
             }
         }
 

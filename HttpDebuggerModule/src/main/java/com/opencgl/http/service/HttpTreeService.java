@@ -14,28 +14,20 @@ public class HttpTreeService implements TreeOperateService<HttpTreeItem> {
     private final HttpTreeItemRepository repository;
     
     public HttpTreeService() {
-        this.repository = new HttpTreeItemRepositoryImpl();
+        this(new HttpTreeItemRepositoryImpl());
+    }
+
+    HttpTreeService(HttpTreeItemRepository repository) {
+        this.repository = java.util.Objects.requireNonNull(repository);
     }
     
     @Override
     public CustomizeTreeItem<HttpTreeItem> add(HttpTreeItem item) {
-        // Ensure node_type is set based on isLeaf if not already set
-        if (item.getNodeType() == null) {
-            if (Boolean.TRUE.equals(item.getIsLeaf())) {
-                item.setNodeType(HttpTreeItem.TYPE_REQUEST);
-                // Set default values for requests
-                if (item.getMethod() == null) {
-                    item.setMethod("GET");
-                }
-                if (item.getUrl() == null) {
-                    item.setUrl("");
-                }
-                if (item.getTimeout() == null) {
-                    item.setTimeout(30000);
-                }
-            } else {
-                item.setNodeType(HttpTreeItem.TYPE_FOLDER);
-            }
+        normalizeForWrite(item);
+        if (Boolean.TRUE.equals(item.getIsLeaf())) {
+            if (item.getMethod() == null) item.setMethod("GET");
+            if (item.getUrl() == null) item.setUrl("");
+            if (item.getTimeout() == null) item.setTimeout(30000);
         }
         return new CustomizeTreeItem<>(repository.save(item));
     }
@@ -53,6 +45,7 @@ public class HttpTreeService implements TreeOperateService<HttpTreeItem> {
     
     @Override
     public CustomizeTreeItem<HttpTreeItem> update(HttpTreeItem item) {
+        normalizeForWrite(item);
         repository.save(item);
         return new CustomizeTreeItem<>(item);
     }
@@ -65,19 +58,7 @@ public class HttpTreeService implements TreeOperateService<HttpTreeItem> {
     @Override
     public List<HttpTreeItem> queryAll() {
         List<HttpTreeItem> items = repository.findAll();
-        // Older records may have an out-of-date is_leaf flag.  The HTTP
-        // module already persists an explicit node type, so normalize the
-        // display flag from that authoritative value before TreeViewBuilder
-        // creates CustomizeTreeItem (which uses is_leaf for the disclosure
-        // arrow).  This keeps the fix scoped to HTTP and works with older
-        // Base JARs that do not support a custom TreeItem factory.
-        for (HttpTreeItem item : items) {
-            if (HttpTreeItem.TYPE_REQUEST.equals(item.getNodeType())) {
-                item.setIsLeaf(true);
-            } else if (HttpTreeItem.TYPE_FOLDER.equals(item.getNodeType())) {
-                item.setIsLeaf(false);
-            }
-        }
+        items.forEach(this::normalizeForRead);
         return items;
     }
     
@@ -113,10 +94,31 @@ public class HttpTreeService implements TreeOperateService<HttpTreeItem> {
      * 根据ID查询节点
      */
     public HttpTreeItem queryById(Long id) {
-        return repository.findById(id).orElse(null);
+        HttpTreeItem item = repository.findById(id).orElse(null);
+        if (item != null) normalizeForRead(item);
+        return item;
     }
     
     public HttpTreeItem save(HttpTreeItem item) {
+        normalizeForWrite(item);
         return repository.save(item);
+    }
+
+    public void updateEnvironment(Long id, String name) {
+        repository.updateEnvironment(id, name == null || EnvironmentService.DEFAULT_ENV_NAME.equals(name) ? null : name);
+    }
+
+    private void normalizeForRead(HttpTreeItem item) {
+        if (item.getIsLeaf() == null) {
+            item.setIsLeaf(HttpTreeItem.TYPE_REQUEST.equals(item.getNodeType()));
+        } else if (item.getNodeType() != null && !item.getNodeType().equals(
+                Boolean.TRUE.equals(item.getIsLeaf()) ? HttpTreeItem.TYPE_REQUEST : HttpTreeItem.TYPE_FOLDER)) {
+            logger.warn("HTTP tree id={} has conflicting node_type/is_leaf; using is_leaf without rewriting storage", item.getId());
+        }
+    }
+
+    private void normalizeForWrite(HttpTreeItem item) {
+        normalizeForRead(item);
+        item.setNodeType(Boolean.TRUE.equals(item.getIsLeaf()) ? HttpTreeItem.TYPE_REQUEST : HttpTreeItem.TYPE_FOLDER);
     }
 }

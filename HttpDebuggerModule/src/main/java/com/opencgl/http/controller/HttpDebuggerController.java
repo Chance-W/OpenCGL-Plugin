@@ -30,7 +30,6 @@ import com.opencgl.http.views.HttpDebuggerView;
 import com.opencgl.http.model.HttpTreeItem;
 import com.opencgl.http.service.HttpDebuggerHistoryService;
 import com.opencgl.http.service.HttpTreeService;
-import com.opencgl.http.ui.HttpTreeItemTreeItem;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -79,8 +78,6 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.lang.reflect.Method;
-import java.util.function.Function;
 import java.util.concurrent.Future;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -94,7 +91,6 @@ import javafx.geometry.Insets;
 import com.opencgl.http.service.CodeGeneratorService;
 import com.opencgl.base.theme.ThemeManager;
 import com.opencgl.base.utils.DialogUtil;
-import com.opencgl.base.ViewControllerUtil.ThemeSwitchUtil;
 import com.opencgl.base.utils.i18n.BaseI18N;
 import com.opencgl.http.i18n.I18N;
 import javafx.stage.FileChooser;
@@ -118,6 +114,7 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
     private HttpClientService httpClientService;
     private JsonFormatterService jsonFormatterService;
     private EnvironmentService environmentService;
+    private boolean restoringEnvironment;
     private CodeGeneratorService codeGeneratorService;
     private HttpTreeService treeService;
     private ScriptEngineManager scriptEngineManager;
@@ -141,6 +138,28 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
     private TreeView<HttpTreeItem> treeView;
     private final ObjectProperty<HttpResponseModel> currentResponseProperty = new SimpleObjectProperty<>();
     private HttpResponseModel currentResponse;
+    private HttpHistoryItem selectedHistoryItem;
+    private void setupWorkspaceLayout() {
+        var sidebar = new StackPane(requestManager.getTabPane());
+        sidebar.setMinWidth(220);
+        sidebar.setPrefWidth(260);
+        contentArea.setMinWidth(300);
+        mainStackPane.getChildren().remove(contentArea);
+        var split = new SplitPane(sidebar, contentArea);
+        split.setId("workspaceSplit");
+        SplitPane.setResizableWithParent(sidebar, false);
+        // Set only the initial width; subsequent resizes preserve the user's drag position.
+        split.widthProperty().addListener(new javafx.beans.value.ChangeListener<Number>() {
+            @Override public void changed(javafx.beans.value.ObservableValue<? extends Number> value,
+                                          Number oldWidth, Number width) {
+                if (width.doubleValue() > 0) {
+                    split.setDividerPositions(260 / width.doubleValue());
+                    split.widthProperty().removeListener(this);
+                }
+            }
+        });
+        mainStackPane.getChildren().add(split);
+    }
     // 保存当前响应以便格式化
 
     @Override
@@ -167,8 +186,7 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
         setupTreeView();
         setupHistoryUI();
 
-        // NOW inject the layout with ThemeSwitchUtil (after tabs are filled)
-        ThemeSwitchUtil.treeStyleSwitch(mainStackPane, contentArea, requestManager.getTabPane());
+        setupWorkspaceLayout();
 
         // Initialize I18n
         initI18n();
@@ -182,7 +200,9 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
 
     private void initI18n() {
         // Toolbar
-        proxyButton.textProperty().bind(I18N.getBinding("button.proxy"));
+        updateProxyPresentation(false);
+        manageEnvButton.textProperty().bind(I18N.getBinding("button.manage_env"));
+        restoreHistoryButton.textProperty().bind(I18N.getBinding("button.restore_history"));
         importButton.textProperty().bind(I18N.getBinding("button.import"));
 
         // Request Line
@@ -321,9 +341,7 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
         // Init Proxy Button Style
         if (proxyButton != null) {
             ProxyConfig currentProxy = httpClientService.getProxyConfigService().getConfig();
-            if (currentProxy != null && currentProxy.isEnabled()) {
-                proxyButton.setStyle("-fx-base: #ffeb3b");
-            }
+            updateProxyPresentation(currentProxy != null && currentProxy.isEnabled());
             proxyButton.setOnAction(e -> showProxyDialog());
         }
 
@@ -392,9 +410,7 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
         }
 
         try {
-            // Use TreeViewBuilder. The factory API was added after older host
-            // releases; configure it reflectively so this plugin still loads
-            // with an older Base JAR and falls back to the default tree item.
+            // Shared tree items use is_leaf; no HTTP-specific leaf implementation.
             TreeViewBuilder<HttpTreeItem> treeBuilder = new TreeViewBuilder<HttpTreeItem>()
                 .service(treeService)
                 .dataType(HttpTreeItem.class)
@@ -403,16 +419,6 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
                 .enableDragDrop(true)
                 .enableToolbar(true) // Enable Toolbar
                 .locateTargetSupplier(() -> this.currentTreeItem); // Enable Locate
-
-            try {
-                Method factoryMethod = TreeViewBuilder.class.getMethod("treeItemFactory", Function.class);
-                Function<HttpTreeItem, CustomizeTreeItem<HttpTreeItem>> factory = HttpTreeItemTreeItem::new;
-                factoryMethod.invoke(treeBuilder, factory);
-            } catch (NoSuchMethodException e) {
-                logger.debug("旧版 Base 不支持 treeItemFactory，使用默认树节点渲染", e);
-            } catch (ReflectiveOperationException e) {
-                logger.warn("配置 HTTP 树节点渲染器失败，使用默认树节点", e);
-            }
 
             VBox treeViewContainer = treeBuilder
                 .onSelect(this::onTreeNodeSelected)
@@ -527,12 +533,21 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
     }
 
     private void onTreeNodeSelected(HttpTreeItem item) {
-        if (item == null || item.isFolder())
+        if (item == null || !Boolean.TRUE.equals(item.getIsLeaf())) {
             return;
+        }
 
+        // Tree rebuilds and editor refreshes can leave different DTO instances for
+        // the same ID. Never restore request content from an old tree snapshot.
+        HttpTreeItem latest = treeService.queryById(item.getId());
+        if (latest == null) {
+            showError(I18N.get("msg.request_missing"));
+            return;
+        }
+        item.copyFrom(latest);
         currentTreeItem = item;
 
-        if (HttpTreeItem.TYPE_REQUEST.equals(item.getNodeType())) {
+        if (Boolean.TRUE.equals(item.getIsLeaf())) {
             hideHistoryDetail();
             emptyState.setVisible(false);
             requestPanel.setVisible(true);
@@ -545,6 +560,8 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
     }
 
     private void loadRequest(HttpTreeItem item) {
+        applyEnvironmentSelection(item.getEnvironmentName());
+        resetBulkEditorModes();
         methodComboBox.setValue(item.getMethod() != null ? item.getMethod() : "GET");
         urlField.setText(item.getUrl());
 
@@ -673,9 +690,23 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
         }
     }
 
-    private void saveRequest() {
-        if (currentTreeItem == null)
-            return;
+    private boolean saveRequest() {
+        if (currentTreeItem == null) {
+            showError(I18N.get("msg.request_missing"));
+            return false;
+        }
+        try {
+            persistCurrentRequest();
+        } catch (Exception e) {
+            logger.error("Failed to save HTTP request id={}", currentTreeItem.getId(), e);
+            showError(I18N.get("msg.save_failed"));
+            return false;
+        }
+        TooltipUtil.showToast(contentArea, I18N.get("msg.save_success"));
+        return true;
+    }
+
+    private void persistCurrentRequest() {
 
         flushBulkEditors();
 
@@ -735,8 +766,24 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
 
         // Update Tree Item in DB
         treeService.update(currentTreeItem);
-        TooltipUtil.showToast(contentArea, I18N.get("msg.save_success"));
+        syncSavedTreeItem();
         logger.info("Saved request: {}", currentTreeItem.getName());
+    }
+
+    private void syncSavedTreeItem() {
+        if (treeView == null || treeView.getRoot() == null) return;
+        var pending = new java.util.ArrayDeque<TreeItem<HttpTreeItem>>();
+        pending.add(treeView.getRoot());
+        while (!pending.isEmpty()) {
+            var node = pending.removeFirst();
+            var value = node.getValue();
+            if (value != null && java.util.Objects.equals(value.getId(), currentTreeItem.getId())) {
+                value.copyFrom(currentTreeItem);
+                currentTreeItem = value;
+                return;
+            }
+            pending.addAll(node.getChildren());
+        }
     }
 
     private TextField findAuthField(String key) {
@@ -769,11 +816,26 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
     }
 
     private void flushBulkEditors() {
+        // CommitOnBlurTableCell commits cancelEdit too; explicit flush also covers keyboard Send.
+        paramsTable.edit(-1, null);
+        headersTable.edit(-1, null);
+        bodyFormTable.edit(-1, null);
         if (paramsBulkEditor != null && paramsBulkEditor.isVisible()) {
             paramsData.setAll(parseBulkText(paramsBulkEditor.getText()));
         }
         if (formBulkEditor != null && formBulkEditor.isVisible()) {
             bodyFormData.setAll(parseBulkText(formBulkEditor.getText()));
+        }
+    }
+
+    private void resetBulkEditorModes() {
+        // Commit before replacing the model, then stop stale bulk text overwriting the new request.
+        flushBulkEditors();
+        if (paramsBulkEditor.isVisible()) {
+            toggleBulkEdit(paramsBulkEditBtn, addParamButton, paramsTable, paramsBulkEditor, paramsData);
+        }
+        if (formBulkEditor.isVisible()) {
+            toggleBulkEdit(formBulkEditBtn, addFormFieldButton, bodyFormTable, formBulkEditor, bodyFormData);
         }
     }
 
@@ -811,6 +873,9 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
                                     TableColumn<KeyValueEntry, String> valueCol,
                                     ObservableList<KeyValueEntry> data) {
         table.setEditable(true);
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+        enabledCol.setMinWidth(40);
+        enabledCol.setMaxWidth(40);
         table.setItems(data);
 
         enabledCol.setCellFactory(col -> new TableCell<>() {
@@ -865,7 +930,8 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
 
         // Add Delete Column
         TableColumn<KeyValueEntry, Void> deleteCol = new TableColumn<>("");
-        deleteCol.setPrefWidth(30);
+        deleteCol.setMinWidth(32);
+        deleteCol.setMaxWidth(32);
         deleteCol.setSortable(false);
         deleteCol.setCellFactory(col -> new TableCell<>() {
             private final Button deleteBtn = new Button("×");
@@ -1025,6 +1091,7 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
      * 设置 Form TableView
      */
     private void setupBodyFormTable() {
+        bodyFormTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         bodyFormTable.setItems(bodyFormData);
         bodyFormTable.setEditable(true);
 
@@ -1046,7 +1113,8 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
 
         // Add Delete Column
         TableColumn<KeyValueEntry, Void> deleteCol = new TableColumn<>("");
-        deleteCol.setPrefWidth(30);
+        deleteCol.setMinWidth(32);
+        deleteCol.setMaxWidth(32);
         deleteCol.setSortable(false);
         deleteCol.setCellFactory(col -> new TableCell<>() {
             private final Button deleteBtn = new Button("×");
@@ -1089,6 +1157,7 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
         bodyTypeGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
             if (newToggle == null)
                 return;
+            flushBulkEditors();
 
             RadioButton selected = (RadioButton) newToggle;
             boolean isFormType = selected == bodyFormRadio;
@@ -1116,14 +1185,12 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
 
                 // Disable editor if None
                 bodyEditor.setDisable(isNone);
-                if (isNone) {
-                    bodyEditor.replaceText("");
-                }
             }
 
             // Toolbar visibility
             if (bodyFormatToolbar != null) {
                 bodyFormatToolbar.setVisible(isJsonOrXml);
+                bodyFormatToolbar.setManaged(isJsonOrXml);
             }
             else {
                 compactBodyButton.setVisible(isJsonOrXml);
@@ -1216,8 +1283,16 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
     }
 
     private void bindEvents() {
+        configureRemoveButton(removeParamButton, paramsTable);
+        configureRemoveButton(removeHeaderButton, headersTable);
+        configureRemoveButton(removeFormButton, bodyFormTable);
         sendButton.setOnAction(e -> sendRequest());
         saveButton.setOnAction(e -> saveRequest());
+        restoreHistoryButton.setOnAction(e -> {
+            if (selectedHistoryItem != null) {
+                restoreHistoryItem(selectedHistoryItem);
+            }
+        });
 
         addParamButton.setOnAction(e -> paramsData.add(new KeyValueEntry()));
         addHeaderButton.setOnAction(e -> headersData.add(new KeyValueEntry()));
@@ -1271,6 +1346,20 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
 
     // --- History UI Methods ---
 
+    private void configureRemoveButton(Button button, TableView<KeyValueEntry> table) {
+        button.textProperty().bind(I18N.getBinding("button.remove_selected"));
+        table.getSelectionModel().setSelectionMode(javafx.scene.control.SelectionMode.MULTIPLE);
+        button.disableProperty().bind(javafx.beans.binding.Bindings.isEmpty(table.getSelectionModel().getSelectedItems()));
+        button.visibleProperty().bind(table.visibleProperty());
+        button.managedProperty().bind(button.visibleProperty());
+        button.setOnAction(e -> {
+            table.edit(-1, null);
+            var selected = new java.util.ArrayList<>(table.getSelectionModel().getSelectedItems());
+            selected.removeIf(KeyValueEntry::isReadOnly);
+            table.getItems().removeAll(selected);
+        });
+    }
+
     private void setupHistoryUI() {
         if (requestManager == null)
             return;
@@ -1279,13 +1368,12 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
             .service(historyService)
             .cellDisplay(config -> config
                 .primaryText(item -> item.getMethod() + " " + item.getUrl())
-                .secondaryText(item -> item.getId() != null ? item.getId() : "")
+                .secondaryText(item -> item.getDuration() != null ? item.getDuration() + " ms" : "")
                 .badgeText(item -> item.getStatusCode() != null ? String.valueOf(item.getStatusCode()) : "")
                 .timestampField(HttpHistoryItem::getRequestTime))
             .onSelect(this::onHistorySelected)
             .restoreAction(item -> {
                 restoreHistoryItem(item);
-                hideHistoryDetail();
             })
             .build();
 
@@ -1307,6 +1395,8 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
             return;
         }
         StringBuilder sb = new StringBuilder();
+        selectedHistoryItem = item;
+        restoreHistoryButton.setDisable(false);
         appendHistoryDetail(sb, "Method", item.getMethod());
         appendHistoryDetail(sb, "Url", item.getUrl());
         appendHistoryDetail(sb, "StatusCode", item.getStatusCode());
@@ -1514,6 +1604,7 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
             }
 
             // Restore UI fields
+            resetBulkEditorModes();
             methodComboBox.setValue(req.getMethod());
             urlField.setText(req.getUrl());
 
@@ -1537,6 +1628,12 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
             // HttpRequestModel usually has setBodyType. If not, raw.
             if (req.getBodyType() != null) {
                 switch (req.getBodyType()) {
+                    case "NONE":
+                        bodyNoneRadio.setSelected(true);
+                        break;
+                    case "XML":
+                        bodyXmlRadio.setSelected(true);
+                        break;
                     case "JSON":
                         bodyJsonRadio.setSelected(true);
                         break;
@@ -1569,6 +1666,8 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
             }
 
             // Switch to Request View
+            historyDetailPane.setVisible(false);
+            historyDetailPane.setManaged(false);
             if (requestPanel != null) {
                 requestPanel.setVisible(true);
                 requestPanel.setManaged(true);
@@ -1673,10 +1772,11 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
             // 从数据库重新加载当前节点的数据
             HttpTreeItem refreshed = treeService.queryById(currentTreeItem.getId());
             if (refreshed != null) {
-                currentTreeItem = refreshed;
+                currentTreeItem.copyFrom(refreshed);
+                syncSavedTreeItem();
                 // 重新加载到UI
-                if (HttpTreeItem.TYPE_REQUEST.equals(refreshed.getNodeType())) {
-                    loadRequest(refreshed);
+                if (Boolean.TRUE.equals(refreshed.getIsLeaf())) {
+                    loadRequest(currentTreeItem);
                     logger.info("Refreshed request: {}", refreshed.getName());
                 }
             }
@@ -1951,7 +2051,7 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
         // 并且直接使用 currentTreeItem 作为源，因为它包含了最新的内存状态
         HttpTreeItem original;
         if (currentTreeItem != null && selectedItem.getValue().getId().equals(currentTreeItem.getId())) {
-            saveRequest();
+            if (!saveRequest()) return;
             // saveRequest updates currentTreeItem in memory
             original = currentTreeItem;
         }
@@ -1982,7 +2082,7 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
             copy.setSortOrder(original.getSortOrder() != null ? original.getSortOrder() + 1 : 0);
 
             // 复制请求配置（如果是请求节点）
-            if (HttpTreeItem.TYPE_REQUEST.equals(original.getNodeType())) {
+            if (Boolean.TRUE.equals(original.getIsLeaf())) {
                 copy.setMethod(original.getMethod());
                 copy.setUrl(original.getUrl());
                 copy.setHeaders(original.getHeaders());
@@ -2215,6 +2315,7 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
     }
 
     private void sendRequest() {
+        flushBulkEditors();
         // UI Loading State
         loadingMask.show(contentArea);
         sendButton.setDisable(true);
@@ -2300,7 +2401,7 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
                 }
             }
             else {
-                String rawBody = FormatVariableUtil.format(bodyEditor.getNonAnnotationText());
+                String rawBody = "NONE".equals(type) ? "" : FormatVariableUtil.format(bodyEditor.getNonAnnotationText());
                 requestModel.setBody(environmentService.substitute(rawBody));
             }
 
@@ -2423,31 +2524,39 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
     // --- Environment Management ---
 
     private void setupEnvironmentUI() {
-        // Assume envComboBox and manageEnvButton are injected.
-        // If they are null (old FXML), we might need to inject them into the layout
-        // dynamically.
-        // For safety, check null.
-        if (envComboBox == null) {
-            envComboBox = new ComboBox<>();
-            // Hack: Try to add to top layout if possible, or just fail gracefully
-            if (methodComboBox != null && methodComboBox.getParent() instanceof HBox) {
-                HBox topBar = (HBox) methodComboBox.getParent();
-                topBar.getChildren().add(topBar.getChildren().indexOf(urlField) + 1, envComboBox);
-
-                manageEnvButton = new Button("Env");
-                manageEnvButton.setOnAction(e -> manageEnvironments());
-                topBar.getChildren().add(topBar.getChildren().indexOf(envComboBox) + 1, manageEnvButton);
-            }
-        }
+        manageEnvButton.setOnAction(e -> manageEnvironments());
 
         if (envComboBox != null) {
             refreshEnvCombo();
             envComboBox.valueProperty().addListener((obs, old, val) -> {
-                environmentService.setCurrentEnvName(val);
+                if (restoringEnvironment) return;
+                if (currentTreeItem == null || !Boolean.TRUE.equals(currentTreeItem.getIsLeaf())) {
+                    applyEnvironmentSelection(null);
+                    return;
+                }
+                String previous = currentTreeItem.getEnvironmentName();
+                try {
+                    treeService.updateEnvironment(currentTreeItem.getId(), val);
+                    currentTreeItem.setEnvironmentName(EnvironmentService.DEFAULT_ENV_NAME.equals(val) ? null : val);
+                    environmentService.setCurrentEnvName(val);
+                    syncSavedTreeItem();
+                } catch (Exception e) {
+                    logger.error("Failed to save HTTP request environment", e);
+                    applyEnvironmentSelection(previous);
+                    showError(I18N.get("msg.environment_save_failed"));
+                }
             });
-            // Auto Select current
-            envComboBox.getSelectionModel().select(environmentService.getCurrentEnvName());
         }
+    }
+
+    private void applyEnvironmentSelection(String name) {
+        String effective = name != null && envComboBox != null && envComboBox.getItems().contains(name)
+                ? name : EnvironmentService.DEFAULT_ENV_NAME;
+        restoringEnvironment = true;
+        try {
+            if (envComboBox != null) envComboBox.setValue(effective);
+            if (environmentService != null) environmentService.setCurrentEnvName(effective);
+        } finally { restoringEnvironment = false; }
     }
 
     private void refreshEnvCombo() {
@@ -2455,7 +2564,16 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
             // "None" 仅表示未配置，放在首位，不进入环境配置列表
             List<String> names = new ArrayList<>(environmentService.getEnvironmentNames());
             names.add(0, com.opencgl.http.service.EnvironmentService.DEFAULT_ENV_NAME);
-            envComboBox.setItems(FXCollections.observableArrayList(names));
+            restoringEnvironment = true;
+            try { envComboBox.setItems(FXCollections.observableArrayList(names)); }
+            finally { restoringEnvironment = false; }
+            String stored = null;
+            if (currentTreeItem != null && treeService != null) {
+                HttpTreeItem persisted = treeService.queryById(currentTreeItem.getId());
+                stored = persisted == null ? null : persisted.getEnvironmentName();
+                currentTreeItem.setEnvironmentName(stored);
+            }
+            applyEnvironmentSelection(stored);
         }
     }
 
@@ -2552,14 +2670,14 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
 
         dialog.showAndWait().ifPresent(config -> {
             proxyService.saveConfig(config);
-            // Visual feedback?
-            if (config.isEnabled()) {
-                proxyButton.setStyle("-fx-base: #ffeb3b"); // Highlight if active
-            }
-            else {
-                proxyButton.setStyle("");
-            }
+            updateProxyPresentation(config.isEnabled());
         });
+    }
+
+    private void updateProxyPresentation(boolean enabled) {
+        proxyButton.textProperty().unbind();
+        proxyButton.textProperty().bind(I18N.getBinding(enabled ? "button.proxy_enabled" : "button.proxy"));
+        proxyButton.pseudoClassStateChanged(javafx.css.PseudoClass.getPseudoClass("proxy-enabled"), enabled);
     }
 
     private void setupResponsePreview() {
@@ -2639,24 +2757,13 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
     // --- Code Generation ---
 
     private void setupCodeGeneratorUI() {
-        if (codeButton == null) {
-            codeButton = new Button(I18N.get("button.code"));
-            // Insert into top bar if possible
-            if (saveButton != null && saveButton.getParent() instanceof HBox) {
-                HBox topBar = (HBox) saveButton.getParent();
-                int idx = topBar.getChildren().indexOf(saveButton);
-                if (idx != -1) {
-                    topBar.getChildren().add(idx + 1, codeButton);
-                }
-            }
-        }
-
         if (codeButton != null) {
             codeButton.setOnAction(e -> showCodeDialog());
         }
     }
 
     private void showCodeDialog() {
+        flushBulkEditors();
         HttpRequestModel requestModel = new HttpRequestModel();
         // Populate request model similar to sendRequest, but WITHOUT substitution for
         // raw code gen
@@ -2691,7 +2798,7 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
             requestModel.setBody(formContent);
         }
         else {
-            requestModel.setBody(environmentService.substitute(bodyEditor.getNonAnnotationText()));
+            requestModel.setBody("NONE".equals(type) ? "" : environmentService.substitute(bodyEditor.getNonAnnotationText()));
         }
 
         // Get current proxy config
@@ -2850,7 +2957,7 @@ public class HttpDebuggerController extends HttpDebuggerView implements Initiali
                     else if (selectedTab == swaggerTab) {
                         if (selectedFile[0] != null) {
                             Long parentId = currentTreeItem != null
-                                ? (currentTreeItem.getNodeType().equals(HttpTreeItem.TYPE_FOLDER)
+                                ? (Boolean.FALSE.equals(currentTreeItem.getIsLeaf())
                                 ? currentTreeItem.getId()
                                 : currentTreeItem.getParentId())
                                 : 0L;

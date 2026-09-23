@@ -1,0 +1,18 @@
+/* Opt-in tree presentation; all colors inherit the host's light/dark/custom theme. */
+.opencgl-tree .tree-cell {
+    -fx-border-width: 0 0 0 3px;
+    -fx-border-color: transparent;
+    -fx-border-insets: 0;
+}
+.opencgl-tree .tree-cell:filled:selected {
+    -fx-background-color: -theme-selected-bg;
+    -fx-text-fill: -theme-selected-text;
+    -fx-border-color: transparent transparent transparent -theme-accent;
+}
+.opencgl-tree:focused .tree-cell:filled:selected {
+    -fx-background-color: -theme-accent;
+    -fx-text-fill: -theme-text-inverse;
+}
+.opencgl-tree:focused .tree-cell:filled:selected > .tree-disclosure-node > .arrow {
+    -fx-background-color: -theme-text-inverse;
+}

@@ -78,6 +78,7 @@ public class DbBatchController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        com.opencgl.base.utils.tree.TreeViewPresentation.install(taskTree);
         initUI();
         loadTree();
         initI18n();

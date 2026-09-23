@@ -11,6 +11,38 @@ import java.sql.Timestamp;
  */
 public class HttpTreeItem extends BaseDataDto {
 
+    /** Refresh in place so the tree and editor retain the same request identity. */
+    public void copyFrom(HttpTreeItem source) {
+        setId(source.getId());
+        setParentId(source.getParentId());
+        setName(source.getName());
+        setIsLeaf(source.getIsLeaf());
+        setSortOrder(source.getSortOrder());
+        nodeType = source.nodeType;
+        iconName = source.iconName;
+        description = source.description;
+        method = source.method;
+        url = source.url;
+        headers = source.headers;
+        params = source.params;
+        body = source.body;
+        bodyType = source.bodyType;
+        authConfig = source.authConfig;
+        hookScript = source.hookScript;
+        timeout = source.timeout;
+        sslVerification = source.sslVerification;
+        followRedirects = source.followRedirects;
+        clientCertPath = source.clientCertPath;
+        clientCertPass = source.clientCertPass;
+        serverCertPath = source.serverCertPath;
+        serverCertPass = source.serverCertPass;
+        lastResponse = source.lastResponse;
+        lastStatusCode = source.lastStatusCode;
+        createdAt = source.createdAt;
+        updatedAt = source.updatedAt;
+        environmentName = source.environmentName;
+    }
+
     public String getNodeType() { return nodeType; }
     public String getIconName() { return iconName; }
     public String getDescription() { return description; }
@@ -43,6 +75,10 @@ public class HttpTreeItem extends BaseDataDto {
 
     // Getters and Setters
     private String nodeType;
+    private String environmentName;
+
+    public String getEnvironmentName() { return environmentName; }
+    public void setEnvironmentName(String environmentName) { this.environmentName = environmentName; }
     private String iconName;
     private String description;
     

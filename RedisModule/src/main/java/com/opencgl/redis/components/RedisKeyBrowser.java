@@ -3,6 +3,7 @@ package com.opencgl.redis.components;
 import com.opencgl.redis.model.RedisKeyInfo;
 import com.opencgl.redis.service.RedisConnectionManager;
 import com.opencgl.redis.i18n.I18N;
+import com.opencgl.base.utils.tree.TreeViewState;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -38,6 +39,9 @@ public class RedisKeyBrowser extends SplitPane {
     private final Map<String, TreeItem<String>> keyNodes = new HashMap<>();
     private long loadGeneration;
     private boolean disposed;
+    private TreeViewState<String, String> pendingTreeState;
+    private TreeViewState<String, String> beforeKeySearch;
+    private List<Object> treeNamespace;
 
     public RedisKeyBrowser(RedisConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
@@ -74,6 +78,7 @@ public class RedisKeyBrowser extends SplitPane {
 
         // Key 树
         keyTree = new TreeView<>();
+        com.opencgl.base.utils.tree.TreeViewPresentation.install(keyTree);
         keyTree.setRoot(new TreeItem<>("Keys"));
         keyTree.setShowRoot(false);
         keyTree.setCellFactory(param -> new KeyTreeCell());
@@ -90,12 +95,15 @@ public class RedisKeyBrowser extends SplitPane {
         VBox.setVgrow(keyTree, Priority.ALWAYS);
 
         keyTree.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (TreeViewState.isRestoring(keyTree)) return;
             if (newVal != null && newVal.getValue() != null) {
                 // 点击 "加载更多" 虚拟节点
                 if (newVal.getValue().startsWith(LOAD_MORE_MARKER)) {
                     loadNextPage();
                     return;
                 }
+                if (beforeKeySearch != null) beforeKeySearch = beforeKeySearch.withSelection(treeKey(newVal));
+                pendingTreeState = null; // An explicit selection takes precedence over a pending page restore.
                 if (newVal.isLeaf()) {
                     loadKeyValue(getFullKey(newVal));
                 }
@@ -175,6 +183,24 @@ public class RedisKeyBrowser extends SplitPane {
             }
         }
 
+        var config = connectionManager.getConfig();
+        List<Object> namespace = config == null ? Collections.emptyList() : Arrays.asList(
+                config.getId(), config.getHost(), config.getPort(), config.getDatabase(),
+                config.getClusterNodes(), config.getSentinelNodes(), config.getSentinelMaster());
+        if (Objects.equals(treeNamespace, namespace)) {
+            var current = pendingTreeState != null ? pendingTreeState : TreeViewState.capture(keyTree, this::treeKey);
+            if (!"*".equals(pattern) && beforeKeySearch == null) beforeKeySearch = current;
+            pendingTreeState = beforeKeySearch != null ? beforeKeySearch : current;
+            if ("*".equals(pattern)) beforeKeySearch = null;
+        } else {
+            pendingTreeState = null;
+            beforeKeySearch = null;
+            currentKey = null;
+            currentKeyType = null;
+            valueArea.clear();
+            keyInfoLabel.setText("");
+        }
+        treeNamespace = namespace;
         // 重置分页状态
         lastPattern = pattern;
         loadGeneration++;
@@ -188,6 +214,8 @@ public class RedisKeyBrowser extends SplitPane {
         // 创建新的根节点
         TreeItem<String> root = new TreeItem<>(I18N.get("label.keys_count", 0));
         root.setExpanded(true);
+        root.addEventHandler(TreeItem.<String>branchExpandedEvent(), e -> rememberExpansion(e.getTreeItem(), true));
+        root.addEventHandler(TreeItem.<String>branchCollapsedEvent(), e -> rememberExpansion(e.getTreeItem(), false));
         keyTree.setRoot(root);
 
         // 加载第一页
@@ -226,6 +254,8 @@ public class RedisKeyBrowser extends SplitPane {
                 // 更新根节点文字
                 String suffix = result.hasMore() ? "+" : "";
                 root.setValue(I18N.get("label.keys_count", totalLoaded) + suffix);
+                // Restore only keys in this SCAN page; never fetch pages merely to restore a selection.
+                if (pendingTreeState != null) pendingTreeState.restore(keyTree);
 
                 // 如果还有更多数据，追加 "加载更多" 虚拟节点
                 if (result.hasMore()) {
@@ -283,7 +313,20 @@ public class RedisKeyBrowser extends SplitPane {
         return String.join(":", parts);
     }
 
+    private String treeKey(TreeItem<String> item) {
+        if (item == keyTree.getRoot()) return "root";
+        if (item == loadMoreItem) return null;
+        String path = getFullKey(item);
+        return (nodeMap.get(path) == item ? "prefix:" : "key:") + path;
+    }
+
+    private void rememberExpansion(TreeItem<String> item, boolean expanded) {
+        if (!TreeViewState.isRestoring(keyTree) && pendingTreeState != null)
+            pendingTreeState = pendingTreeState.withExpansion(treeKey(item), expanded);
+    }
+
     private void loadKeyValue(String key) {
+        long generation = loadGeneration;
         this.currentKey = key;
         this.currentKeyType = null;
 
@@ -296,7 +339,7 @@ public class RedisKeyBrowser extends SplitPane {
             Object value = connectionManager.getValue(key);
 
             Platform.runLater(() -> {
-                if (disposed || !Objects.equals(currentKey, key)) return;
+                if (disposed || generation != loadGeneration || !Objects.equals(currentKey, key)) return;
                 if (info != null) {
                     currentKeyType = info.getType();
                     keyInfoLabel.setText(I18N.get("label.key_info_format",

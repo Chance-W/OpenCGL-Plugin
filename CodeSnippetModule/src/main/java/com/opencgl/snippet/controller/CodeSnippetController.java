@@ -50,6 +50,7 @@ public class CodeSnippetController extends CodeSnippetView implements Initializa
     
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        com.opencgl.base.utils.tree.TreeViewPresentation.install(languageTree);
         setupCodeArea();
         setupLanguageTree();
         setupLanguageComboBox();

@@ -29,11 +29,12 @@ public class HttpDebuggerView {
     @FXML public TextField urlField;
     @FXML public Button sendButton;
     @FXML public Button saveButton;
-    public Button codeButton; // New Field (Manual)
+    @FXML public Button codeButton;
+    @FXML public javafx.scene.layout.FlowPane requestActionsBar;
     
     // Environment UI (Manual)
-    public ComboBox<String> envComboBox;
-    public Button manageEnvButton;
+    @FXML public ComboBox<String> envComboBox;
+    @FXML public Button manageEnvButton;
 
     // 请求配置Tab
     @FXML public TabPane requestTabPane;
@@ -46,6 +47,9 @@ public class HttpDebuggerView {
     @FXML public Button paramsBulkEditBtn; // New
     @FXML public CustomTextArea paramsBulkEditor; // New
     @FXML public Button addParamButton;
+    @FXML public Button removeParamButton;
+    @FXML public Button removeHeaderButton;
+    @FXML public Button removeFormButton;
 
     // Headers表格
     @FXML public TableView<KeyValueEntry> headersTable;
@@ -128,4 +132,5 @@ public class HttpDebuggerView {
     // History 详情（单击历史记录，对齐 Dubbo 测试模块）
     @FXML public StackPane historyDetailPane;
     @FXML public CustomTextArea historyFullTextArea;
+    @FXML public Button restoreHistoryButton;
 }

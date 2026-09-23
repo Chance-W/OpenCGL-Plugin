@@ -85,6 +85,7 @@ public class DubboMockController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        com.opencgl.base.utils.tree.TreeViewPresentation.install(mockTreeView);
         log.info("DubboMockController initialized.");
         storeManager = new DubboMockStoreManager();
 

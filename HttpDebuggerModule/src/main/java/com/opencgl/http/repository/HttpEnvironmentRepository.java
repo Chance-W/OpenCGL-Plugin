@@ -19,5 +19,8 @@ public interface HttpEnvironmentRepository {
 
     void saveEnvironment(String envName, Map<String, String> variables);
 
+    /** Creates only; never replaces an existing environment. */
+    void createEnvironment(String envName, Map<String, String> variables);
+
     void deleteEnvironment(String envName);
 }

@@ -9,6 +9,58 @@ import java.util.concurrent.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class NewRedisKeyDialogTest {
+    @Test void keyRefreshPreservesLoadedStateButNotAcrossDatabases() throws Exception {
+        var config = new com.opencgl.redis.model.RedisWidgetDto(); config.setDatabase(0);
+        var scans = new java.util.concurrent.atomic.AtomicInteger();
+        var manager = new RedisConnectionManager() {
+            @Override public boolean isConnected() { return true; }
+            @Override public ScanKeysResult scanKeys(String p, String c, int index) {
+                scans.incrementAndGet();
+                return new ScanKeysResult(java.util.Set.of("a:key"), "0", false, 0);
+            }
+            @Override public com.opencgl.redis.model.RedisKeyInfo getKeyInfo(String key) { return null; }
+            @Override public Object getValue(String key) { return "value"; }
+        };
+        manager.setConfig(config);
+        var browser = new java.util.concurrent.atomic.AtomicReference<RedisKeyBrowser>();
+        var tree = new java.util.concurrent.atomic.AtomicReference<TreeView<String>>();
+        fx(() -> {
+            var view = new RedisKeyBrowser(manager); browser.set(view);
+            try {
+                var field = RedisKeyBrowser.class.getDeclaredField("keyTree"); field.setAccessible(true);
+                tree.set((TreeView<String>)field.get(view));
+            } catch (ReflectiveOperationException e) { throw new AssertionError(e); }
+            view.loadKeys("*");
+        });
+        try {
+            awaitKeys(tree.get());
+            fx(() -> {
+                var folder = tree.get().getRoot().getChildren().getFirst(); folder.setExpanded(true);
+                tree.get().getSelectionModel().select(folder.getChildren().getFirst());
+                browser.get().loadKeys("*");
+                browser.get().loadKeys("*"); // Both calls precede any queued FX completion.
+            });
+            awaitKeys(tree.get());
+            fx(() -> {
+                var folder = tree.get().getRoot().getChildren().getFirst();
+                assertTrue(folder.isExpanded());
+                assertSame(folder.getChildren().getFirst(), tree.get().getSelectionModel().getSelectedItem());
+                assertEquals(3, scans.get(), "State restoration must not start more SCANs");
+                config.setDatabase(1); browser.get().loadKeys("*");
+            });
+            awaitKeys(tree.get());
+            fx(() -> assertNull(tree.get().getSelectionModel().getSelectedItem()));
+        } finally { fx(() -> browser.get().dispose()); }
+    }
+    private static void awaitKeys(TreeView<String> tree) throws Exception {
+        for (int i = 0; i < 250; i++) {
+            var loaded = new java.util.concurrent.atomic.AtomicBoolean();
+            fx(() -> loaded.set(!tree.getRoot().getChildren().isEmpty()));
+            if (loaded.get()) return;
+            Thread.sleep(20);
+        }
+        fail("Key scan did not finish");
+    }
     @Test void editorsGrowIntoSpaceAboveButtons() throws Exception {
         fx(() -> {
             for (var type : java.util.List.of(KeyType.STRING, KeyType.LIST, KeyType.HASH, KeyType.STREAM)) {

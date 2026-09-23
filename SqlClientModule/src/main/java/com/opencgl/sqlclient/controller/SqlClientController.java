@@ -139,6 +139,8 @@ public class SqlClientController implements Initializable {
             .onSelect(this::onTreeNodeSelected)
             .build();
         
+        if (!treeContainer.getChildren().isEmpty())
+            com.opencgl.base.utils.tree.TreeViewState.transferCollections(treeContainer.getChildren().getFirst(), component);
         treeContainer.getChildren().clear();
         treeContainer.getChildren().add(component);
         VBox.setVgrow(component, Priority.ALWAYS);

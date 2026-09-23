@@ -48,6 +48,7 @@ public class GitLiteController extends GitLiteView implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        com.opencgl.base.utils.tree.TreeViewPresentation.install(commandsTree);
         setupGitignoreTab();
         setupCommitsTab();
         setupCheatsheetTab();

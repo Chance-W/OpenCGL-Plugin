@@ -73,6 +73,7 @@ public class HttpEnvironmentRepositoryImpl implements HttpEnvironmentRepository 
             }
         } catch (Exception e) {
             logger.error("Error listing env names", e);
+            throw new IllegalStateException("Failed to list HTTP environments", e);
         }
         return names;
     }
@@ -92,6 +93,7 @@ public class HttpEnvironmentRepositoryImpl implements HttpEnvironmentRepository 
             }
         } catch (Exception e) {
             logger.error("Error loading vars for env: " + envName, e);
+            throw new IllegalStateException("Failed to read HTTP environment", e);
         }
         return out;
     }
@@ -114,13 +116,62 @@ public class HttpEnvironmentRepositoryImpl implements HttpEnvironmentRepository 
     }
 
     @Override
+    public void createEnvironment(String envName, Map<String, String> variables) {
+        try (Connection conn = DriverManager.getConnection(JDBC_URL)) {
+            conn.setAutoCommit(false);
+            try {
+                try (var ps = conn.prepareStatement("INSERT INTO http_environment(env_name) VALUES(?)")) {
+                    ps.setString(1, envName);
+                    ps.executeUpdate();
+                }
+                try (var ps = conn.prepareStatement("INSERT INTO http_environment_var(env_name,var_key,var_value) VALUES(?,?,?)")) {
+                    for (var entry : variables.entrySet()) {
+                        ps.setString(1, envName);
+                        ps.setString(2, entry.getKey());
+                        ps.setString(3, entry.getValue());
+                        ps.addBatch();
+                    }
+                    ps.executeBatch();
+                }
+                conn.commit();
+            } catch (Exception failure) {
+                conn.rollback();
+                throw failure;
+            }
+        } catch (Exception failure) {
+            throw new IllegalStateException("Failed to create HTTP environment", failure);
+        }
+    }
+
+    @Override
     public void deleteEnvironment(String envName) {
         if (envName == null || envName.trim().isEmpty()) return;
-        try {
-            SqliteUtil.update("DELETE FROM http_environment_var WHERE env_name = ?", envName);
-            SqliteUtil.update("DELETE FROM http_environment WHERE env_name = ?", envName);
+        try (Connection conn = DriverManager.getConnection(JDBC_URL)) {
+            conn.setAutoCommit(false);
+            try {
+                // Environment service may start before the request-table migration.
+                boolean hasAssociation = false;
+                try (var ps = conn.prepareStatement("PRAGMA table_info(http_tree_item)"); var rs = ps.executeQuery()) {
+                    while (rs.next()) hasAssociation |= "environment_name".equals(rs.getString("name"));
+                }
+                if (hasAssociation) {
+                    try (var ps = conn.prepareStatement("UPDATE http_tree_item SET environment_name=NULL WHERE environment_name=?")) {
+                        ps.setString(1, envName); ps.executeUpdate();
+                    }
+                }
+                for (String table : List.of("http_environment_var", "http_environment")) {
+                    try (var ps = conn.prepareStatement("DELETE FROM " + table + " WHERE env_name=?")) {
+                        ps.setString(1, envName); ps.executeUpdate();
+                    }
+                }
+                conn.commit();
+            } catch (Exception e) {
+                conn.rollback();
+                throw e;
+            }
         } catch (Exception e) {
             logger.error("Error deleting env: " + envName, e);
+            throw new IllegalStateException("Failed to delete HTTP environment", e);
         }
     }
 }

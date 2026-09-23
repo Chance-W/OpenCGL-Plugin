@@ -1,50 +1,42 @@
-/* HTTP Debugger样式 */
-
-.root {
-    -fx-background-color: white;
-}
-
-.primary-button {
-    -fx-background-color: #4CAF50;
-    -fx-text-fill: white;
+/* Opt-in HTTP rules only; colors come from the host theme. */
+.http-debugger-root .primary-button {
+    -fx-background-color: -theme-accent;
+    -fx-text-fill: -theme-text-inverse;
     -fx-font-weight: bold;
     -fx-cursor: hand;
 }
 
-.primary-button:hover {
-    -fx-background-color: #45a049;
-}
-
-.code-area {
-    -fx-background-color: #f5f5f5;
-    -fx-font-family: "Consolas", "Monaco", "Courier New", monospace;
-    -fx-font-size: 12px;
-}
-
-.code-area .text {
-    -fx-fill: #333;
+.http-debugger-root .button:proxy-enabled {
+    -fx-border-color: -theme-accent;
+    -fx-text-fill: -theme-accent;
 }
 
 /* 响应状态栏不同状态的颜色 */
-.status-success {
-    -fx-text-fill: #4CAF50;
+.http-debugger-root .status-success {
+    -fx-text-fill: -theme-success;
     -fx-font-weight: bold;
 }
 
-.status-error {
-    -fx-text-fill: #f44336;
+.http-debugger-root .status-error {
+    -fx-text-fill: -theme-danger;
     -fx-font-weight: bold;
 }
 
-.status-warning {
-    -fx-text-fill: #ff9800;
+.http-debugger-root .status-warning {
+    -fx-text-fill: -theme-warning;
     -fx-font-weight: bold;
 }
 
-.table-view {
-    -fx-border-color: #ddd;
+.http-debugger-root .table-view {
+    -fx-border-color: -theme-border;
+    /* Reserve room for the inline editor border before editing starts. */
+    -fx-fixed-cell-size: 2.5em;
 }
 
-.tab-pane {
-    -fx-border-color: #ddd;
+.http-debugger-root .table-cell .text-field {
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+    -fx-border-width: 1;
+    -fx-border-color: -theme-accent;
+    -fx-text-fill: -theme-text-primary;
 }

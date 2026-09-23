@@ -18,5 +18,6 @@ public interface HttpTreeItemRepository {
     void deleteById(Long id);
     void deleteWithChildren(Long id);
     void updateSortOrder(Long id, Integer sortOrder);
+    void updateEnvironment(Long id, String environmentName);
     void initializeDatabase();
 }

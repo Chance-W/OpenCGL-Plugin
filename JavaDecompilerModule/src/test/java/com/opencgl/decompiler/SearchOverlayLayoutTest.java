@@ -28,6 +28,19 @@ class SearchOverlayLayoutTest {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/opencgl/decompiler/views/DecompilerView.fxml"), I18N.getBundle(I18N.getLocale()));
                 StackPane root = loader.load();
                 controller = loader.getController();
+                // Selecting another search result must survive clearing the projection.
+                var treeRoot = new javafx.scene.control.TreeItem<>(new ClassNode("root", "root", false, true));
+                var a = new javafx.scene.control.TreeItem<>(new ClassNode("A", "A", false, true));
+                var b = new javafx.scene.control.TreeItem<>(new ClassNode("B", "B", false, true));
+                treeRoot.getChildren().addAll(a, b); treeRoot.setExpanded(true);
+                var fullRoot = DecompilerController.class.getDeclaredField("fullTreeRoot");
+                fullRoot.setAccessible(true); fullRoot.set(controller, treeRoot);
+                controller.fileTreeView.setRoot(treeRoot);
+                controller.fileTreeView.getSelectionModel().select(a);
+                controller.searchField.setText("B");
+                controller.fileTreeView.getSelectionModel().select(controller.fileTreeView.getRoot().getChildren().getFirst());
+                controller.searchField.clear();
+                assertSame(b, controller.fileTreeView.getSelectionModel().getSelectedItem());
                 Scene scene = new Scene(root, 1200, 700);
                 for (String stylesheet : new String[]{"MFXColors.css", "themes/ThemeTokens-dark.css", "themes/ThemeColors-dark.css", "themes/Accent-teal.css", "GlobalComponents.css"}) {
                     scene.getStylesheets().add(getClass().getResource("/com/opencgl/base/css/" + stylesheet).toExternalForm());

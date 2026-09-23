@@ -34,6 +34,7 @@ public class FourTreeViewUtil {
         TreeItem<String> rootTreeItem = new TreeItem<>("WS-Project列表");
         rootTreeItem.setExpanded(true);
         TreeView<String> treeView = new TreeView<>(rootTreeItem);
+        com.opencgl.base.utils.tree.TreeViewPresentation.install(treeView);
         List<FourTreeLevel> fourTreeLevels = new ArrayList<>();
         for (LevelDto testLevelDto : testLevelDtos) {
             fourTreeLevels.add(new FourTreeLevel(testLevelDto.getFourthLevel(), testLevelDto.getThirdLevel(), testLevelDto.getSecondLevel(), testLevelDto.getFirstLevel()));

@@ -47,6 +47,7 @@ public class HttpTreeItemRepositoryImpl implements HttpTreeItemRepository {
                     "is_leaf BOOLEAN DEFAULT 0," +
                     "sort_order INTEGER DEFAULT 0," +
                     "node_type VARCHAR(50) NOT NULL," +
+                    "environment_name VARCHAR(200)," +
                     "icon_name VARCHAR(50)," +
                     "description TEXT," +
                     "method VARCHAR(20)," +
@@ -73,6 +74,7 @@ public class HttpTreeItemRepositoryImpl implements HttpTreeItemRepository {
 
             // Migration: add columns only if they do not exist (idempotent for duplicate column)
             Set<String> existing = getExistingColumns("http_tree_item");
+            addColumnIfNotExists(existing, "environment_name", "ALTER TABLE http_tree_item ADD COLUMN environment_name VARCHAR(200)");
             addColumnIfNotExists(existing, "ssl_verification", "ALTER TABLE http_tree_item ADD COLUMN ssl_verification BOOLEAN");
             addColumnIfNotExists(existing, "follow_redirects", "ALTER TABLE http_tree_item ADD COLUMN follow_redirects BOOLEAN");
             addColumnIfNotExists(existing, "client_cert_path", "ALTER TABLE http_tree_item ADD COLUMN client_cert_path VARCHAR(500)");
@@ -172,9 +174,15 @@ public class HttpTreeItemRepositoryImpl implements HttpTreeItemRepository {
         long parentId = rs.getLong("parent_id");
         item.setParentId(rs.wasNull() ? null : parentId);
         item.setName(rs.getString("name"));
-        item.setIsLeaf(rs.getBoolean("is_leaf"));
+        // SqliteUtil writes Boolean parameters as text. SQLite getBoolean reads
+        // text "true" as zero; preserve both legacy text and numeric encodings.
+        Object leaf = rs.getObject("is_leaf");
+        item.setIsLeaf(leaf == null ? null : leaf instanceof Number number
+                ? number.intValue() != 0
+                : "true".equalsIgnoreCase(leaf.toString().trim()) || "1".equals(leaf.toString().trim()));
         item.setSortOrder(rs.getInt("sort_order"));
         item.setNodeType(rs.getString("node_type"));
+        item.setEnvironmentName(rs.getString("environment_name"));
         item.setIconName(rs.getString("icon_name"));
         item.setDescription(rs.getString("description"));
         item.setMethod(rs.getString("method"));
@@ -228,21 +236,29 @@ public class HttpTreeItemRepositoryImpl implements HttpTreeItemRepository {
     }
     
     private HttpTreeItem update(HttpTreeItem item) {
+        // Environment selection is persisted separately: stale tree DTOs must not
+        // restore an association cleared when an environment was deleted.
         String sql = "UPDATE http_tree_item SET parent_id=?, name=?, is_leaf=?, sort_order=?, node_type=?, icon_name=?, description=?, " +
                 "method=?, url=?, headers=?, params=?, body=?, body_type=?, auth_config=?, hook_script=?, timeout=?, ssl_verification=?, follow_redirects=?, " +
                 "client_cert_path=?, client_cert_pass=?, server_cert_path=?, server_cert_pass=?, " +
                 "updated_at=CURRENT_TIMESTAMP WHERE id=?";
         
-        try {
-            SqliteUtil.update(sql,
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + Base.DB_PATH + "data.db");
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            Object[] values = {
                 item.getParentId(), item.getName(), item.getIsLeaf(), item.getSortOrder(), item.getNodeType(), item.getIconName(), item.getDescription(),
                 item.getMethod(), item.getUrl(), item.getHeaders(), item.getParams(), item.getBody(), item.getBodyType(),
                 item.getAuthConfig(), item.getHookScript(), item.getTimeout(), item.getSslVerification(), item.getFollowRedirects(),
                 item.getClientCertPath(), item.getClientCertPass(), item.getServerCertPath(), item.getServerCertPass(),
                 item.getId()
-            );
+            };
+            for (int i = 0; i < values.length; i++) ps.setObject(i + 1, values[i]);
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("HTTP request no longer exists: " + item.getId());
+            }
         } catch (Exception e) {
             logger.error("Error updating item", e);
+            throw new IllegalStateException("Failed to persist HTTP request", e);
         }
         return item;
     }
@@ -250,6 +266,22 @@ public class HttpTreeItemRepositoryImpl implements HttpTreeItemRepository {
     public void saveAll(List<HttpTreeItem> items) {
         for (HttpTreeItem item : items) {
             save(item);
+        }
+    }
+
+    @Override
+    public void updateEnvironment(Long id, String environmentName) {
+        String sql = "UPDATE http_tree_item SET environment_name=?, updated_at=CURRENT_TIMESTAMP " +
+                "WHERE id=? AND (? IS NULL OR EXISTS (SELECT 1 FROM http_environment WHERE env_name=?))";
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + Base.DB_PATH + "data.db");
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, environmentName);
+            ps.setObject(2, id);
+            ps.setString(3, environmentName);
+            ps.setString(4, environmentName);
+            if (ps.executeUpdate() != 1) throw new IllegalStateException("Request or environment no longer exists");
+        } catch (SQLException e) {
+            throw new IllegalStateException("Failed to save request environment", e);
         }
     }
     

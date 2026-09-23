@@ -11,6 +11,7 @@ import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.EventHandler;
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Side;
 import javafx.scene.Node;
@@ -69,9 +70,14 @@ public class TreeViewBuilder<T extends BaseDataDto> {
     private TreeMenuFactory<T> menuFactory;
 
     // 内部状态
-    private CustomizeTreeItem<T> rootItem;
+    private TreeItem<T> rootItem;
     private TreeView<T> builtTreeView;
     private T lastSelectedData;
+    private boolean rebuilding;
+    private TreeViewState<T, Long> beforeSearch;
+    private Set<Long> visibleIds = new HashSet<>();
+    private String activeFilter = "";
+    private Label searchStatus;
 
     public TreeViewBuilder() {
     }
@@ -196,13 +202,18 @@ public class TreeViewBuilder<T extends BaseDataDto> {
             rootData.setParentId(-1L);
             rootData.setIsLeaf(false);
 
-            this.rootItem = new CustomizeTreeItem<>(rootData);
-            this.rootItem.nameBindingProperty().bind(BaseI18N.getBinding("opencgl.base.tree.firstLevel.name"));
+            CustomizeTreeItem<T> initialRoot = new CustomizeTreeItem<>(rootData);
+            initialRoot.nameBindingProperty().bind(BaseI18N.getBinding("opencgl.base.tree.firstLevel.name"));
+            this.rootItem = initialRoot;
             this.rootItem.setExpanded(rootExpanded);
 
             // 2. 构建 TreeView
             TreeView<T> treeView = new TreeView<>(rootItem);
             this.builtTreeView = treeView;
+            treeView.rootProperty().addListener((o, old, replacement) -> {
+                this.rootItem = replacement;
+                this.beforeSearch = null;
+            });
             treeView.setShowRoot(showRoot);
             treeView.setEditable(editable);
             treeView.setFixedCellSize(cellHeight);
@@ -225,11 +236,13 @@ public class TreeViewBuilder<T extends BaseDataDto> {
             // String cellStyle, Function<T, ContextMenu> contextMenuFactory)
             treeView.setCellFactory(new TreeCellFactory<>(treeView, service, dataType, enableDragDrop, cellStyle,
                     this.contextMenuFactory));
+            TreeViewPresentation.install(treeView);
 
             // 选择事件
             treeView.getSelectionModel().selectedItemProperty().addListener((obs, old, newVal) -> {
-                if (newVal != null && newVal.getValue() != null) {
+                if (!rebuilding && !TreeViewState.isRestoring(treeView) && newVal != null && newVal.getValue() != null) {
                     this.lastSelectedData = newVal.getValue();
+                    if (beforeSearch != null) beforeSearch = beforeSearch.withSelection(newVal.getValue().getId());
                     if (onSelectCallback != null) {
                         onSelectCallback.accept(newVal.getValue());
                     }
@@ -255,6 +268,12 @@ public class TreeViewBuilder<T extends BaseDataDto> {
             // 5. 添加 TreeView 并设置 VGrow
             container.getChildren().add(treeView);
             VBox.setVgrow(treeView, Priority.ALWAYS); // 树自动填满剩余垂直空间
+            if (searchEnabled) {
+                searchStatus = new Label();
+                searchStatus.textProperty().bind(BaseI18N.getBinding("opencgl.base.tree.noMatches"));
+                searchStatus.setVisible(false); searchStatus.setManaged(false);
+                container.getChildren().add(searchStatus);
+            }
 
             logger.info("TreeView构建完成，共 {} 个节点", treeData != null ? treeData.size() : 0);
 
@@ -350,7 +369,6 @@ public class TreeViewBuilder<T extends BaseDataDto> {
                             }
 
                             // 2. Clear previous selection ensures only target is selected
-                            treeView.getSelectionModel().clearSelection();
                             treeView.getSelectionModel().select(targetItem);
 
                             // 3. Scroll
@@ -361,13 +379,7 @@ public class TreeViewBuilder<T extends BaseDataDto> {
                                 treeView.requestFocus();
                             }
 
-                            // 4. Trigger callback/display update
-                            if (onSelectCallback != null) {
-                                onSelectCallback.accept(targetItem.getValue());
-                            }
-                            if (Boolean.TRUE.equals(targetItem.getValue().getIsLeaf())) {
-                                service.changeToDisplay(targetItem.getValue());
-                            }
+                            // Selection listener is the only source of business callbacks.
                         } else {
                             logger.warn("Locate: Item {} not found", targetData.getId());
                         }
@@ -392,7 +404,7 @@ public class TreeViewBuilder<T extends BaseDataDto> {
     }
 
     private Button createIconBtn(String iconDescription, javafx.beans.binding.StringBinding tooltipBinding,
-            EventHandler<MouseEvent> handler) {
+            EventHandler<ActionEvent> handler) {
         Button btn = new Button();
         MFXFontIcon icon = new MFXFontIcon(iconDescription, 16);
         // icon color managed by CSS
@@ -408,7 +420,7 @@ public class TreeViewBuilder<T extends BaseDataDto> {
 
         // Interaction colors managed by CSS (:hover)
 
-        btn.setOnMouseClicked(handler);
+        btn.setOnAction(handler);
         return btn;
     }
 
@@ -477,32 +489,19 @@ public class TreeViewBuilder<T extends BaseDataDto> {
 
     // Helper to search tree item
     private TreeItem<T> findTreeItem(TreeItem<T> root, Long id) {
-        if (root.getValue() != null && Objects.equals(root.getValue().getId(), id))
-            return root;
-        for (TreeItem<T> child : root.getChildren()) {
-            TreeItem<T> found = findTreeItem(child, id);
-            if (found != null)
-                return found;
-        }
-        return null;
+        return TreeViewState.loadedItems(root).stream()
+                .filter(item -> item.getValue() != null && Objects.equals(item.getValue().getId(), id))
+                .findFirst().orElse(null);
     }
 
     private void collapseAllNodes(TreeItem<T> item) {
-        if (item != null && !item.isLeaf()) {
-            item.setExpanded(false);
-            for (TreeItem<T> child : item.getChildren()) {
-                collapseAllNodes(child);
-            }
-        }
+        TreeViewState.loadedItems(item).stream().filter(node -> !node.isLeaf())
+                .forEach(node -> node.setExpanded(false));
     }
 
     private void expandAllNodes(TreeItem<T> item) {
-        if (item != null && !item.isLeaf()) {
-            item.setExpanded(true);
-            for (TreeItem<T> child : item.getChildren()) {
-                expandAllNodes(child);
-            }
-        }
+        TreeViewState.loadedItems(item).stream().filter(node -> !node.isLeaf())
+                .forEach(node -> node.setExpanded(true));
     }
 
     private void setupSearchEvents(VBox container) {
@@ -533,89 +532,88 @@ public class TreeViewBuilder<T extends BaseDataDto> {
      * 执行树过滤（基于重构树结构）
      */
     private void filterTree(String keyword) {
-        // Same logic as before
         if (builtTreeView == null || rootItem == null)
             return;
-
-        // 清空当前树节点（保留 root）
-        rootItem.getChildren().clear();
-
-        if (keyword == null || keyword.trim().isEmpty()) {
-            // 搜索为空，重建完整树
-            buildTreeStructure(this.treeData, rootItem);
-            if (rootExpanded)
-                rootItem.setExpanded(true);
-            if (expandAll)
-                expandAllNodes(rootItem);
+        boolean clear = keyword == null || keyword.isBlank();
+        activeFilter = clear ? "" : keyword;
+        var currentState = TreeViewState.capture(builtTreeView,
+                item -> item.getValue() == null ? null : item.getValue().getId());
+        List<T> current = TreeViewState.loadedItems(rootItem).stream().filter(i -> i != rootItem)
+                .map(TreeItem::getValue).filter(Objects::nonNull).toList();
+        if (beforeSearch == null) {
+            if (clear) return;
+            beforeSearch = currentState;
+            treeData = new ArrayList<>(current);
         } else {
-            // 执行带过滤的重建
-            String lowerKeyword = keyword.toLowerCase().trim();
-            Set<Long> matchedIds = new HashSet<>();
-            Map<Long, T> dataMap = new HashMap<>(); // Prefer HashMap if not stream collecting directly
-            if (treeData != null) {
-                dataMap = treeData.stream().collect(Collectors.toMap(T::getId, t -> t));
+            // Reconcile menu additions/deletions made in the projection without losing hidden siblings.
+            Map<Long, T> all = new LinkedHashMap<>();
+            treeData.forEach(item -> all.put(item.getId(), item));
+            Set<Long> removed = new HashSet<>(visibleIds);
+            current.forEach(item -> removed.remove(item.getId()));
+            boolean changed;
+            do {
+                changed = false;
+                for (T item : all.values())
+                    if (removed.contains(item.getParentId())) changed |= removed.add(item.getId());
+            } while (changed);
+            removed.forEach(all::remove);
+            current.forEach(item -> all.put(item.getId(), item));
+            treeData = new ArrayList<>(all.values());
+        }
+        List<T> filtered = clear ? treeData : TreeDataFilter.filter(treeData, keyword);
+        rebuilding = true;
+        try {
+            builtTreeView.getSelectionModel().clearSelection();
+            rootItem.getChildren().clear();
+            buildTreeStructure(filtered, rootItem);
+            if (clear) {
+                beforeSearch.restore(builtTreeView);
+                beforeSearch = null;
+            } else {
+                expandAllNodes(rootItem);
+                currentState.restoreSelection(builtTreeView);
             }
-
-            // 1. 找出所有名称匹配的节点
-            if (treeData != null) {
-                for (T item : treeData) {
-                    if (item.getName() != null && item.getName().toLowerCase().contains(lowerKeyword)) {
-                        // 标记当前节点
-                        matchedIds.add(item.getId());
-                        // 标记所有父级（保证路径可见）
-                        markParents(item, dataMap, matchedIds);
-                        // 标记所有子级（保证文件夹内容可见）
-                        markChildren(item, treeData, matchedIds);
-                    }
-                }
+            visibleIds = filtered.stream().map(T::getId).collect(Collectors.toSet());
+            if (searchStatus != null) {
+                searchStatus.setVisible(!clear && filtered.isEmpty());
+                searchStatus.setManaged(searchStatus.isVisible());
             }
-
-            // 2. 过滤数据
-            List<T> filteredData = new ArrayList<>();
-            if (treeData != null) {
-                filteredData = treeData.stream()
-                        .filter(item -> matchedIds.contains(item.getId()))
-                        .collect(Collectors.toList());
-            }
-
-            // 3. 重建树
-            buildTreeStructure(filteredData, rootItem);
-
-            // 4. 展开所有可见节点以便查看结果
-            expandAllNodes(rootItem);
+        } finally {
+            rebuilding = false;
         }
     }
 
-    // 递归标记父节点
-    private void markParents(T item, Map<Long, T> dataMap, Set<Long> matchedIds) {
-        Long parentId = item.getParentId();
-        if (parentId != null && parentId != 0) {
-            if (matchedIds.add(parentId)) { // 如果父节点未被添加过，则继续递归
-                T parent = dataMap.get(parentId);
-                if (parent != null) {
-                    markParents(parent, dataMap, matchedIds);
-                }
-            }
-        }
+    /** Applies the shared local search semantics to an external search field. */
+    public void search(String keyword) {
+        filterTree(keyword);
     }
 
-    // 递归标记子节点
-    private void markChildren(T parent, List<T> allData, Set<Long> matchedIds) {
-        for (T item : allData) {
-            if (Objects.equals(item.getParentId(), parent.getId())) {
-                if (matchedIds.add(item.getId())) { // 如果子节点未被添加过
-                    markChildren(item, allData, matchedIds);
-                }
-            }
-        }
+    /** Reloads a DTO collection, preserving view state without triggering a business selection. FX thread only. */
+    public void refresh() {
+        if (builtTreeView == null || rootItem == null) return;
+        List<T> fresh = service.queryAll();
+        var state = beforeSearch != null ? beforeSearch : TreeViewState.capture(builtTreeView,
+                item -> item.getValue() == null ? null : item.getValue().getId());
+        String query = activeFilter;
+        rebuilding = true;
+        try {
+            builtTreeView.getSelectionModel().clearSelection();
+            rootItem.getChildren().clear();
+            treeData = fresh == null ? new ArrayList<>() : new ArrayList<>(fresh);
+            buildTreeStructure(treeData, rootItem);
+            state.restore(builtTreeView);
+            beforeSearch = null;
+        } finally { rebuilding = false; }
+        filterTree(query);
     }
 
     // 构建树形结构的核心逻辑
-    private void buildTreeStructure(List<T> data, CustomizeTreeItem<T> root) {
+    private void buildTreeStructure(List<T> data, TreeItem<T> root) {
         if (data == null)
             return;
         // 按sortOrder排序
         List<T> sortedData = data.stream()
+                .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(
                         d -> d.getSortOrder() != null ? d.getSortOrder() : Integer.MAX_VALUE))
                 .collect(Collectors.toList());
@@ -623,12 +621,16 @@ public class TreeViewBuilder<T extends BaseDataDto> {
         // 构建 item 映射
         Map<Long, CustomizeTreeItem<T>> itemMap = new LinkedHashMap<>();
         for (T item : sortedData) {
+            if (item.getId() == null || item.getId() == 0 || itemMap.containsKey(item.getId())) {
+                logger.warn("Ignoring invalid or duplicate tree id: {}", item.getId());
+                continue;
+            }
             itemMap.put(item.getId(), new CustomizeTreeItem<>(item));
         }
 
         // 组装父子关系
-        for (T item : sortedData) {
-            CustomizeTreeItem<T> treeItem = itemMap.get(item.getId());
+        for (CustomizeTreeItem<T> treeItem : itemMap.values()) {
+            T item = treeItem.getValue();
             Long parentId = item.getParentId();
 
             if (parentId == null || parentId == 0) {
@@ -636,9 +638,14 @@ public class TreeViewBuilder<T extends BaseDataDto> {
             } else {
                 CustomizeTreeItem<T> parentItem = itemMap.get(parentId);
                 // Prevent circular reference (self-parenting)
-                if (parentItem != null && parentItem != treeItem) {
+                boolean cycle = false;
+                for (TreeItem<T> ancestor = parentItem; ancestor != null; ancestor = ancestor.getParent()) {
+                    if (ancestor == treeItem) { cycle = true; break; }
+                }
+                if (parentItem != null && !cycle && !Boolean.TRUE.equals(parentItem.getValue().getIsLeaf())) {
                     parentItem.getChildren().add(treeItem);
                 } else {
+                    logger.warn("Invalid parent {} for tree item {}; displaying under root", parentId, item.getId());
                     root.getChildren().add(treeItem);
                 }
             }

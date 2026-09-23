@@ -28,10 +28,15 @@
                     <Label fx:id="envListLabel" style="-fx-font-weight: bold" text="%dialog.env.list.title"/>
                     <ListView fx:id="envList" VBox.vgrow="ALWAYS"/>
                     <HBox spacing="10">
-                        <Button fx:id="newButton" maxWidth="Infinity" styleClass="secondary-button"
+                        <Button fx:id="newButton" maxWidth="Infinity" prefWidth="80" minWidth="80" styleClass="secondary-button"
                                 text="%dialog.env.button.new" HBox.hgrow="ALWAYS"/>
-                        <Button fx:id="deleteButton" maxWidth="Infinity" styleClass="secondary-button"
+                        <Button fx:id="deleteButton" maxWidth="Infinity" prefWidth="80" minWidth="80" styleClass="secondary-button"
                                 text="%dialog.env.button.delete" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                    <HBox spacing="10">
+                        <Button fx:id="copyEnvButton" maxWidth="Infinity" prefWidth="80" minWidth="80" HBox.hgrow="ALWAYS" styleClass="secondary-button" text="%dialog.env.button.copy"/>
+                        <Button fx:id="exportEnvButton" maxWidth="Infinity" prefWidth="80" minWidth="80" HBox.hgrow="ALWAYS" styleClass="secondary-button" text="%dialog.env.button.export"/>
+                        <Button fx:id="importEnvButton" maxWidth="Infinity" prefWidth="80" minWidth="80" HBox.hgrow="ALWAYS" styleClass="secondary-button" text="%dialog.env.button.import"/>
                     </HBox>
                 </VBox>
 

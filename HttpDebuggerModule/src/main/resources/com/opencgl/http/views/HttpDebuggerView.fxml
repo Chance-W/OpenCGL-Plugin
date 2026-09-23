@@ -5,6 +5,7 @@
 <?import io.github.palexdev.materialfx.controls.MFXScrollPane?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import io.github.palexdev.mfxresources.fonts.MFXFontIcon?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
@@ -24,7 +25,10 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.control.ScrollPane?>
 <StackPane fx:id="mainStackPane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+           styleClass="http-debugger-root" stylesheets="@../styles/http-debugger.css"
            fx:controller="com.opencgl.http.controller.HttpDebuggerController">
     <fx:define>
         <ToggleGroup fx:id="bodyTypeGroup"/>
@@ -40,25 +44,39 @@
         <!-- 请求面板 -->
         <SplitPane fx:id="requestPanel" orientation="VERTICAL" visible="false" dividerPositions="0.6">
             <!-- Top: Request Config -->
-            <VBox spacing="10">
+            <VBox spacing="8" minHeight="180" minWidth="0">
                 <padding>
                     <Insets top="10" right="10" bottom="10" left="10"/>
                 </padding>
 
                 <!-- 1. 请求行 -->
-                <HBox spacing="10" alignment="CENTER_LEFT">
-                    <ComboBox fx:id="methodComboBox" prefWidth="100"/>
-                    <TextField fx:id="urlField" HBox.hgrow="ALWAYS" promptText="%label.url_prompt"/>
-                    <Button fx:id="sendButton" text="%button.send" styleClass="primary-button" prefWidth="80"/>
-                    <Button fx:id="saveButton" text="%button.save" prefWidth="80"/>
-                    <Button fx:id="proxyButton" text="%button.proxy" prefWidth="60"/>
-                    <Button fx:id="importButton" text="%button.import" prefWidth="70"/>
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <ComboBox fx:id="methodComboBox" prefWidth="100" minWidth="90"/>
+                    <TextField fx:id="urlField" minWidth="0" HBox.hgrow="ALWAYS" promptText="%label.url_prompt"/>
+                    <Button fx:id="sendButton" text="%button.send" styleClass="primary-button" prefWidth="80" minWidth="80"/>
                 </HBox>
-
-                <Label text="%label.request_config" style="-fx-font-weight: bold;"/>
+                <FlowPane fx:id="requestActionsBar" hgap="8" vgap="8" minWidth="0">
+                    <ComboBox fx:id="envComboBox" prefWidth="130"/>
+                    <Button fx:id="manageEnvButton" styleClass="icon-button">
+                        <graphic><MFXFontIcon description="fas-gear" size="14.0"/></graphic>
+                        <tooltip><Tooltip text="%button.manage_env"/></tooltip>
+                    </Button>
+                    <Button fx:id="codeButton" text="%button.code" styleClass="secondary-button">
+                        <graphic><MFXFontIcon description="fas-code" size="14.0"/></graphic>
+                    </Button>
+                    <Button fx:id="proxyButton" text="%button.proxy" styleClass="secondary-button">
+                        <graphic><MFXFontIcon description="fas-network-wired" size="14.0"/></graphic>
+                    </Button>
+                    <Button fx:id="importButton" text="%button.import" styleClass="secondary-button">
+                        <graphic><MFXFontIcon description="fas-file-import" size="14.0"/></graphic>
+                    </Button>
+                    <Button fx:id="saveButton" text="%button.save" styleClass="secondary-button">
+                        <graphic><MFXFontIcon description="fas-floppy-disk" size="14.0"/></graphic>
+                    </Button>
+                </FlowPane>
 
                 <!-- 2. 请求配置区 -->
-                <TabPane fx:id="requestTabPane" VBox.vgrow="ALWAYS" minHeight="200">
+                <TabPane fx:id="requestTabPane" VBox.vgrow="ALWAYS" minHeight="90" minWidth="0">
                     <!-- Params -->
                     <Tab text="%tab.params" closable="false">
                         <VBox spacing="5">
@@ -66,6 +84,7 @@
                                 <Button fx:id="paramsBulkEditBtn" text="%button.bulk_edit"
                                         styleClass="secondary-button"/>
                                 <Button fx:id="addParamButton" text="%button.add_param"/>
+                                <Button fx:id="removeParamButton" text="%button.remove_selected"/>
                             </HBox>
                             <StackPane VBox.vgrow="ALWAYS">
                                 <TableView fx:id="paramsTable" editable="true">
@@ -86,6 +105,7 @@
                         <VBox spacing="5">
                             <HBox spacing="5" alignment="CENTER_RIGHT">
                                 <Button fx:id="addHeaderButton" text="%button.add_header"/>
+                                <Button fx:id="removeHeaderButton" text="%button.remove_selected"/>
                             </HBox>
                             <TableView fx:id="headersTable" VBox.vgrow="ALWAYS" editable="true">
                                 <columns>
@@ -100,7 +120,7 @@
                     <!-- Body -->
                     <Tab text="%tab.body" closable="false">
                         <VBox spacing="10">
-                            <HBox spacing="10" alignment="CENTER_LEFT">
+                            <FlowPane hgap="10" vgap="6" minWidth="0">
                                 <RadioButton fx:id="bodyNoneRadio" text="%radio.none" toggleGroup="$bodyTypeGroup"
                                              selected="true"/>
                                 <RadioButton fx:id="bodyJsonRadio" text="%radio.json" toggleGroup="$bodyTypeGroup"/>
@@ -108,7 +128,6 @@
                                 <RadioButton fx:id="bodyRawRadio" text="%radio.raw" toggleGroup="$bodyTypeGroup"/>
                                 <RadioButton fx:id="bodyXmlRadio" text="%radio.xml" toggleGroup="$bodyTypeGroup"/>
                                 <!-- Spacer -->
-                                <Region HBox.hgrow="ALWAYS"/>
                                 <!-- Formatting buttons -->
                                 <HBox fx:id="bodyFormatToolbar" spacing="5" alignment="CENTER_RIGHT">
                                     <!--                                    <Button fx:id="formatBodyButton" text="%button.format" styleClass="secondary-button">-->
@@ -121,7 +140,7 @@
                                         </tooltip>
                                     </Button>
                                 </HBox>
-                            </HBox>
+                            </FlowPane>
                             <!-- Body Content: Switch between CodeArea and TableView based on type -->
                             <StackPane fx:id="bodyContentPane" VBox.vgrow="ALWAYS">
                                 <!-- CustomTextArea for JSON/Raw/XML/None with wrap toggle -->
@@ -141,6 +160,7 @@
                                                 styleClass="secondary-button"/>
                                         <Button fx:id="addFormFieldButton" text="%button.add_form"
                                                 styleClass="secondary-button"/>
+                                        <Button fx:id="removeFormButton" text="%button.remove_selected"/>
                                     </HBox>
                                     <StackPane VBox.vgrow="ALWAYS">
                                         <TableView fx:id="bodyFormTable" editable="true">
@@ -161,6 +181,7 @@
 
                     <!-- Auth -->
                     <Tab text="%tab.auth" closable="false">
+                        <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
                         <VBox spacing="15" alignment="TOP_LEFT">
                             <padding>
                                 <Insets top="20" left="20" right="20"/>
@@ -172,6 +193,7 @@
                             <!-- Auth Content Container -->
                             <VBox fx:id="authContentPane" VBox.vgrow="ALWAYS" spacing="10"/>
                         </VBox>
+                        </ScrollPane>
                     </Tab>
 
                     <!-- Hook（与 Dubbo 模块一致：选择文件、编辑、测试、输出） -->
@@ -294,7 +316,7 @@
             </VBox>
 
             <!-- Bottom: Response Result -->
-            <VBox spacing="5">
+            <VBox spacing="5" minHeight="130" minWidth="0">
                 <padding>
                     <Insets top="10" right="10" bottom="10" left="10"/>
                 </padding>
@@ -311,7 +333,7 @@
                                 managed="false"/>
                     </HBox>
 
-                    <TabPane fx:id="responseTabPane" VBox.vgrow="ALWAYS">
+                    <TabPane fx:id="responseTabPane" VBox.vgrow="ALWAYS" minHeight="70" minWidth="0">
                         <Tab text="%tab.response_body" closable="false">
                             <StackPane>
                                 <VirtualizedScrollPane>
@@ -349,11 +371,16 @@
             <padding>
                 <Insets top="10" right="10" bottom="10" left="10"/>
             </padding>
-            <VirtualizedScrollPane>
+            <VBox spacing="8">
+            <HBox alignment="CENTER_RIGHT">
+                <Button fx:id="restoreHistoryButton" text="%button.restore_history" disable="true"/>
+            </HBox>
+            <VirtualizedScrollPane VBox.vgrow="ALWAYS">
                 <content>
-                    <CustomTextArea fx:id="historyFullTextArea" editable="true" styleClass="code-area"/>
+                    <CustomTextArea fx:id="historyFullTextArea" editable="false" styleClass="code-area"/>
                 </content>
             </VirtualizedScrollPane>
+            </VBox>
         </StackPane>
     </StackPane>
 
