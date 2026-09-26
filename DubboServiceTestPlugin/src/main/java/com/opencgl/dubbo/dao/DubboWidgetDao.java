@@ -30,7 +30,7 @@ public class DubboWidgetDao {
     private void checkTable() {
         try {
             if (!SqliteUtil.checkTableExist(DUBBO_TREE_ITEM_TABLE)) {
-                // 创建表，包含SORT_ORDER和HOOK_SCRIPT字段
+                // 新建表需包含完整字段，与下方旧表升级后的结构保持一致
                 SqliteUtil.update("CREATE TABLE " + DUBBO_TREE_ITEM_TABLE + " (" +
                     "ID INTEGER PRIMARY KEY AUTOINCREMENT," +
                     "PARENT_ID INTEGER," +
@@ -43,7 +43,20 @@ public class DubboWidgetDao {
                     "REQUEST_TYPE VARCHAR," +
                     "INPUTTEXT VARCHAR," +
                     "SORT_ORDER INTEGER DEFAULT 0," +
-                    "HOOK_SCRIPT VARCHAR" +
+                    "HOOK_SCRIPT VARCHAR," +
+                    "VERSION VARCHAR," +
+                    "ATTACHMENTS VARCHAR," +
+                    "TIMEOUT INTEGER," +
+                    "RETRIES INTEGER," +
+                    "D_GROUP VARCHAR," +
+                    "DUBBO_GROUP VARCHAR," +
+                    "TLS_ENABLE BOOLEAN," +
+                    "MUTUAL_AUTH BOOLEAN," +
+                    "CLIENT_CERT VARCHAR," +
+                    "CLIENT_KEY VARCHAR," +
+                    "KEY_PASSWORD VARCHAR," +
+                    "CA_CERT VARCHAR," +
+                    "PROVIDER_URL VARCHAR" +
                     ")");
                 logger.info("创建表 {} 成功", DUBBO_TREE_ITEM_TABLE);
             } else {
@@ -156,7 +169,13 @@ public class DubboWidgetDao {
                      "HOOK_SCRIPT VARCHAR," +
                      "INPUT_TEXT VARCHAR," +
                      "OUTPUT_TEXT VARCHAR," +
-                     "ATTACHMENTS VARCHAR" +
+                     "ATTACHMENTS VARCHAR," +
+                     "TLS_ENABLE BOOLEAN," +
+                     "CLIENT_CERT VARCHAR," +
+                     "CLIENT_KEY VARCHAR," +
+                     "KEY_PASSWORD VARCHAR," +
+                     "CA_CERT VARCHAR," +
+                     "PROVIDER_URL VARCHAR" +
                      ")");
                 logger.info("创建表 {} 成功", DUBBO_HISTORY_TABLE);
             } else {
